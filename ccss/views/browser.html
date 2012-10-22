@@ -1,4 +1,4 @@
-<div id="browser">
+<div id="browser" style="border: thick black solid;">
   <div id="categories">
     <ul>
       {{#categories}}
@@ -8,17 +8,13 @@
       {{/categories}}
     </ul>
   </div>
-  <div id="view-port">
+  <section id="view-port">
     <div id="toolbar">
       <!-- TODO search box -->
     </div>
     <div id="crumbs"></div>
     <div id="hierarchy"></div>
-  </div>
-  <div id="footer">
-the CCSS Browser runs on data provided by <a href="http://asn.jesandco.org/" target="_blank">Jes & Co</a> and <a href="http://www.learningregistry.org/" target="_blank">the Learning Registry</a>.<br /> <a href="https://github.com/navnorth/LRNodeJS" target="_blank">Code licensed</a> under Apache 2.0
-Copyright © 2012 <a href="http://navigationnorth.com" target="_blank">Navigation North Learning Solutions</a>
-</div>
+  </section>
 
 </div>    
 
@@ -41,7 +37,10 @@ Copyright © 2012 <a href="http://navigationnorth.com" target="_blank">Navigatio
     <option value="12">12</option>
   </select>
 </span>
-
+<footer>
+the CCSS Browser runs on data provided by <a href="http://asn.jesandco.org/" target="_blank">Jes & Co</a> and <a href="http://www.learningregistry.org/" target="_blank">the Learning Registry</a>.<br /> <a href="https://github.com/navnorth/LRNodeJS" target="_blank">Code licensed</a> under Apache 2.0
+Copyright © 2012 <a href="http://navigationnorth.com" target="_blank">Navigation North Learning Solutions</a>
+</footer>
 <script>
 
     head.ready(function() {

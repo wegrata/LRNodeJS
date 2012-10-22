@@ -15,7 +15,7 @@
 var express  = require('express');
 var mustache = require('mustache');
 var config   = require('config');
-
+const AUDIENCE = "http://localhost:1337";
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
         if (typeof source == 'string') {
@@ -57,17 +57,19 @@ app.configure(function(){
 });
 
 // routes
-
+app.get('/',routes.index);
 app.get('/standards/:category?', routes.standards);
 app.get('/browser', routes.browser);
+app.get('/visual', routes.visual);
 app.post('/nodes/', routes.nodes);
 app.get('/related', routes.related);
 app.get('/resources', routes.resources);
-
+app.post('/auth',routes.auth(AUDIENCE));
+app.post('/logout',routes.logout);
 // start
 
 app.configure('development', function(){
-    app.use(express.errorHandler({ dumpExceptions: true, showStack: true })); 
+    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
     app.listen(1337);
 });
 

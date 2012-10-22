@@ -17,10 +17,12 @@
 	<link rel="stylesheet" href="/stylesheets/site.css">
 
 	<script src="/javascripts/head.min.js"></script>
-
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css" />
+	<script src='//code.jquery.com/jquery-1.8.2.js'></script>
+	<script src="//code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+	<script src="https://login.persona.org/include.js"></script>
 	<script>
 	  head.js('/javascripts/libs/modernizr-2.0.6.min.js',
-	          '//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js',
 	          '/javascripts/libs/jquery.ba-hashchange.min.js.txt',
 	          '/javascripts/libs/jquery.cookie.js',
 	          '/javascripts/libs/jquery.simplemodal.1.4.2.min.js',
@@ -31,7 +33,12 @@
 
 </head>
 <body>
-
+<header>
+	<form action="/auth", method="POST">
+		<input type="hidden" name="assertion" id="assertion-field" value=""/>
+	</form>
+	<a id="browserid" href="/auth">Sign In</a>
+</header>
   {{>body}}
 
 <!--[if lt IE 7 ]>

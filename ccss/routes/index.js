@@ -11,7 +11,8 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 // License for the specific language governing permissions and limitations under
 // the License.
-
+var https = require('https'),
+    qs = require('qs');
 var couchdb = require('couchdb-api');
 var config  = require('config');
 var r       = require('request');
@@ -27,7 +28,7 @@ var standardsView  = standardsDb.ddoc('nodes').view('standards');
 
 // route to display nodes hierarchically
 //   set body.category + body.standard for standard's child nodes
-//   OR body.parent for child nodes of parent 
+//   OR body.parent for child nodes of parent
 //   cookies.grade-filter determines grade of nodes to load
 //     defaults to K/Kindergarten
 exports.nodes = function( request, response, next ) {
@@ -36,10 +37,10 @@ exports.nodes = function( request, response, next ) {
     var parent   = request.body.parent             || null;
     var grade    = request.cookies['grade-filter'] || 'K';
 
-    if ((!category && !standard && !parent)
-	|| (category && !standard)
-	|| (!category && standard)) {
-	return next(new Error('Must provide cateogry + standard or parent'));
+    if ((!category && !standard && !parent) ||
+    (category && !standard) ||
+    (!category && standard)) {
+    return next(new Error('Must provide cateogry + standard or parent'));
     }
 
     if (category) category = unescape(category);
@@ -47,39 +48,39 @@ exports.nodes = function( request, response, next ) {
     if (parent)   parent   = unescape(parent);
     
     var nodesParams = {
-	include_docs: true
+    include_docs: true
     };
 
     var nodesFinished = function(err, result) {
-	if (err) return next(err);
+    if (err) return next(err);
 
-	var docs = result.rows.map( function(n) { return n.value; } );
+    var docs = result.rows.map( function(n) { return n.value; } );
 
-	var viewOptions = {};
-	viewOptions.layout = false;
-	viewOptions.locals = {};
-	viewOptions.locals.nodes = docs;
+    var viewOptions = {};
+    viewOptions.layout = false;
+    viewOptions.locals = {};
+    viewOptions.locals.nodes = docs;
 
-	response.render('nodes.html', viewOptions);
+    response.render('nodes.html', viewOptions);
     };
 
     var standardsParams;
 
     if (standard) {
-	standardsParams = {
-	    include_docs: true,
-	    startkey: [ category, standard ],
-	    endkey: [ category, standard ]
-	};
+    standardsParams = {
+        include_docs: true,
+        startkey: [ category, standard ],
+        endkey: [ category, standard ]
+    };
 
-	standardsView.query(standardsParams, function (err, result) {
-	    nodesParams.startkey = nodesParams.endkey = [ result.rows[0].value, grade ];
-	    nodesView.query(nodesParams, nodesFinished);
-	});
+    standardsView.query(standardsParams, function (err, result) {
+        nodesParams.startkey = nodesParams.endkey = [ result.rows[0].value, grade ];
+        nodesView.query(nodesParams, nodesFinished);
+    });
     }
     else {
-	nodesParams.startkey = nodesParams.endkey = [ parent, grade ];
-	nodesView.query(nodesParams, nodesFinished);
+    nodesParams.startkey = nodesParams.endkey = [ parent, grade ];
+    nodesView.query(nodesParams, nodesFinished);
     }
 };
 
@@ -91,23 +92,23 @@ exports.standards = function( request, response, next ) {
     var query = { group: true };
 
     if (category !== null) {
-	query.startkey = category;
-	query.endkey = category;
+    query.startkey = category;
+    query.endkey = category;
     }
 
     categoriesView.query(query, function(err, result) {
-	if (err) return next(err);
+    if (err) return next(err);
 
-	var viewOptions = {
-	    layout: false,
-	    locals: {
-		categories: result.rows.map( function(n) {
-		    return { name: n.key, standards: n.value };
-		})
-	    }
-	};
+    var viewOptions = {
+        layout: false,
+        locals: {
+        categories: result.rows.map( function(n) {
+            return { name: n.key, standards: n.value };
+        })
+        }
+    };
 
-	response.render('standards.html', viewOptions);
+    response.render('standards.html', viewOptions);
     });
 };
 
@@ -116,18 +117,18 @@ exports.browser = function( request, response, next ) {
     var query = { group: true };
 
     categoriesView.query(query, function(err, result) {
-	if (err) return next(err);
+    if (err) return next(err);
 
-	var viewOptions = {
-	    locals: {
-		categories: result.rows.map( function(n) {
-		    return { name: n.key, standards: n.value };
-		})
-	    }
-	};
+    var viewOptions = {
+        locals: {
+        categories: result.rows.map( function(n) {
+            return { name: n.key, standards: n.value };
+        })
+        }
+    };
 
-	response.render('browser.html', viewOptions);
-    });    
+    response.render('browser.html', viewOptions);
+    });
 };
 
 exports.resources = function (request, response, next) {
@@ -138,5 +139,64 @@ exports.resources = function (request, response, next) {
 
   var external = r(requestOptions);
 
-  request.pipe(external).pipe(response)
+  request.pipe(external).pipe(response);
+};
+
+exports.index = function(request,response) {
+    response.render('index.html');
+};
+exports.visual = function(request,response) {
+    response.render('visual.html');
+};
+
+
+exports.auth = function (audience) {
+  return function(req, resp){
+    function onVerifyResp(bidRes) {
+      var data = "";
+      bidRes.setEncoding('utf8');
+      bidRes.on('data', function (chunk) {
+        data += chunk;
+      });
+      bidRes.on('end', function () {
+        var verified = JSON.parse(data);
+        resp.contentType('application/json');
+        if (verified.status == 'okay') {
+          console.info('browserid auth successful, setting req.session.email');
+          req.session.email = verified.email;
+          resp.redirect('/');
+        } else {
+          console.error(verified.reason);
+          resp.writeHead(403);
+        }
+        resp.write(data);
+        resp.end();
+      });
+    }
+    
+    var assertion = req.body.assertion;
+    console.log(assertion);
+    console.log(audience);
+    var body = qs.stringify({
+      assertion: assertion,
+      audience: audience
+    });
+    console.info('verifying with browserid');
+    var request = https.request({
+      host: 'verifier.login.persona.org',
+      path: '/verify',
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        'content-length': body.length
+      }
+    }, onVerifyResp);
+    request.write(body);
+    request.end();
+  };
+};
+
+exports.logout = function (req, resp) {
+  req.session.destroy();
+  resp.redirect('/');
 };

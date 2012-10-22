@@ -1,0 +1,24 @@
+<section>
+	<div id="tabs">
+		<ul>
+			<li><a href="#content1">Home</a></li>
+			<li><a href="/browser">Brower</a></li>
+			<li><a href="/visual">Visual</a></li>
+		</ul>
+		<div id="content1">
+		</div>
+	</div>
+</section>
+<script>
+$(function() {
+    $( "#tabs" ).tabs({
+        beforeLoad: function( event, ui ) {
+            ui.jqXHR.error(function() {
+                ui.panel.html(
+                    "Couldn't load this tab. We'll try to fix this as soon as possible. " +
+                    "If this wouldn't be a demo." );
+            });
+        }
+    });
+});
+</script>

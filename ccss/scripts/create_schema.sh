@@ -6,11 +6,11 @@
 # ------ 20 Jun 2012 ------ #
 # Create Database
 # Standards - stores hierarchical education data for imported standards
-curl -X PUT http://localhost:5984/standards
+curl -X PUT http://admin:password@localhost:5984/standards
 
 # Create views
 # TODO standard-grade-parent's map fn -> multiline format for readibility
-curl -X PUT http://localhost:5984/standards/_design/nodes --data '
+curl -X PUT http://admin:password@localhost:5984/standards/_design/nodes --data '
 {
   "_id":"_design/nodes",
   "language": "javascript",
