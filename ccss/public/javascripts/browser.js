@@ -240,7 +240,8 @@ var BROWSER = (function () {
 
         // load the list of all categories and standards
         $screen.load('/standards/', function () {
-        $(window).hashchange( function () {
+
+        $(window).bind( 'hashchange', function () {
             var hashParts = unescape(location.hash).split('/');
             
             var category = hashParts.shift();
@@ -319,7 +320,7 @@ var BROWSER = (function () {
         });
         
         // fire the hashchange event in case bookmarked hash supplied
-        $(window).hashchange();
+        //$(window).hashchange();
         });
     }
     };
