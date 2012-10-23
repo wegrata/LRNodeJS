@@ -143,7 +143,10 @@ exports.resources = function (request, response, next) {
 };
 
 exports.index = function(request,response) {
-    response.render('index.html');
+    var opts = {};
+    if (request.session)
+      opts.user = request.session.email;
+    response.render('index.html', opts);
 };
 exports.visual = function(request,response) {
     response.render('visual.html');
@@ -175,8 +178,6 @@ exports.auth = function (audience) {
     }
     
     var assertion = req.body.assertion;
-    console.log(assertion);
-    console.log(audience);
     var body = qs.stringify({
       assertion: assertion,
       audience: audience

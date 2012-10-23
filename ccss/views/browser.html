@@ -42,10 +42,11 @@ the CCSS Browser runs on data provided by <a href="http://asn.jesandco.org/" tar
 Copyright © 2012 <a href="http://navigationnorth.com" target="_blank">Navigation North Learning Solutions</a>
 </footer>
 <script>
-
-    head.ready(function() {
-	$(document).ready(function () {
-	    BROWSER.start($('#hierarchy'));
+  $(document).ready(function () {
+      try{
+	     BROWSER.start($('#hierarchy'));
+     }catch(ex){
+      console.log(ex);
+     }
 	});
-    });
 </script>
