@@ -1,0 +1,218 @@
+  body {
+	padding-top: 60px;
+	padding-bottom: 40px;
+  }
+  
+  .lr_border{
+   z-index: 2700;
+	border: 1px solid #DDD;
+  }
+  
+  .lr_border_trans{
+  
+	z-index: 1;
+	border: 1px solid #FFF;
+	cursor: pointer;
+  }
+  
+  .draggable{
+	
+	width: 90px;
+	background: #FFF;
+	text-align: center;
+	padding: 3px;
+	border-collapse: separate;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 5px;
+	display: block;
+	margin-bottom: 15px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+  }
+
+	.resources h4{
+	
+		text-align: center;
+	}
+	
+	.dropbox{
+	
+		background: #FFF;
+		border-collapse: separate;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 5px;
+		text-overflow: ellipsis;
+		border: 1px solid #DDD;
+
+		min-height: 300px;
+	}
+	
+	
+	.friends{
+	
+		min-height: 300px;
+		width: 100%;
+	}
+	
+	.dropText{
+		
+		font-size: 36px;
+		color: #ccc;
+		text-align: center;
+		padding: 0 25px;
+		line-height: 200px;
+	}
+	
+	.customH4{
+	
+		font-size: 22px;
+		line-height: 20px;
+		padding-top: 5px;
+		margin: 10px 0;
+		font-family: inherit;
+		font-weight: bold;
+		color: inherit;
+		display: block;
+	}
+	
+	.customH4 a{
+	
+		margin: -5px 0 0 10px;
+	}
+	
+	iframe{
+		margin: 0 auto;
+		float: left;
+		padding: 0;
+		height: 100%;
+		width: 100%;
+		border: none;
+	}
+	
+	.bottomBar{
+	
+		width: 100%;
+		margin-top: 15px;
+		border-top: #efefef 1px solid;
+		clear: both;
+	}
+	
+	.bottomBar i{
+		
+		margin: 0;
+		margin-right: 39%;
+		margin-top: 5px;
+		cursor: pointer;
+	}
+	
+	.icon-file{
+	
+		margin-right: 0 !important;
+	}
+	
+	.modal-iframe, .modal-bookmark{
+	
+		margin: 0;
+		padding: 0;
+		
+	}
+	
+	.modal-iframe{
+		
+		float: right;
+		width: 85%;
+		height: 750px;
+	}
+	
+	.modal-timeline{
+		
+		float: left;
+		width: 15%;
+		overflow: scroll;
+		overflow-x: hidden;
+		height: 590px;
+	}
+	
+	.chatBox, .chatTools{
+	
+		float: left; 
+		height: 100px; 
+		width: 15%;
+		margin: 0;
+		padding: 10px 0 0 0;
+	}
+	
+	.chatTools{
+	
+		height: 30px;
+	}
+	
+	.chatBox textarea{
+		height: 90%;
+		width: 90%;
+		margin: 0 auto;
+		display: block;
+		padding: 0;
+		resize: none;
+	}
+	
+	
+	
+	footer div{
+	
+		width: 60%;
+		margin: 0 auto;
+	}
+	
+	footer p{
+	
+		text-align: center;
+		font-size: 11px;
+	}
+	
+	.learningRegistryImage img{
+	
+		padding-top: 30px;
+	}
+	
+	#stripedProgress{
+	
+		width: 30%;
+		margin: 300px auto;
+	}
+	
+	.modal-header div{
+	
+		font-size: 24px;
+		text-align: center;
+		margin: auto auto;
+		padding-top: 4px;
+		width: 30%;
+		display: block;
+	}
+	
+	.author-timeline{
+	
+		text-align: right;
+		font-size: 14px;
+		float: right;
+		clear: both;
+		color: #aaa;
+		cursor: pointer;
+	}
+	
+	.author-timeline:hover{
+	
+		color: #000;
+	}
+	
+	.accordion-heading, .accordion-toggle{
+		
+		display: inline !important;
+		height: 33px !important;
+		line-height: 33px;
+	}
+	
+	

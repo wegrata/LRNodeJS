@@ -3,12 +3,12 @@ ul {
 }
 
 #browser {
-    background-color: #999;
+
     height: 768px;
 }
 
 #browser #categories {
-    background-color: #fff;
+
     float: left;
     width: 128px;
     margin: 8px;
@@ -26,9 +26,7 @@ ul {
 }
 
 #hierarchy {
-    height: 512px;
     width: 768px;
-    overflow-y: scroll;
 }
 
 .resources {

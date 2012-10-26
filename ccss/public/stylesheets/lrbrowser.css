@@ -16,11 +16,6 @@
  * @author John Brecht
  */
 
-
-.main {
-	width: 1250px;
-}
-
 .left_column {
 	width: 220px;
 	background-color: White;
@@ -64,7 +59,6 @@ select { width: 150px; }*/
     list-style:none;
     margin:7px;
     height: 100%;
-    overflow: auto;
 }
 #infovis {
     /*position:relative;*/
@@ -83,23 +77,6 @@ select { width: 150px; }*/
 	background-image: url(pbar-ani.gif); 
 }
 
-html, body {
-    margin:0;
-    padding:0;
-    font-family: "Lucida Grande", Verdana;
-    font-size: 0.9em;
-    text-align: center;
-    /*background-color:#F2F2F2;*/
-}
-
-input, select {
-    font-size:0.9em;
-}
-
-table {
-    margin-top:-10px;
-    margin-left:7px;
-}
 
 h1 {
     font-size:2.4em;

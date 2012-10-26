@@ -197,6 +197,16 @@ exports.auth = function (audience) {
   };
 };
 
+exports.main = function(request, response){
+	
+	//I assume this is how we know whether or not a user is logged in
+	if (request.session)
+		resp.redirect('/index');
+	 
+	else
+		response.render('main.html');
+};
+
 exports.signup = function(request, response){
 	
 	//I assume this is how we know whether or not a user is logged in
