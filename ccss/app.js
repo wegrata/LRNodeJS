@@ -45,9 +45,10 @@ var app = module.exports = express.createServer();
 // Configuration
 
 app.configure(function(){
+	
     app.set('views', __dirname + '/views');
     app.set('view engine', 'mustache');
-    app.set('view options', { layout: false });
+    app.set('view options', { layout: true });
     app.register('.html', tmpl);
     app.use(express.bodyParser());
     app.use(express.cookieParser());
@@ -64,6 +65,8 @@ app.get('/visual', routes.visual);
 app.post('/nodes/', routes.nodes);
 app.get('/related', routes.related);
 app.get('/resources', routes.resources);
+app.get('/signup', routes.signup);
+app.get('/main', routes.main);
 app.post('/auth',routes.auth(AUDIENCE));
 app.post('/logout',routes.logout);
 // start

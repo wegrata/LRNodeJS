@@ -1,0 +1,141 @@
+	<div class="container" style="position:relative">
+	
+		<div id="third" class="walkthrough" style="visibility: hidden; position: absolute; top: 0; left: 0; ">
+			<div class="row">	  
+				<div class="span12">
+				  
+					Third step<br/>
+					<a class="btn submit">Submit</a>
+				</div>
+			</div>
+		</div>
+		
+		<div id="second" class="walkthrough" style="visibility: hidden; position: absolute; top: 0; left: 0; ">
+			<div class="row">		
+				<div class="span4 hero-unit">
+				    <h2>You've taken the first step</h2>
+					<p>A confirmation email has been sent to your inbox and should arrive momentarily. Meanwhile, please tell us a little more about yourself.</p>
+					
+				</div>
+				
+				<div class="span4 offset1">
+					<form style="padding-top: 20px;">
+					  <input type="text" placeholder="Full Name" class="input-xlarge"><br/><br/>
+					  <span class="help-block">Please be specific (e.g 6th Grade Math Teacher)</span>
+					  <input type="text" placeholder="Job Title" class="input-xlarge"><br/><br/>
+					  
+					  <span class="help-block">Education Level</span> 
+					  <select class="input-xlarge">
+						<option>High School</option>
+						<option>Some College</option>
+						<option>Bachelor&#39;s Degree</option>
+						<option>Postgraduate Degree</option>
+						<option>Other</option>
+					  </select>
+					  <a class="btn submit">Submit</a>
+					</form>
+				</div>
+			</div>
+			<hr>
+			<div class="row">
+			</div>
+		</div>
+	
+		<div id="first" class="walkthrough" >
+		  <!-- Example row of columns -->
+		  <div class="row">	  
+			<div class="span12">
+			  <!-- Main hero unit for a primary marketing message or call to action -->
+			  <div class="hero-unit">
+				<h1>Need resources?</h1><br/>
+				<p>What if a socially aware, user friendly and intuitive interface for finding resources shared by <b>collaborating
+				   organizations from all over the world</b> actually existed?</p>
+				<p>It does.</p>			
+			  </div>
+			  
+			<div class="row">
+				<div class="span4 offset2 learningRegistryImage">
+				
+					<img src="/images/customLogo.png" />
+				</div>
+				<div class="span3 offset2">
+					<form action="signup" method="POST">
+					  <legend>No account? Sign up!</legend>
+					  <input type="text" placeholder="Full Name"><br/>
+					  <input type="text" placeholder="Email"><br/>
+					  <input type="password" placeholder="Password">
+					  <button class="btn submit" type="button">Submit</button>
+					</form>
+				</div>
+			</div>
+			  
+			</div>
+		  </div>
+		</div>
+		<div>
+		  <hr>
+
+		  <footer>
+			<div>
+				<p>Disclaimer of Endorsement. The ADL Initiative does not necessarily endorse the organizations providing data, metadata, paradata, and related content. All ratings and comments represent independent user evaluations and do not represent the views of the ADL Initiative.</p>
+
+				<p>Sponsored by the Office of the Under Secretary of Defense for Personnel and Readiness (OUSD P&amp;R). 
+				This is an official website of the U.S. Government &copy;2012 Advanced Distributed Learning (ADL). </p>
+			</div>
+		  </footer>
+		</div>
+	</div><!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/javascripts/jquery.js"></script>
+	<script src="/javascripts/jquery-ui.js"></script>
+    <script src="/javascripts/bootstrap.js"></script>
+	<script src="/javascripts/application.js"></script>
+	<script src="/javascripts/Placeholders.js"></script>
+	<script type="text/javascript">
+		Placeholders.init();
+		var temp = new mainViewModel(previewResources);
+		var slides = ["first", "second", "third"];
+		var current = 0;
+		
+		ko.applyBindings(temp);
+		console.log(self.data());
+		
+
+		
+		$(function(){
+			
+			enableDrag();
+			
+		$(".submit").click(function(evt){
+		
+			console.log("CLICK!!");
+		
+			var styleObj = {"visibility": "visible"};
+			$("#" + slides[current+1]).css(styleObj);
+			$("#" + slides[current+1]).show( "drop", {direction: "right"}, 800, function(){ $(this).css({position:"relative"});} );
+			$("#" + slides[current]).hide( "drop", {direction: "left"}, 800, function(){} );
+			
+			current++;
+			
+			evt.stopPropagation();
+		});
+			
+			$( ".dropbox" ).droppable({
+				drop: function( event, ui ) {
+					
+					ui.draggable.fadeOut(function(){
+						
+						console.log(ui.draggable.attr("name"));
+
+						temp.deleteSpecifiedResource(ui.draggable.attr("name"));
+					});
+
+				}
+			});
+		});
+	</script>
+  </body>
+</html>

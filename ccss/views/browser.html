@@ -1,19 +1,20 @@
-<div id="browser" style="border: thick black solid;">
+
+<div id="browser">
   <div id="categories">
-    <ul>
-      {{#categories}}
-        <li class="category">
+	<ul>
+	  {{#categories}}
+		<li class="category">
 	  <a href="#" class="category-link" data-category="{{name}}">{{name}}</a>
 	</li>
-      {{/categories}}
-    </ul>
+	  {{/categories}} 
+	</ul>
   </div>
   <section id="view-port">
-    <div id="toolbar">
-      <!-- TODO search box -->
-    </div>
-    <div id="crumbs"></div>
-    <div id="hierarchy"></div>
+	<div id="toolbar">
+	  <!-- TODO search box -->
+	</div>
+	<div id="crumbs"></div>
+	<div id="hierarchy"></div>
   </section>
 
 </div>    
@@ -22,31 +23,31 @@
 <span id="grade-filter-master" style="display: none">
   <label>Grade:</label>
   <select class="grade-link">
-    <option value="K">K</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-    <option value="10">10</option>
-    <option value="11">11</option>
-    <option value="12">12</option>
+	<option value="K">K</option>
+	<option value="1">1</option>
+	<option value="2">2</option>
+	<option value="3">3</option>
+	<option value="4">4</option>
+	<option value="5">5</option>
+	<option value="6">6</option>
+	<option value="7">7</option>
+	<option value="8">8</option>
+	<option value="9">9</option>
+	<option value="10">10</option>
+	<option value="11">11</option>
+	<option value="12">12</option>
   </select>
 </span>
-<footer>
-the CCSS Browser runs on data provided by <a href="http://asn.jesandco.org/" target="_blank">Jes & Co</a> and <a href="http://www.learningregistry.org/" target="_blank">the Learning Registry</a>.<br /> <a href="https://github.com/navnorth/LRNodeJS" target="_blank">Code licensed</a> under Apache 2.0
-Copyright © 2012 <a href="http://navigationnorth.com" target="_blank">Navigation North Learning Solutions</a>
-</footer>
+<script type="text/javascript" src="/javascripts/crumbs.js"></script>
+<script type="text/javascript" src="/javascripts/libs/jquery.cookie.js"></script>
+<script type="text/javascript" src="/javascripts/browser.js"></script>
 <script>
-  $(document).ready(function () {
-      try{
-	     BROWSER.start($('#hierarchy'));
-     }catch(ex){
-      console.log(ex);
-     }
-	});
+
+	  try{
+		 BROWSER.start($('#hierarchy'));
+	 }catch(ex){
+	  console.log(ex);
+	 }
+
 </script>
+
