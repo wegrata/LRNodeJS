@@ -34,6 +34,7 @@ var BROWSER = (function () {
     };
 
     var standardClick = function (event) {
+		console.log("STANDARD");
     var standard = $(event.target).data('standard');
     var category = $(event.target).data('category') ||
                    $(event.target).closest('.category').data('category');

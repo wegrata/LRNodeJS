@@ -83,7 +83,7 @@ exports.nodes = function( request, response, next ) {
     nodesView.query(nodesParams, nodesFinished);
     }
 };
-
+ 
 // route for displaying categorized standards
 //   pass params.category to filter by category
 exports.standards = function( request, response, next ) {
@@ -126,7 +126,8 @@ exports.browser = function( request, response, next ) {
         })
         }
     };
-
+	
+	viewOptions.layout = (request.query.ajax === undefined)? true : false;
     response.render('browser.html', viewOptions);
     });
 };
@@ -149,7 +150,9 @@ exports.index = function(request,response) {
     response.render('index.html', opts);
 };
 exports.visual = function(request,response) {
-    response.render('visual.html');
+	var viewOptions = {};
+	viewOptions.layout = (request.query.ajax === undefined)? true : false;
+    response.render('visual.html', viewOptions);
 };
 
 
