@@ -1,7 +1,5 @@
  <div class="container">
  
- 
- 
  	<div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div style="height: 30px;" class="modal-header">
 			
@@ -83,7 +81,7 @@
 				</div>
 			</div>
 			<div class="row dropbox">
-				<span data-bind="visible: bookmarks().length == 0" class="dropText">Drop stuff here</span>
+				<span data-bind="visible: bookmarks().length == 0" class="dropText">Drop stuff</span>
 				
 				<!-- ko foreach: bookmarks -->
 					<div class="draggable lr_border_trans pull-left" data-bind="attr: {name: $root.generateName('-1', $index(), 'bookmarks')}">
@@ -116,21 +114,42 @@
 				</div>
 				
 				 
-	<section>
-		<div id="index-tabs">
-			<ul class="nav nav-tabs">
-				<li><a href="">Home</a></li>
-				<li><a href="#browser">Brower</a></li>
-				<li><a href="#visual">Visual</a></li>
-			</ul>
-			
-			<div class="tab-content">
-			  <div class="tab-pane active" id="browser"></div>
-			  <div class="tab-pane" id="visual"></div>
-			  <div class="tab-pane" id="settings"></div>
-			</div>
-		</div>
-	</section>
+				
+				<div id="index-tabs">
+					<ul class="nav nav-tabs">
+						<li><a class="dynLoad" id="defaultTab" href="#organizations">Organizations</a></li>
+						<li><a class="dynLoad" href="#browser">Standards Brower</a></li>
+						<li><a class="dynLoad" href="#visual">Visual</a></li>
+					</ul>
+
+					<div class="tab-content">
+					  <div class="tab-pane active" id="browser"></div>
+					  <div class="tab-pane" id="visual"></div>
+					  
+					  
+					  <div class="tab-pane accordion friends" id="organizations"  data-bind="foreach:allOrganizations">
+					  
+					  
+							<div class="accordion-group organizationAcc">
+				  
+								<div class="accordion-heading">
+								  <a class="accordion-toggle" data-bind="text: $data" ></a>
+								</div>
+								
+								<div class="accordion-body collapse">
+								  <div class="accordion-inner" style="height:200px;">
+								  
+										<p>RESOURCES</p>									
+								  </div>
+								</div>
+								
+						  </div>	
+
+					  </div>
+					</div>
+				</div>
+				
+				
 			</div>
 		</div>
       </div>
@@ -157,12 +176,19 @@
 	<script src="/javascripts/Placeholders.js"></script>
 	<script src="/javascripts/spin.min.js"></script>
 	<script src="/javascripts/jquery.nicescroll.js"></script>
-	<script src="/javascripts/application.js"></script> 
-		
+	
 	<script>
-
+		var allOrganizations = "{{orgs}}".split(",");
 		Placeholders.init();
+	
+	</script>
+	<script src="/javascripts/application.js"></script> 
+	<script>
 		var temp = new mainViewModel([]), activeModalName = null;
+		
+		console.log(allOrganizations);
+		
+		
 		ko.applyBindings(temp);
 		/*$.getJSON('/resources',function(data){
 			
@@ -277,11 +303,21 @@
 	
 	$(function() {
 		
-		//Load main initially
-		$("#browser").load("/browser?ajax");
-		var alreadyLoaded = ["browser"];
+		//LInitial tab display
+		//$("#browser").load("/browser?ajax");
+		$('#defaultTab').tab("show");
+		var alreadyLoaded = ["#organizations"];
 		
-		$("#index-tabs a").click(function(e){
+		
+		$(".organizationAcc").children('.collapse').collapse('hide');
+		$(".organizationAcc").click(function(){
+			
+			console.log("CLICK!");
+			$(this).children(".collapse").collapse('toggle');
+		});
+		
+		
+		$(".dynLoad").click(function(e){
 			e.preventDefault();
 			
 			var temp = $(this);

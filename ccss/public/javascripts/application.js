@@ -12,7 +12,8 @@
 		resourceObject: The unit resource. These would be unique metadata entries from the LR. resourceObjects also 
 		have paradata arranged in a timeline array.
 
-
+		self.followers should contain an array of previewObjects
+		self.organizations needs only to contain an array of strings that can be used to search against a node
 */
 
 var opts = {
@@ -300,6 +301,9 @@ var mainViewModel = function(resources){
 	self.currentObject = ko.observable({});	
 	self.currentResourceName = ko.observable("");
 	
+	//allOrganizations is defined outside of this script
+	self.allOrganizations = allOrganizations;
+	
 	self.checkTimelineLength = function(obj){
 	
 		if(obj == undefined) return 0;
@@ -494,6 +498,11 @@ var mainViewModel = function(resources){
 			}
 		}
 		return tempResourcesArr;
+	};
+	
+	self.getOrganizationAccordionId = function(index){
+		
+		return "org" + index();
 	};
 	
 	self.getCollapseId = function(name, poundSign){

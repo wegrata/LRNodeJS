@@ -147,6 +147,13 @@ exports.index = function(request,response) {
     var opts = {};
     if (request.session)
       opts.user = request.session.email;
+     
+     //For testing purporses.. may have to make this a global array..
+     opts.locals = opts.locals || {};
+     opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','Benetech','BCOE / CADRE','BetterLesson','California Dept of Ed',
+					 'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','ISKME / OER Commons','JES & Co.','JISC','Library of Congress',
+					 'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
+     
     response.render('index.html', opts);
 };
 exports.visual = function(request,response) {

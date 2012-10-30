@@ -34,7 +34,6 @@ var BROWSER = (function () {
     };
 
     var standardClick = function (event) {
-		console.log("STANDARD");
     var standard = $(event.target).data('standard');
     var category = $(event.target).data('category') ||
                    $(event.target).closest('.category').data('category');
@@ -264,6 +263,7 @@ var BROWSER = (function () {
             updateState(category, standard, grade);
             updateNodes(nodes);
             
+            
             // load the display
             if (!state.category) {
             $screen.load(categoryUrl, function () {
@@ -317,6 +317,7 @@ var BROWSER = (function () {
             callback = recursiveDescent(childrenToLoad);
             }
             
+            console.log($loadLocation);
             loadNodes($loadLocation, discriminator, callback);
         });
         
