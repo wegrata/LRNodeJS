@@ -500,9 +500,9 @@ var mainViewModel = function(resources){
 		return tempResourcesArr;
 	};
 	
-	self.getOrganizationAccordionId = function(index){
+	self.getOrganizationAccordionId = function(index, str){
 		
-		return "org" + index();
+		return str + "org" + index();
 	};
 	
 	self.getCollapseId = function(name, poundSign){

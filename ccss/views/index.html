@@ -117,7 +117,7 @@
 				
 				<div id="index-tabs">
 					<ul class="nav nav-tabs">
-						<li><a class="dynLoad" id="defaultTab" href="#organizations">Organizations</a></li>
+						<li><a class="dynLoad" id="defaultTab" href="#organizations">Sites</a></li>
 						<li><a class="dynLoad" href="#browser">Standards Brower</a></li>
 						<li><a class="dynLoad" href="#visual">Visual</a></li>
 					</ul>
@@ -128,24 +128,28 @@
 					  
 					  
 					  <div class="tab-pane accordion friends" id="organizations"  data-bind="foreach:allOrganizations">
-					  
-					  
 							<div class="accordion-group organizationAcc">
 				  
 								<div class="accordion-heading">
-								  <a class="accordion-toggle" data-bind="text: $data" ></a>
+								  <a class="accordion-toggle" data-parent="#organizations" data-toggle="collapse"  data-bind="html: $data, attr:{href:$root.getOrganizationAccordionId($index, '#')}" ></a>
 								</div>
 								
-								<div class="accordion-body collapse">
-								  <div class="accordion-inner" style="height:200px;">
+								<div data-bind="attr:{id:$root.getOrganizationAccordionId($index, '')}" class="accordion-body collapse">
+								  <div class="accordion-inner" style="height:100px;">
 								  
-										<p>RESOURCES</p>									
+									<div class="customH4">
+										<span data-bind="text: name"></span>
+										
+										<p>Possibly a preview of a few resources...</p><br/>
+										<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-star"></i> Follow Organization</a>
+										<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-th-large"></i> View All Resources</a>
+										
+									</div>								
 								  </div>
 								</div>
-								
-						  </div>	
-
+						   </div>	
 					  </div>
+					  
 					</div>
 				</div>
 				
@@ -170,9 +174,15 @@
 
 
 	<script type="text/javascript" src="/javascripts/libs/modernizr-2.0.6.min.js"></script>
+	<script type="text/javascript" src="/javascript/ui/jquery.cookie.js"></script>
 	<script type="text/javascript" src="/javascripts/libs/jquery.ba-hashchange.min.js.txt"></script>
 	<script type="text/javascript" src="/javascripts/libs/jquery.simplemodal.1.4.2.min.js"></script>
-	    
+	
+	
+	<script type="text/javascript" src="/javascript/jquery.xml2json.js"></script>
+	<script type="text/javascript" src="/javascript/ui/jquery.eComboBox.js"></script>
+
+  
 	<script src="/javascripts/Placeholders.js"></script>
 	<script src="/javascripts/spin.min.js"></script>
 	<script src="/javascripts/jquery.nicescroll.js"></script>
@@ -277,6 +287,42 @@
 			});
 			
 			
+			
+			
+			
+			
+					//LInitial tab display
+			//$("#browser").load("/browser?ajax");
+			$('#defaultTab').tab("show");
+			var alreadyLoaded = ["#organizations"];
+			
+			
+			/*$('.collapse').collapse('hide');
+			$(".organizationAcc").click(function(){
+				
+				console.log("CLICK!");
+				$(this).children(".collapse").collapse('toggle');
+			});*/
+			
+			
+			$(".dynLoad").click(function(e){
+				e.preventDefault();
+				
+				var temp = $(this);
+				temp.tab("show");
+				
+				//Check whether or not the tab has ever been clicked on
+				if(jQuery.inArray(temp.attr("href"), alreadyLoaded) == -1){
+					
+					alreadyLoaded.push(temp.attr("href"));
+					var saveName = temp.attr("href").split("#")[1];
+					$("#" + saveName).load("/" + saveName + "?ajax");
+				}
+			});
+			
+			
+			
+			
 
 		});
 		
@@ -299,39 +345,6 @@
 			
 		};
 	
-	
-	
-	$(function() {
-		
-		//LInitial tab display
-		//$("#browser").load("/browser?ajax");
-		$('#defaultTab').tab("show");
-		var alreadyLoaded = ["#organizations"];
-		
-		
-		$(".organizationAcc").children('.collapse').collapse('hide');
-		$(".organizationAcc").click(function(){
-			
-			console.log("CLICK!");
-			$(this).children(".collapse").collapse('toggle');
-		});
-		
-		
-		$(".dynLoad").click(function(e){
-			e.preventDefault();
-			
-			var temp = $(this);
-			temp.tab("show");
-			
-			//Check whether or not the tab has ever been clicked on
-			if(jQuery.inArray(temp.attr("href"), alreadyLoaded) == -1){
-				
-				alreadyLoaded.push(temp.attr("href"));
-				var saveName = temp.attr("href").split("#")[1];
-				$("#" + saveName).load("/" + saveName + "?ajax");
-			}
-		});
-	});
 	</script>
 
 	<!--[if lt IE 7 ]>
