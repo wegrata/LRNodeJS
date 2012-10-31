@@ -119,12 +119,12 @@
 					<ul class="nav nav-tabs">
 						<li><a class="dynLoad" id="defaultTab" href="#organizations">Sites</a></li>
 						<li><a class="dynLoad" href="#browser">Standards Brower</a></li>
-						<li><a class="dynLoad" href="#visual">Visual</a></li>
+						<li><a class="dynLoad" href="#users">Users</a></li>
 					</ul>
 
 					<div class="tab-content">
 					  <div class="tab-pane active" id="browser"></div>
-					  <div class="tab-pane" id="visual"></div>
+					  <div class="tab-pane" id="users"></div>
 					  
 					  
 					  <div class="tab-pane accordion friends" id="organizations"  data-bind="foreach:allOrganizations">
@@ -142,7 +142,7 @@
 										
 										<p>Possibly a preview of a few resources...</p><br/>
 										<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-star"></i> Follow Organization</a>
-										<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-th-large"></i> View All Resources</a>
+										<a data-bind="attr:{name:$index()}" class="btn btn-small followOrg"><i class="icon-th-large"></i> View All Resources</a>
 										
 									</div>								
 								  </div>
@@ -161,7 +161,47 @@
 	
  </div>
 
+ 	<div class="modal" id="visualBrowser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div style="height: 30px;" class="modal-header">
+			<div>
+				<span>Search</span>
+			</div>
+		</div>
+		<!--[if IE]><script src="excanvas.js"></script><![endif]-->
+		
+		<div class="resultModal">
+			<span id="doc_list_header"></span>
+			<div id="document_list">
+				<div id="doc_list_accordion"></div>
+			</div>
+		</div>
+		
+		<div class="infovizModal">
 
+				<div id="infovis"></div>
+				
+				<div class="text" >
+					<div style="text-align: center;">
+						<div id="progressbar" align="center"></div>
+					</div>
+					<div id="status">
+						...
+					</div>
+				</div>
+				<br>
+				<div class="text">
+					<div id="results_summary"></div>
+				</div>
+				<br>
+				<div id = "debugDiv" class="text">
+					<div id="debug">
+						...
+					</div>
+				</div>
+			
+				
+		</div>
+	</div>
 
     <!-- Le javascript
     ================================================== -->
@@ -172,23 +212,40 @@
 	<script src="//code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
 	<script src="/javascripts/bootstrap.js"></script>
 
-
 	<script type="text/javascript" src="/javascripts/libs/modernizr-2.0.6.min.js"></script>
 	<script type="text/javascript" src="/javascript/ui/jquery.cookie.js"></script>
 	<script type="text/javascript" src="/javascripts/libs/jquery.ba-hashchange.min.js.txt"></script>
-	<script type="text/javascript" src="/javascripts/libs/jquery.simplemodal.1.4.2.min.js"></script>
-	
 	
 	<script type="text/javascript" src="/javascript/jquery.xml2json.js"></script>
 	<script type="text/javascript" src="/javascript/ui/jquery.eComboBox.js"></script>
 
-  
 	<script src="/javascripts/Placeholders.js"></script>
 	<script src="/javascripts/spin.min.js"></script>
 	<script src="/javascripts/jquery.nicescroll.js"></script>
 	
-	<script>
+	<script language="javascript" type="text/javascript" src="/javascript/jit-yc.js"></script>
+	<script type="text/javascript" src="/javascript/lrbrowser.js"></script>
+	<script type="text/javascript" src="/javascript/paradata.js"></script>
+	<script type="text/javascript" src="/javascript/utils.js"></script>
+	<link type="text/css" href="/themes/Aristo/Aristo.css" rel="stylesheet" />
+	<!--<link type="text/css" href="themes/demos.css" rel="stylesheet" />-->
+	<link type="text/css" href="/stylesheets/Hypertree.css" rel="stylesheet" />
+		
+	<script type="text/javascript">
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-26825770-1']);
+		  _gaq.push(['_trackPageview']);
+		
+		  (function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+	
 		var allOrganizations = "{{orgs}}".split(",");
+		var allTerms = "{{terms}}".split(",");
+		
+		//console.log({{orgs}});		
 		Placeholders.init();
 	
 	</script>
@@ -197,6 +254,7 @@
 		var temp = new mainViewModel([]), activeModalName = null;
 		
 		console.log(allOrganizations);
+		
 		
 		
 		ko.applyBindings(temp);
@@ -221,8 +279,39 @@
 		<%}%>*/
 
 		$("#modal").hide();
-
-		$(document).ready(function(){
+		var initialGraphBuild = false;
+		$(document).ready(function(){	
+			
+			
+			var handleDoSearch = function(e, str) {
+				
+				e.preventDefault();
+				e.stopPropagation();
+				if(typeof str != "string"){
+					//Enter was pressed
+					if(e.which == 13){
+						/* Additional optional logic. Is keyword or url search? */
+						$("#visualBrowser").modal("show");
+						startNewSearch($("#term").val());
+					}
+				}
+				else {
+					console.log(str);
+					$("#visualBrowser").modal("show");
+					startNewSearch(str);
+				}
+			};
+		
+			
+			$(".followOrg").click(function(e){
+				
+				//$("#term").val(allTerms[$(this).attr("name")]);
+				handleDoSearch(e, allTerms[$(this).attr("name")]);
+				
+			});		
+			
+			$("#term").keyup(handleDoSearch);
+			$("#Search").click(handleDoSearch);			
 			
 			enableDrag();
 			enableModal();
@@ -351,3 +440,14 @@
 		<script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.2/CFInstall.min.js"></script>
 		<script>window.attachEvent("onload",function(){CFInstall.check({mode:"overlay"})})</script>
 	<![endif]-->
+
+<!--<script>
+jQuery(function(){
+        $("#Search").bind("click", function() {
+                try {
+                        var term = $("#term")[0].value;
+                        _gaq.push(['_trackEvent', 'LRBrowser', 'Go', term.toLowerCase()]);
+                } catch (e) {}
+        });
+});
+</script>-->

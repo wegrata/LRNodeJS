@@ -303,6 +303,7 @@ var mainViewModel = function(resources){
 	
 	//allOrganizations is defined outside of this script
 	self.allOrganizations = allOrganizations;
+	self.allTerms = allTerms;
 	
 	self.checkTimelineLength = function(obj){
 	

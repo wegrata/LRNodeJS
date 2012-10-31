@@ -128,14 +128,11 @@ $(function() {
 	
 	$("#secondary").hide();
 
-	$("#Search").click(function() {
-		startNewSearch($("#term").val());
-	});
-	$("#term").keypress(function(e) {
+	/*$("#term").keypress(function(e) {
 	    if(e.keyCode == 13) {
 	        startNewSearch($("#term").val());
 	    }
-	});
+	});*/
 
 	$( "#primaryLimit" ).html(TRIM_SIZE);
 	$( "#primaryLimitSlider" ).slider({
@@ -217,7 +214,7 @@ $(function() {
 			ajaxPool.push(jqXHR);
 		}
 	});
-	buildGraph();
+	
 	
 	
 	if(url_vars.search) {
@@ -227,7 +224,17 @@ $(function() {
 });
 
 function startNewSearch(term) {
+	
+	if(initialGraphBuild !== true)
+		buildGraph();
+	
+	initialGraphBuild = true;
+	
 	if(term.length==0) return;
+	
+	
+	
+	
 	$("#progressbar").progressbar("option", "value", 0);
 	clearSummary();
 	$("#secondary").hide();
@@ -235,6 +242,7 @@ function startNewSearch(term) {
     	_gaq.push(['_trackEvent', 'LRBrowser', 'Search', term.toLowerCase()]);
     } catch (e) {}
 	killOustandingRequests();
+
 	topNode = buildNode("Loading", "", TAG);
 	topNode.id = -1;
 	loadGraphData(topNode, true);
@@ -314,8 +322,12 @@ function compareTagAndIdentityCountResults() {
 		});
 	}
 	if(max_results > SUGGESTED_SLICE_LIMIT) {
+		sliceLimit = 500;
+		max_results = 500;
 		post_confirm_search_data = search_data
-		confirmSearch(search_data);
+		limit_results = true;
+		//confirmSearch(search_data);
+		handleSlice(parseSliceResult, search_data);
 	} else {
 		sliceLimit = SLICE_LIMIT_MAX;
 		handleSlice(parseSliceResult, search_data);
@@ -668,7 +680,8 @@ function trimChildren(children, trimTo) {
 
 function buildGraph() {
 	var infovis = document.getElementById('infovis');
-	var w = infovis.offsetWidth - 50, h = infovis.offsetHeight - 50;
+	var jInfoVis = $('#infovis');	
+	var w = jInfoVis.width(), h = jInfoVis.height();
 
 	//init Hypertree
 	hypertree = new $jit.Hypertree({
@@ -681,7 +694,7 @@ function buildGraph() {
 		//color, width and dimensions.
 		Node : {
 			overridable : true,
-			color : "#00F"
+			color : "#FAFAD2"
 		},
 		Edge : {
 			lineWidth : 2,
@@ -778,8 +791,10 @@ function handleNodeSingleClick() {
 }
 
 function buildDocList(node) {
+	
+	
 	if(node.id == -1)
-		$("#doc_list_header").html('');
+		$("#doc_list_header").html(''); 
 	else if(node.id == topNode.id)
 		$("#doc_list_header").html('&nbsp;&nbsp;Entries for <i>' + node.data.datatype + ' <b>"' + node.name + '"</b></i>');
 	else
@@ -795,50 +810,41 @@ function buildDocList(node) {
 		loadParadata($(this).attr('id'));
 	});
 	buildAccordion();
+	
+	
+	
 }
 
 function buildListing(doc_id) {
 	var doc = docDictionary[doc_id];
+	
 	if(doc) {
+		
+		if(doc.type === 'paradata') {
+			return '';
+		}
+		
 		var url = doc.url;
 		var display_url;
-		if(url.length<51) display_url = url;
-		else display_url = url.substring(0, 50) + "...";
+		
+		display_url =(url.length<51)? url : url.substring(0, 50) + "...";
+		
 		var obtain_url = NODE_URL + '/obtain?by_doc_ID=true&request_id=' + doc_id
 		var output = '<h3><a href="#">' + display_url + '</a></h3>';
 		output += '<div id="' + doc_id + '">';
 		output += '<a href="' + url + '" target="_blank">View resource</a>'
-		output += ' | <a href="' + obtain_url + '" target="_blank">View Full Learning Registry entry</a><br>';
-		if(doc.type) {
-			if(doc.type != "paradata")
-				output += '<button id="' + doc_id + '_loadPara" class="paradataLoader">Find Paradata</button>';
-			output += '<br><br><b>type</b>: ' + doc.type + '<br>';
-		}
-		for(var identity_type in doc.identity) {
+		//output += ' | <a href="' + obtain_url + '" target="_blank">View Full Learning Registry entry</a><br>';
+
+		/*for(var identity_type in doc.identity) {
 			var identity_value = doc.identity[identity_type];
 			output += '<b>' + identity_type + '</b>: ' + identity_value + '<br>';
 		}
+		
 		if(doc.keys) {
 			output += '<b>keywords</b>: ';
 			output += doc.keys.join(", ");
 			output += '<br>';
-		}
-		if(doc.type) {
-			if(doc.type === "paradata") {
-				if(doc.paradata_url) {
-					output += '<a href="' + doc.paradata_url + '" target="_blank">View Paradata</a><br>'
-				} else if(doc.paradataTitle) {
-					output += '<b>title</b>: ' + doc.paradataTitle + '<br>';
-					output += '<b>description</b>: ' + doc.paradataDescription + '<br>';
-				} else if(doc.paradata_src) {
-					var escaped = "";
-					escaped += doc.paradata_src;
-					escaped = replaceAll(escaped, "<", "&lt;");
-					escaped = replaceAll(escaped, ">", "&gt;");
-					output += '<b>Raw Paradata</b>: <code>' + escaped + '</code><br>';
-				}
-			}
-		}
+		}*/
 
 		output += '</div>';
 

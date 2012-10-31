@@ -153,6 +153,9 @@ exports.index = function(request,response) {
      opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','Benetech','BCOE / CADRE','BetterLesson','California Dept of Ed',
 					 'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','ISKME / OER Commons','JES & Co.','JISC','Library of Congress',
 					 'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
+	 opts.locals.terms = ['adl','Agilix / BrainHoney','Benetech','BCOE / CADRE','BetterLesson','California Dept of Ed',
+					 'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','ISKME / OER Commons','JES & Co.','JISC','Library of Congress',
+					 'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
      
     response.render('index.html', opts);
 };
