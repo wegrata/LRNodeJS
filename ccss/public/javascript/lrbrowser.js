@@ -282,9 +282,12 @@ function startDetermineType() {
 	sliceAsIdentityResultCount = -1;
 
 	var tagCountCallback = function(data) {
+		
+		console.log(data);
 		sliceAsTagResultCount = data.resultCount;
 		if(sliceAsIdentityResultCount > -1)
 			compareTagAndIdentityCountResults();
+			
 	}
 	var tagSliceData = buildSliceObject({
 		"any_tags" : searchTerm,
@@ -294,6 +297,8 @@ function startDetermineType() {
 	$.ajax(tagSliceData);
 
 	var identityCountCallback = function(data) {
+		
+		console.log(data);
 		sliceAsIdentityResultCount = data.resultCount;
 		if(sliceAsTagResultCount > -1)
 			compareTagAndIdentityCountResults();
@@ -377,6 +382,8 @@ function buildSliceObject(dataArg) {
 		url : NODE_URL + "/slice",
 		data : dataArg
 	};
+	
+	//console.log(sliceObj);
 	return sliceObj;
 }
 
@@ -801,17 +808,27 @@ function buildDocList(node) {
 		$("#doc_list_header").html('&nbsp;&nbsp;Entries for <i>' + node.data.datatype + ' <b>"' + node.name + '"</b> and ' + 
 													topNode.data.datatype + ' <b>"' + topNode.name + '"</i></b>');
 	$("#doc_list_accordion").remove();
-	$("#document_list").append('<div id="doc_list_accordion"/>');
+	//$("#document_list").append('<div id="doc_list_accordion"/>');
+	temp.visualBrowserResults.removeAll();
+	
 	for(var doc_id in node.data.doc_ids) {
-		var listing = buildListing(node.data.doc_ids[doc_id]);
-		$("#doc_list_accordion").append(listing);
+		
+		//We also have access to paradata here
+		
+		if(docDictionary[node.data.doc_ids[doc_id]].type != "paradata")
+			temp.visualBrowserResults.push(docDictionary[node.data.doc_ids[doc_id]]);
+			
+		//var listing = buildListing(node.data.doc_ids[doc_id]);
+		//$("#doc_list_accordion").append(listing);
 	}
+	
+	console.log(temp.visualBrowserResults());
 	$(".paradataLoader").click(function() {
 		loadParadata($(this).attr('id'));
 	});
-	buildAccordion();
+	//buildAccordion();
 	
-	
+	//hiasd.cool = "gt";
 	
 }
 

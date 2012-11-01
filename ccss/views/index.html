@@ -160,20 +160,31 @@
 	
 	
  </div>
-
+	<div class="modal" id="standardsBrowser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	
+	</div>
+	
  	<div class="modal" id="visualBrowser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div style="height: 30px;" class="modal-header">
 			<div>
-				<span>Search</span>
+				<span id="doc_list_header"></span> <span>Search</span>
 			</div>
 		</div>
 		<!--[if IE]><script src="excanvas.js"></script><![endif]-->
 		
 		<div class="resultModal">
-			<span id="doc_list_header"></span>
-			<div id="document_list">
-				<div id="doc_list_accordion"></div>
-			</div>
+			
+
+			
+			
+			<table class="table table-striped">
+				<tbody data-bind="foreach: visualBrowserResults">
+					<tr>
+						<td><a class="resultClick" data-bind="text:$root.getShorterStr(url, 50), attr:{name: $root.getShorterStr(url, url.length, true)}"></a><br/>
+							<a class="resultClick" data-bind="text:$root.getShorterStr(keys, 4), attr:{name: $root.getShorterStr(url, url.length, true)}"></a></td>
+					</tr>
+				</tbody>
+			</table>
 		</div>
 		
 		<div class="infovizModal">
@@ -283,6 +294,7 @@
 		$(document).ready(function(){	
 			
 			
+			
 			var handleDoSearch = function(e, str) {
 				
 				e.preventDefault();
@@ -362,6 +374,16 @@
 						temp.moveResourceToBookmark(ui.draggable.attr("name"));
 					});
 				}
+			});
+			
+			$(".resultModal").on("click", ".resultClick", function(e){
+				
+				e.preventDefault();
+				e.stopPropagation();
+				
+				$("#visualBrowser").modal("hide");
+				handleMainResourceModal($(this).attr("name"));
+				console.log("show click");
 			});
 			
 			$("table").on("click", ".author-timeline", function(evt){

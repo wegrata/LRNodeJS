@@ -279,7 +279,13 @@ select { width: 150px; }*/
 
 	width: 25%;
 	float: left;
-	height: 100%;
+	height: 92%;
+	overflow: auto;
+}
+
+.resultClick{
+
+	cursor: pointer;
 }
 
 
