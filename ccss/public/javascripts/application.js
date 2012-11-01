@@ -567,7 +567,6 @@ var mainViewModel = function(resources){
     self.getCollapseId = function(name, poundSign){
         if(poundSign === undefined)
             poundSign = "";
-
-        return (poundSign + name).replace(/\s/g, "");
+        return poundSign + name.replace(/\W/g, "");
     };
 };
