@@ -10,8 +10,8 @@ ul {
 #browser #categories {
 
     float: left;
-    width: 128px;
-    margin: 8px;
+    width: 60%;
+    margin: 8px auto;
 }
 
 #browser #view-port {
