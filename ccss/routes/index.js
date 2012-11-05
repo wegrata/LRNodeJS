@@ -83,7 +83,7 @@ exports.nodes = function( request, response, next ) {
     nodesView.query(nodesParams, nodesFinished);
     }
 };
-
+ 
 // route for displaying categorized standards
 //   pass params.category to filter by category
 exports.standards = function( request, response, next ) {
@@ -126,7 +126,8 @@ exports.browser = function( request, response, next ) {
         })
         }
     };
-
+	
+	viewOptions.layout = (request.query.ajax === undefined)? true : false;
     response.render('browser.html', viewOptions);
     });
 };
@@ -146,10 +147,22 @@ exports.index = function(request,response) {
     var opts = {};
     if (request.session)
       opts.user = request.session.email;
+     
+     //For testing purporses.. may have to make this a global array..
+     opts.locals = opts.locals || {};
+     opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
+					 'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
+					 'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
+	 opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
+					 'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
+					 'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
+     
     response.render('index.html', opts);
 };
 exports.visual = function(request,response) {
-    response.render('visual.html');
+	var viewOptions = {};
+	viewOptions.layout = (request.query.ajax === undefined)? true : false;
+    response.render('visual.html', viewOptions);
 };
 
 

@@ -12,8 +12,30 @@
 		resourceObject: The unit resource. These would be unique metadata entries from the LR. resourceObjects also 
 		have paradata arranged in a timeline array.
 
-
+		self.followers should contain an array of previewObjects
+		self.organizations needs only to contain an array of strings that can be used to search against a node
 */
+
+var urlTransform = {
+	
+	"3dr.adlnet.gov" : function(urlObj){
+		
+		//After splitting, this is the index of the most important part of the URL (the id)
+		var idIndex = 2;
+		
+		var temp = (urlObj.pathname[0] == "/") ? urlObj.pathname.substr(1, urlObj.pathname.length - 1) : urlObj.pathname; 
+		var id = temp.split("/")[idIndex];
+		
+		return "http://3dr.adlnet.gov/Public/Model.aspx?ContentObjectID=" + id;
+	}
+};
+
+//This may need to be refactored for memory efficiency. Not sure how createElement handles memory.
+var getLocation = function(href) {
+    var l = document.createElement("a");
+    l.href = href;
+    return l;
+};
 
 var opts = {
   lines: 7, // The number of lines to draw
@@ -53,16 +75,22 @@ var enableDrag = function(){
 				}
 	})
 };
-				
-				
-var enableModal = function(name){
+
+var handleMainResourceModal = function(src, direct){
 	
-	$(".draggable").click(function(){
+	//if we're not accessing directly, back should lead to visual browser
+	if(direct !== true) lastModalLocation = "visual";
+	
+	else lastModalLocation = "home";
+	
+	var tempUpdateTest = false;
+	if(typeof src == "string")
+		tempUpdateTest = true;
 		
-		
-		var target = document.getElementById('spinnerDiv');	
+	var target = document.getElementById('spinnerDiv');	
+	
+	if(!tempUpdateTest){
 		self.currentResourceName($(this).attr("name"));
-		
 		tempModalName = self.currentResourceName().split("_");
 		var temp;
 		
@@ -72,7 +100,7 @@ var enableModal = function(name){
 			temp = self.bookmarks()[tempModalName[1]];
 			tempUrl = (temp.url == undefined) ? "about:blank": temp.url;
 		}
-	
+
 		else{
 		
 			var properArray = getProperArray(tempModalName[2]);
@@ -80,55 +108,67 @@ var enableModal = function(name){
 			
 			tempUrl = (temp.url == undefined) ? "about:blank" : temp.url;		
 		}
-	
 		
-		$("#modalFrame").attr({src:tempUrl});
-		
-
-		
-		$("#modalFrame").hide();
-		$("#spinnerDiv").show();
-		
-		$("#modalFrame").load(function(){
-		
-			spinner.stop();
-			
-			$("#spinnerDiv").hide();
-			$("#modalFrame").show();
-		});
-		
-		
-		$("#modal").modal();
 		self.currentObject(temp);
-		
+	}
+	
+	else tempUrl = src;
+	
+	//Wrong way to do it: $("#modalFrame").attr({src:tempUrl});
+	var frame = $('#modalFrame')[0];  
+	frame.contentWindow.location.replace(tempUrl);
+	
+	
 
+	
+	$("#modalFrame").hide();
+	$("#spinnerDiv").show();
+	
+	$("#modalFrame").load(function(){
+	
+		spinner.stop();
 		
-		/*
-			While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
-			
-			self.currentObject().timeline.push(NEW ENTRIES);
-		*/
-		
-		
-		//console.log(self.currentObject().timeline());
-		
-		
-		if(spinner != null){
-			
-			//Checks to see if there are enough rows in the timeline to warrant showing the scroll bars
-			//Should be checked whenever an element is added to or removed from the timeline
-			if($("#timeline-table").height() > 640)
-				$(".modal-timeline").getNiceScroll().show();
-				
-			spinner.spin(target);
-		}
-		else {
-			
-			$(".modal-timeline").niceScroll({"cursoropacitymax": .7, "cursorborderradius": 0} );
-			spinner = new Spinner(opts).spin(target);
-		}
-		
+		$("#spinnerDiv").hide();
+		$("#modalFrame").show();
 	});
+	
+	
+	$("#modal").modal();
+	
+	
+
+	
+	/*
+		While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
+		
+		self.currentObject().timeline.push(NEW ENTRIES);
+	*/
+	
+	
+	//console.log(self.currentObject().timeline());
+	
+	
+	if(spinner != null){
+		
+		//Checks to see if there are enough rows in the timeline to warrant showing the scroll bars
+		//Should be checked whenever an element is added to or removed from the timeline
+		if($("#timeline-table").height() > 640)
+			$(".modal-timeline").getNiceScroll().show();
+			
+		spinner.spin(target);
+	}
+	else {
+		
+		$(".modal-timeline").niceScroll({"cursoropacitymax": .7, "cursorborderradius": 0} );
+		spinner = new Spinner(opts).spin(target);
+	}
+	
+};
+				
+				
+var enableModal = function(name){
+	
+	$(".draggable").click(handleMainResourceModal);
 	
 	$("#modal").on("hidden", function(){
 		
@@ -140,7 +180,7 @@ var enableModal = function(name){
 		$("#modalFrame").attr({src:"about:blank"});
 		$(".author-timeline").popover('hide');
 		
-		console.log("");
+		//console.log("");
 		//self.currentObject({});
 		//self.timeline.removeAll();
 	});
@@ -297,8 +337,34 @@ var mainViewModel = function(resources){
 	self.data = ko.observableArray(resources);
 	self.bookmarks = ko.observableArray();
 	self.followers = ko.observableArray(followingList);
+	self.visualBrowserResults = ko.observableArray();
+	
+	self.getShorterStr = function(str, length, url){
+		
+		if(typeof str == "string"){
+			
+			var temp = getLocation(str);
+			
+			//Check to see if we should transform the url
+			if(urlTransform[temp.hostname] !== undefined && typeof url == "boolean")
+				str = urlTransform[temp.hostname](temp);
+			
+			else str = (str.length > length)? str.substr(0, length) + "..." : str;
+				
+			return str;
+		}
+		
+		else
+			return (str.length > length)? str.splice(0, length) : str;
+	};
+	
 	self.currentObject = ko.observable({});	
 	self.currentResourceName = ko.observable("");
+	
+	
+	//allOrganizations is defined outside of this script
+	self.allOrganizations = allOrganizations;
+	self.allTerms = allTerms;
 	
 	self.checkTimelineLength = function(obj){
 	
@@ -334,24 +400,27 @@ var mainViewModel = function(resources){
 	
 	self.followOrganization = function(e){
 		
+		console.log(e);
+		//return;
+		
 		/* Add jQuery/socket.io call here */
-		$.post('/follow',JSON.stringify(e)).success(function(data){
+		/*$.post('/follow',JSON.stringify(e)).success(function(data){
 			console.log(data);
 		}).error(function(error){
 			console.error(error);
-		});
-		self.followers.push(e);
+		});*/
+		self.followers.push({name:e, content:[]});
 		
 		//self.getResourcesByFollowers();
 		
-		removeIndex = $.inArray(e, self.data());
-		swapResourceElement(self.data, removeIndex, numOfPreviewElements);
+		//removeIndex = $.inArray(e, self.data());
+		//swapResourceElement(self.data, removeIndex, numOfPreviewElements);
 		
 		//Notify listeners since we manually changed the value
-		self.data.valueHasMutated();
+		//self.data.valueHasMutated();
 		
-		enableDrag();
-		enableModal();
+		//enableDrag();
+		//enableModal();
 	};
 	
 	self.followUser = function(name){
@@ -404,7 +473,10 @@ var mainViewModel = function(resources){
 		}
 		
 		else{
-		
+			
+			console.log(arr);
+			//return;
+			
 			tempArr = switchArr()[arr[0]].content;
 			
 			/* Insert socket.io call here to add element to bookmarks, then check if successful */		
@@ -425,6 +497,7 @@ var mainViewModel = function(resources){
 			else tempArr.remove(tempArr()[arr[1]]);
 		
 		}
+		
 		enableDrag();
 		enableModal();
 	};
@@ -494,6 +567,11 @@ var mainViewModel = function(resources){
 			}
 		}
 		return tempResourcesArr;
+	};
+	
+	self.getOrganizationAccordionId = function(index, str){
+		
+		return str + "org" + index();
 	};
 	
 	self.getCollapseId = function(name, poundSign){
