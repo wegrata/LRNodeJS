@@ -189,12 +189,15 @@ var BROWSER = (function () {
             var pluralText = count === 1 ? 'resource' : 'resources';
             
             var div = $('<div/>');
-            $('<h2 />').text('Resources').appendTo(div);
+            //$('<h2 />').text('Resources').appendTo(div);
             
             $.each( resources.documents, function(i, doc) {
             var link = doc.result_data.resource;
             var a = $('<a/>').attr('href', link).text(link)
-                .attr('target', '_blank');
+                .attr('target', '_blank').click(function(e){
+					e.preventDefault();
+					handleMainResourceModal(link, true);
+			});
             var p = $('<p/>');
             p.append(a);
             div.append(p);
@@ -204,8 +207,10 @@ var BROWSER = (function () {
             .attr('href', '#').text( count + ' ' + pluralText );
             
             $newResourceLink.click( function (event) {
-            $.modal(div);
-            return false;
+				event.preventDefault();
+				$(this).parents(".resources").append(div);
+				//$("#standardsBrowser").modal("show");
+				//return false;
             });
             
             $resourceLink.replaceWith($newResourceLink);
@@ -263,6 +268,7 @@ var BROWSER = (function () {
             updateState(category, standard, grade);
             updateNodes(nodes);
             
+            
             // load the display
             if (!state.category) {
             $screen.load(categoryUrl, function () {
@@ -316,6 +322,7 @@ var BROWSER = (function () {
             callback = recursiveDescent(childrenToLoad);
             }
             
+            console.log($loadLocation);
             loadNodes($loadLocation, discriminator, callback);
         });
         

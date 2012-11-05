@@ -67,6 +67,28 @@ var ajaxPool = [];
 
 var debugMode = false;
 
+function getUrlVars()
+{
+	var vars = [], hash;
+	var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+	for(var i = 0; i < hashes.length; i++)
+	{
+		hash = hashes[i].split('=');
+
+		if($.inArray(hash[0], vars)>-1)
+		{
+			vars[hash[0]]+=","+hash[1];
+		}
+		else
+		{
+			vars.push(hash[0]);
+			vars[hash[0]] = hash[1];
+		}
+	}
+
+	return vars;
+}
+
 (function() {
 	var ua = navigator.userAgent, 
 	iStuff = ua.match(/iPhone/i) || ua.match(/iPad/i), 
@@ -106,14 +128,11 @@ $(function() {
 	
 	$("#secondary").hide();
 
-	$("#Search").click(function() {
-		startNewSearch($("#term").val());
-	});
-	$("#term").keypress(function(e) {
+	/*$("#term").keypress(function(e) {
 	    if(e.keyCode == 13) {
 	        startNewSearch($("#term").val());
 	    }
-	});
+	});*/
 
 	$( "#primaryLimit" ).html(TRIM_SIZE);
 	$( "#primaryLimitSlider" ).slider({
@@ -192,10 +211,12 @@ $(function() {
 		dataType : 'jsonp',
 		jsonp : 'callback',
 		beforeSend : function(jqXHR) {
+			
+			console.log("ajaxPool push: ", jqXHR);
 			ajaxPool.push(jqXHR);
 		}
 	});
-	buildGraph();
+	
 	
 	
 	if(url_vars.search) {
@@ -205,7 +226,17 @@ $(function() {
 });
 
 function startNewSearch(term) {
+	
+	if(initialGraphBuild !== true)
+		buildGraph();
+	
+	initialGraphBuild = true;
+	
 	if(term.length==0) return;
+	
+	
+	
+	
 	$("#progressbar").progressbar("option", "value", 0);
 	clearSummary();
 	$("#secondary").hide();
@@ -213,6 +244,7 @@ function startNewSearch(term) {
     	_gaq.push(['_trackEvent', 'LRBrowser', 'Search', term.toLowerCase()]);
     } catch (e) {}
 	killOustandingRequests();
+
 	topNode = buildNode("Loading", "", TAG);
 	topNode.id = -1;
 	loadGraphData(topNode, true);
@@ -221,8 +253,11 @@ function startNewSearch(term) {
 }
 
 function killOustandingRequests() {
-	for(var request in ajaxPool) {
-		ajaxPool[request].abort();
+	
+	console.log("ajaxPool: ", ajaxPool);
+	for(var i = 0; i <  ajaxPool.length; i++) {
+		
+		ajaxPool[i].abort();
 	}
 }
 
@@ -252,9 +287,12 @@ function startDetermineType() {
 	sliceAsIdentityResultCount = -1;
 
 	var tagCountCallback = function(data) {
+		
+		//console.log(data);
 		sliceAsTagResultCount = data.resultCount;
 		if(sliceAsIdentityResultCount > -1)
 			compareTagAndIdentityCountResults();
+			
 	}
 	var tagSliceData = buildSliceObject({
 		"any_tags" : searchTerm,
@@ -264,6 +302,8 @@ function startDetermineType() {
 	$.ajax(tagSliceData);
 
 	var identityCountCallback = function(data) {
+		
+		//console.log(data);
 		sliceAsIdentityResultCount = data.resultCount;
 		if(sliceAsTagResultCount > -1)
 			compareTagAndIdentityCountResults();
@@ -292,8 +332,12 @@ function compareTagAndIdentityCountResults() {
 		});
 	}
 	if(max_results > SUGGESTED_SLICE_LIMIT) {
+		sliceLimit = 500;
+		max_results = 500;
 		post_confirm_search_data = search_data
-		confirmSearch(search_data);
+		limit_results = true;
+		//confirmSearch(search_data);
+		handleSlice(parseSliceResult, search_data);
 	} else {
 		sliceLimit = SLICE_LIMIT_MAX;
 		handleSlice(parseSliceResult, search_data);
@@ -343,6 +387,8 @@ function buildSliceObject(dataArg) {
 		url : NODE_URL + "/slice",
 		data : dataArg
 	};
+	
+	//console.log(sliceObj);
 	return sliceObj;
 }
 
@@ -502,7 +548,7 @@ function parseSliceResult(results) {
 			if(doc.resource_data_description.keys) {
 				var keys = doc.resource_data_description.keys;
 				for(var j = 0; j < keys.length; j++) {
-					var key = keys[j].toLowerCase().trim();
+					var key = $.trim(keys[j].toLowerCase());
 					var node_id = searchTerm + "-" + key + "-" + TAG
 					if(!nodeDictionary[node_id]) {
 						var node = buildNode(key, searchTerm, TAG);
@@ -522,7 +568,7 @@ function parseSliceResult(results) {
 				for(var k = 0; k < identityTypes.length; k++) {
 					var type = identityTypes[k];
 					if(identities[type]) {
-						var ident = identities[type].toLowerCase().trim();
+						var ident = $.trim(identities[type].toLowerCase());
 						var node_id = searchTerm + "-" + ident + "-" + TAG
 						if(!nodeDictionary[node_id]) {
 							var node = buildNode(ident, searchTerm, IDENTITY);
@@ -646,7 +692,8 @@ function trimChildren(children, trimTo) {
 
 function buildGraph() {
 	var infovis = document.getElementById('infovis');
-	var w = infovis.offsetWidth - 50, h = infovis.offsetHeight - 50;
+	var jInfoVis = $('#infovis');	
+	var w = jInfoVis.width()-50, h = jInfoVis.height()-50;
 
 	//init Hypertree
 	hypertree = new $jit.Hypertree({
@@ -659,7 +706,7 @@ function buildGraph() {
 		//color, width and dimensions.
 		Node : {
 			overridable : true,
-			color : "#00F"
+			color : "#FAFAD2"
 		},
 		Edge : {
 			lineWidth : 2,
@@ -756,67 +803,71 @@ function handleNodeSingleClick() {
 }
 
 function buildDocList(node) {
+	
+	
 	if(node.id == -1)
-		$("#doc_list_header").html('');
+		$("#doc_list_header").html(''); 
 	else if(node.id == topNode.id)
 		$("#doc_list_header").html('&nbsp;&nbsp;Entries for <i>' + node.data.datatype + ' <b>"' + node.name + '"</b></i>');
 	else
 		$("#doc_list_header").html('&nbsp;&nbsp;Entries for <i>' + node.data.datatype + ' <b>"' + node.name + '"</b> and ' + 
 													topNode.data.datatype + ' <b>"' + topNode.name + '"</i></b>');
 	$("#doc_list_accordion").remove();
-	$("#document_list").append('<div id="doc_list_accordion"/>');
-	for(var doc_id in node.data.doc_ids) {
-		var listing = buildListing(node.data.doc_ids[doc_id]);
-		$("#doc_list_accordion").append(listing);
+	//$("#document_list").append('<div id="doc_list_accordion"/>');
+	temp.visualBrowserResults.removeAll();
+	console.log(node.data.doc_ids);
+	
+	for(var i = 0; i < node.data.doc_ids.length; i++) {
+		
+		//We also have access to paradata here
+		
+		if(docDictionary[node.data.doc_ids[i]].type != "paradata")
+			temp.visualBrowserResults.push(docDictionary[node.data.doc_ids[i]]);
+			
+		//var listing = buildListing(node.data.doc_ids[doc_id]);
+		//$("#doc_list_accordion").append(listing);
 	}
+	
+	//console.log(temp.visualBrowserResults());
 	$(".paradataLoader").click(function() {
 		loadParadata($(this).attr('id'));
 	});
-	buildAccordion();
+	//buildAccordion();
+	
+	//hiasd.cool = "gt";
+	
 }
 
 function buildListing(doc_id) {
 	var doc = docDictionary[doc_id];
+	
 	if(doc) {
+		
+		if(doc.type === 'paradata') {
+			return '';
+		}
+		
 		var url = doc.url;
 		var display_url;
-		if(url.length<51) display_url = url;
-		else display_url = url.substring(0, 50) + "...";
+		
+		display_url =(url.length<51)? url : url.substring(0, 50) + "...";
+		
 		var obtain_url = NODE_URL + '/obtain?by_doc_ID=true&request_id=' + doc_id
 		var output = '<h3><a href="#">' + display_url + '</a></h3>';
 		output += '<div id="' + doc_id + '">';
 		output += '<a href="' + url + '" target="_blank">View resource</a>'
-		output += ' | <a href="' + obtain_url + '" target="_blank">View Full Learning Registry entry</a><br>';
-		if(doc.type) {
-			if(doc.type != "paradata")
-				output += '<button id="' + doc_id + '_loadPara" class="paradataLoader">Find Paradata</button>';
-			output += '<br><br><b>type</b>: ' + doc.type + '<br>';
-		}
-		for(var identity_type in doc.identity) {
+		//output += ' | <a href="' + obtain_url + '" target="_blank">View Full Learning Registry entry</a><br>';
+
+		/*for(var identity_type in doc.identity) {
 			var identity_value = doc.identity[identity_type];
 			output += '<b>' + identity_type + '</b>: ' + identity_value + '<br>';
 		}
+		
 		if(doc.keys) {
 			output += '<b>keywords</b>: ';
 			output += doc.keys.join(", ");
 			output += '<br>';
-		}
-		if(doc.type) {
-			if(doc.type === "paradata") {
-				if(doc.paradata_url) {
-					output += '<a href="' + doc.paradata_url + '" target="_blank">View Paradata</a><br>'
-				} else if(doc.paradataTitle) {
-					output += '<b>title</b>: ' + doc.paradataTitle + '<br>';
-					output += '<b>description</b>: ' + doc.paradataDescription + '<br>';
-				} else if(doc.paradata_src) {
-					var escaped = "";
-					escaped += doc.paradata_src;
-					escaped = replaceAll(escaped, "<", "&lt;");
-					escaped = replaceAll(escaped, ">", "&gt;");
-					output += '<b>Raw Paradata</b>: <code>' + escaped + '</code><br>';
-				}
-			}
-		}
+		}*/
 
 		output += '</div>';
 
