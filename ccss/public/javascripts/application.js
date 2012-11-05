@@ -76,7 +76,12 @@ var enableDrag = function(){
 	})
 };
 
-var handleMainResourceModal = function(src){
+var handleMainResourceModal = function(src, direct){
+	
+	//if we're not accessing directly, back should lead to visual browser
+	if(direct !== true) lastModalLocation = "visual";
+	
+	else lastModalLocation = "home";
 	
 	var tempUpdateTest = false;
 	if(typeof src == "string")

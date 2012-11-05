@@ -196,7 +196,7 @@ var BROWSER = (function () {
             var a = $('<a/>').attr('href', link).text(link)
                 .attr('target', '_blank').click(function(e){
 					e.preventDefault();
-					handleMainResourceModal(link);
+					handleMainResourceModal(link, true);
 			});
             var p = $('<p/>');
             p.append(a);

@@ -1,7 +1,7 @@
  <div class="container">
  
  	<div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div style="height: 30px;" class="modal-header">
+		<div style="height: 30px;" class="modal-header timelineModal">
 			
 			<a class="btn" data-bind="visible: !isCurrentBookmarked(), attr:{name: currentResourceName}, click: moveResourceToBookmark" style="float: right;" href="#">
 				<i class="icon-heart"></i>
@@ -9,7 +9,7 @@
 			<a class="btn disabled" data-bind="visible: isCurrentBookmarked(), attr:{name: currentResourceName}, click: moveResourceToBookmark" style="float: right; cursor: pointer;" href="#">
 				<i class="icon-heart"></i>
 			</a>
-			<a class="btn"  style="float: left; cursor: pointer;" href="#">
+			<a class="btn backButtonModal"  style="float: left; cursor: pointer;" href="#">
 				<i class="icon-arrow-left"></i>
 			</a>
 			<div>
@@ -162,8 +162,8 @@
  </div>
 	
  	<div class="modal" id="visualBrowser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div style="height: 30px;" class="modal-header">
-			<a class="btn"  style="float: left; cursor: pointer;" href="#">
+		<div style="height: 30px;" class="modal-header visualModal">
+			<a class="btn backButtonModal"  style="float: left; cursor: pointer;" href="#">
 				<i class="icon-arrow-left"></i>
 			</a>
 			<div>
@@ -265,6 +265,9 @@
 	<script>
 		var temp = new mainViewModel([]), activeModalName = null;
 		var lastSearchCache = "";
+		
+		//Last modal location should either be home, or visual
+		var lastModalLocation = "home";
 		console.log(allOrganizations);
 		
 		
@@ -294,12 +297,32 @@
 		var initialGraphBuild = false;
 		$(document).ready(function(){	
 			
-			
+			//Handle what happens when the back button is clicked
+			$(".backButtonModal").click(function(e){
+				
+				e.preventDefault();
+				e.stopPropagation();
+				
+				if(lastModalLocation == "home"){
+					
+					$("#modal").modal("hide");
+					$("#visualBrowser").modal("hide");
+				}
+				
+				else{
+					
+					$("#modal").modal("hide");
+					$("#visualBrowser").modal("show");
+				}
+				
+				lastModalLocation = "home";
+			});
 			
 			var handleDoSearch = function(e, str) {
 				
 				e.preventDefault();
 				e.stopPropagation();
+				lastModalLocation = "home";
 				if(typeof str != "string"){
 					//Enter was pressed
 					if(e.which == 13){

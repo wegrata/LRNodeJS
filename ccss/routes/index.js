@@ -150,11 +150,11 @@ exports.index = function(request,response) {
      
      //For testing purporses.. may have to make this a global array..
      opts.locals = opts.locals || {};
-     opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','Benetech','BCOE / CADRE','BetterLesson','California Dept of Ed',
-					 'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','ISKME / OER Commons','JES & Co.','JISC','Library of Congress',
+     opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
+					 'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
 					 'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
-	 opts.locals.terms = ['adl','Agilix / BrainHoney','Benetech','BCOE / CADRE','BetterLesson','California Dept of Ed',
-					 'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','ISKME / OER Commons','JES & Co.','JISC','Library of Congress',
+	 opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
+					 'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
 					 'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
      
     response.render('index.html', opts);
