@@ -3,13 +3,14 @@
  	<div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div style="height: 30px;" class="modal-header">
 			
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-			
-			<a class="btn" data-bind="visible: !isCurrentBookmarked(), attr:{name: currentResourceName}, click: moveResourceToBookmark" style="float: left;" href="#">
+			<a class="btn" data-bind="visible: !isCurrentBookmarked(), attr:{name: currentResourceName}, click: moveResourceToBookmark" style="float: right;" href="#">
 				<i class="icon-heart"></i>
 			</a>
-			<a class="btn disabled" data-bind="visible: isCurrentBookmarked(), attr:{name: currentResourceName}, click: moveResourceToBookmark" style="float: left; cursor: pointer;" href="#">
+			<a class="btn disabled" data-bind="visible: isCurrentBookmarked(), attr:{name: currentResourceName}, click: moveResourceToBookmark" style="float: right; cursor: pointer;" href="#">
 				<i class="icon-heart"></i>
+			</a>
+			<a class="btn"  style="float: left; cursor: pointer;" href="#">
+				<i class="icon-arrow-left"></i>
 			</a>
 			<div>
 				<span data-bind="text: currentObject().title"></span>
@@ -40,6 +41,7 @@
 		<div class="chatTools">
 			<a><i class="icon-plus"></i></a>
 			<a><i class="icon-minus"></i></a>
+			<a style="float:right;"><i class="icon-flag"></i></a>
 		</div>
 		<div class="chatBox">	
 			<textarea placeholder="Add comment here (press Enter to send)."></textarea>
@@ -70,7 +72,7 @@
 						<!-- ko foreach: content -->
 							<div class="draggable lr_border_trans pull-left" data-bind="attr: {name: $root.generateName($parentContext.$index(), $index(), 'followers')}">
 								<span style="white-space: nowrap;" data-bind="text: title"></span><br/>
-								<img src="/images/qmark.png" />
+
 							</div>
 						<!-- /ko -->
 						
@@ -86,13 +88,13 @@
 				<!-- ko foreach: bookmarks -->
 					<div class="draggable lr_border_trans pull-left" data-bind="attr: {name: $root.generateName('-1', $index(), 'bookmarks')}">
 						<span style="white-space: nowrap;" data-bind="text: title"></span><br/>
-						<img src="/images/qmark.png" />
+
 					</div>
 				<!-- /ko -->
 				
 			</div>
 		</div>
-		<div class="span9">		  
+		<div class="span8 offset1">		  
 		  	<div class="row">
 				
 				<div style="text-align: center;" data-bind="foreach: data" >
@@ -157,15 +159,13 @@
 			</div>
 		</div>
       </div>
-	
-	
  </div>
-	<div class="modal" id="standardsBrowser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	
-	</div>
 	
  	<div class="modal" id="visualBrowser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div style="height: 30px;" class="modal-header">
+			<a class="btn"  style="float: left; cursor: pointer;" href="#">
+				<i class="icon-arrow-left"></i>
+			</a>
 			<div>
 				<span id="doc_list_header"></span> <span>Search</span>
 			</div>
@@ -180,8 +180,10 @@
 			<table class="table table-striped">
 				<tbody data-bind="foreach: visualBrowserResults">
 					<tr>
-						<td><a class="resultClick" data-bind="text:$root.getShorterStr(url, 50), attr:{name: $root.getShorterStr(url, url.length, true)}"></a><br/>
-							<a class="resultClick" data-bind="text:$root.getShorterStr(keys, 4), attr:{name: $root.getShorterStr(url, url.length, true)}"></a></td>
+						<td>
+							<a class="resultClick" data-bind="text:$root.getShorterStr(url, 50), attr:{name: $root.getShorterStr(url, url.length, true)}"></a><br/>
+							<a class="resultClick" data-bind="text:$root.getShorterStr(keys, 4), attr:{name: $root.getShorterStr(url, url.length, true)}"></a>
+						</td>
 					</tr>
 				</tbody>
 			</table>
@@ -189,28 +191,27 @@
 		
 		<div class="infovizModal">
 
-				<div id="infovis"></div>
+			<div id="infovis"></div>
 				
-				<div class="text" >
-					<div style="text-align: center;">
-						<div id="progressbar" align="center"></div>
-					</div>
-					<div id="status">
-						...
-					</div>
+			<div class="text" >
+				<div style="text-align: center;">
+					<div id="progressbar" align="center"></div>
 				</div>
-				<br>
-				<div class="text">
-					<div id="results_summary"></div>
+				<div id="status">
+					...
 				</div>
-				<br>
-				<div id = "debugDiv" class="text">
-					<div id="debug">
-						...
-					</div>
+			</div>
+			<br>
+			<div class="text">
+				<div id="results_summary"></div>
+			</div>
+			<br>
+			<div id = "debugDiv" class="text">
+				<div id="debug">
+					...
 				</div>
+			</div>
 			
-				
 		</div>
 	</div>
 
@@ -263,7 +264,7 @@
 	<script src="/javascripts/application.js"></script> 
 	<script>
 		var temp = new mainViewModel([]), activeModalName = null;
-		
+		var lastSearchCache = "";
 		console.log(allOrganizations);
 		
 		
@@ -304,13 +305,24 @@
 					if(e.which == 13){
 						/* Additional optional logic. Is keyword or url search? */
 						$("#visualBrowser").modal("show");
-						startNewSearch($("#term").val());
+						
+						//There's no reason to perform a new search if it's the same as the last
+						str = $("#term").val();
+						if(lastSearchCache != str){
+							lastSearchCache = str;
+							startNewSearch(str);
+						}
 					}
 				}
 				else {
 					console.log(str);
 					$("#visualBrowser").modal("show");
-					startNewSearch(str);
+					
+					//There's no reason to perform a new search if it's the same as the last
+					if(lastSearchCache != str){
+						lastSearchCache = str;
+						startNewSearch(str);
+					}
 				}
 			};
 		

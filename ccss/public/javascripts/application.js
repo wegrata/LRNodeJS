@@ -18,16 +18,19 @@
 
 var urlTransform = {
 	
-	"3dr.adlnet.gov" : function(obj){
+	"3dr.adlnet.gov" : function(urlObj){
 		
-		//After splitting, this is the index of the most important part of the URL
-		var idIndex = 3;
-		var id = obj.pathname.split("/")[idIndex];
-		//console.log("http://3dr.adlnet.gov/Public/Model.aspx?ContentObjectID=" + id);
+		//After splitting, this is the index of the most important part of the URL (the id)
+		var idIndex = 2;
+		
+		var temp = (urlObj.pathname[0] == "/") ? urlObj.pathname.substr(1, urlObj.pathname.length - 1) : urlObj.pathname; 
+		var id = temp.split("/")[idIndex];
+		
 		return "http://3dr.adlnet.gov/Public/Model.aspx?ContentObjectID=" + id;
 	}
 };
 
+//This may need to be refactored for memory efficiency. Not sure how createElement handles memory.
 var getLocation = function(href) {
     var l = document.createElement("a");
     l.href = href;
@@ -172,7 +175,7 @@ var enableModal = function(name){
 		$("#modalFrame").attr({src:"about:blank"});
 		$(".author-timeline").popover('hide');
 		
-		console.log("");
+		//console.log("");
 		//self.currentObject({});
 		//self.timeline.removeAll();
 	});
@@ -392,24 +395,27 @@ var mainViewModel = function(resources){
 	
 	self.followOrganization = function(e){
 		
+		console.log(e);
+		//return;
+		
 		/* Add jQuery/socket.io call here */
-		$.post('/follow',JSON.stringify(e)).success(function(data){
+		/*$.post('/follow',JSON.stringify(e)).success(function(data){
 			console.log(data);
 		}).error(function(error){
 			console.error(error);
-		});
-		self.followers.push(e);
+		});*/
+		self.followers.push({name:e, content:[]});
 		
 		//self.getResourcesByFollowers();
 		
-		removeIndex = $.inArray(e, self.data());
-		swapResourceElement(self.data, removeIndex, numOfPreviewElements);
+		//removeIndex = $.inArray(e, self.data());
+		//swapResourceElement(self.data, removeIndex, numOfPreviewElements);
 		
 		//Notify listeners since we manually changed the value
-		self.data.valueHasMutated();
+		//self.data.valueHasMutated();
 		
-		enableDrag();
-		enableModal();
+		//enableDrag();
+		//enableModal();
 	};
 	
 	self.followUser = function(name){
@@ -462,7 +468,10 @@ var mainViewModel = function(resources){
 		}
 		
 		else{
-		
+			
+			console.log(arr);
+			//return;
+			
 			tempArr = switchArr()[arr[0]].content;
 			
 			/* Insert socket.io call here to add element to bookmarks, then check if successful */		
@@ -483,6 +492,7 @@ var mainViewModel = function(resources){
 			else tempArr.remove(tempArr()[arr[1]]);
 		
 		}
+		
 		enableDrag();
 		enableModal();
 	};

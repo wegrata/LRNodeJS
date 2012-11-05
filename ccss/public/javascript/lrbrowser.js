@@ -211,6 +211,8 @@ $(function() {
 		dataType : 'jsonp',
 		jsonp : 'callback',
 		beforeSend : function(jqXHR) {
+			
+			console.log("ajaxPool push: ", jqXHR);
 			ajaxPool.push(jqXHR);
 		}
 	});
@@ -251,8 +253,11 @@ function startNewSearch(term) {
 }
 
 function killOustandingRequests() {
-	for(var request in ajaxPool) {
-		ajaxPool[request].abort();
+	
+	console.log("ajaxPool: ", ajaxPool);
+	for(var i = 0; i <  ajaxPool.length; i++) {
+		
+		ajaxPool[i].abort();
 	}
 }
 
@@ -283,7 +288,7 @@ function startDetermineType() {
 
 	var tagCountCallback = function(data) {
 		
-		console.log(data);
+		//console.log(data);
 		sliceAsTagResultCount = data.resultCount;
 		if(sliceAsIdentityResultCount > -1)
 			compareTagAndIdentityCountResults();
@@ -298,7 +303,7 @@ function startDetermineType() {
 
 	var identityCountCallback = function(data) {
 		
-		console.log(data);
+		//console.log(data);
 		sliceAsIdentityResultCount = data.resultCount;
 		if(sliceAsTagResultCount > -1)
 			compareTagAndIdentityCountResults();
@@ -543,7 +548,7 @@ function parseSliceResult(results) {
 			if(doc.resource_data_description.keys) {
 				var keys = doc.resource_data_description.keys;
 				for(var j = 0; j < keys.length; j++) {
-					var key = keys[j].toLowerCase().trim();
+					var key = $.trim(keys[j].toLowerCase());
 					var node_id = searchTerm + "-" + key + "-" + TAG
 					if(!nodeDictionary[node_id]) {
 						var node = buildNode(key, searchTerm, TAG);
@@ -563,7 +568,7 @@ function parseSliceResult(results) {
 				for(var k = 0; k < identityTypes.length; k++) {
 					var type = identityTypes[k];
 					if(identities[type]) {
-						var ident = identities[type].toLowerCase().trim();
+						var ident = $.trim(identities[type].toLowerCase());
 						var node_id = searchTerm + "-" + ident + "-" + TAG
 						if(!nodeDictionary[node_id]) {
 							var node = buildNode(ident, searchTerm, IDENTITY);
@@ -688,7 +693,7 @@ function trimChildren(children, trimTo) {
 function buildGraph() {
 	var infovis = document.getElementById('infovis');
 	var jInfoVis = $('#infovis');	
-	var w = jInfoVis.width(), h = jInfoVis.height();
+	var w = jInfoVis.width()-50, h = jInfoVis.height()-50;
 
 	//init Hypertree
 	hypertree = new $jit.Hypertree({
@@ -810,19 +815,20 @@ function buildDocList(node) {
 	$("#doc_list_accordion").remove();
 	//$("#document_list").append('<div id="doc_list_accordion"/>');
 	temp.visualBrowserResults.removeAll();
+	console.log(node.data.doc_ids);
 	
-	for(var doc_id in node.data.doc_ids) {
+	for(var i = 0; i < node.data.doc_ids.length; i++) {
 		
 		//We also have access to paradata here
 		
-		if(docDictionary[node.data.doc_ids[doc_id]].type != "paradata")
-			temp.visualBrowserResults.push(docDictionary[node.data.doc_ids[doc_id]]);
+		if(docDictionary[node.data.doc_ids[i]].type != "paradata")
+			temp.visualBrowserResults.push(docDictionary[node.data.doc_ids[i]]);
 			
 		//var listing = buildListing(node.data.doc_ids[doc_id]);
 		//$("#doc_list_accordion").append(listing);
 	}
 	
-	console.log(temp.visualBrowserResults());
+	//console.log(temp.visualBrowserResults());
 	$(".paradataLoader").click(function() {
 		loadParadata($(this).attr('id'));
 	});
