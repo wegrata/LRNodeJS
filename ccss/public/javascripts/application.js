@@ -78,6 +78,10 @@ var enableDrag = function(){
 
 var handleMainResourceModal = function(src, direct){
 	
+	self.currentObject(new resourceObject("Item", src));
+	console.log(self.currentObject());
+	
+	
 	//if we're not accessing directly, back should lead to visual browser
 	if(direct !== true) lastModalLocation = "visual";
 	
