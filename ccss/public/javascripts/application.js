@@ -114,14 +114,13 @@ var handleMainResourceModal = function(src, direct){
 	
 	else tempUrl = src;
 	
-	//Wrong way to do it: $("#modalFrame").attr({src:tempUrl});
+	//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
+	var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
+	$("#mBody").append(frameCode);
+	
 	var frame = $('#modalFrame')[0];  
 	frame.contentWindow.location.replace(tempUrl);
-	
-	
 
-	
-	$("#modalFrame").hide();
 	$("#spinnerDiv").show();
 	
 	$("#modalFrame").load(function(){
@@ -129,7 +128,7 @@ var handleMainResourceModal = function(src, direct){
 		spinner.stop();
 		
 		$("#spinnerDiv").hide();
-		$("#modalFrame").show();
+		$("#modalFrame").css("visibility", "visible");
 	});
 	
 	
