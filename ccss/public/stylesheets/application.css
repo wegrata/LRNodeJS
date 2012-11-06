@@ -3,6 +3,17 @@
 	padding-bottom: 40px;
   }
   
+  #iframeHiddenFix{
+	
+		height: 1px;
+		width: 1px;
+		z-index: -1;
+		display: absolute;
+		left: 0;
+		top: 0;
+		visibility: hidden;
+  }
+  
   .lr_border{
    z-index: 2700;
 	border: 1px solid #DDD;
