@@ -27,13 +27,8 @@ passport.deserializeUser(function(email, done) {
 passport.use(new browserid({
     audience: 'http://localhost:1337'
 }, function(email, done){
-    console.log(email);
     done(null, {"email": email});
 }));
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) { return next(); }
-  res.redirect('/');
-}
 
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
@@ -90,11 +85,15 @@ app.get('/resources', routes.resources);
 app.get('/signup', routes.signup);
 app.get('/main', routes.main);
 app.post('/auth',
-  passport.authenticate('browserid', { failureRedirect: '/auth' }),
+  passport.authenticate('browserid', { failureRedirect: '/' }),
   function(req, res) {
     // Successful authentication, redirect home.
     res.redirect('/');
   });
+app.post('/logout', function(req, res){
+    req.logout();
+    res.redirect('/');
+});
 // start
 
 app.configure('development', function(){
