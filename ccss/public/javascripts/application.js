@@ -78,91 +78,93 @@ var enableDrag = function(){
 
 var handleMainResourceModal = function(src, direct){
 
-    //if we're not accessing directly, back should lead to visual browser
-    if(direct !== true) lastModalLocation = "visual";
+	self.currentObject(new resourceObject("Item", src));
+	console.log(self.currentObject());
+	
+	
+	//if we're not accessing directly, back should lead to visual browser
+	if(direct !== true) lastModalLocation = "visual";
+	
+	else lastModalLocation = "home";
+	
+	var tempUpdateTest = false;
+	if(typeof src == "string")
+		tempUpdateTest = true;
+		
+	var target = document.getElementById('spinnerDiv');	
+	
+	if(!tempUpdateTest){
+		self.currentResourceName($(this).attr("name"));
+		tempModalName = self.currentResourceName().split("_");
+		var temp;
+		
+		//-1 means that the element isn't nested
+		if(tempModalName[0] == '-1'){
+			
+			temp = self.bookmarks()[tempModalName[1]];
+			tempUrl = (temp.url === undefined) ? "about:blank": temp.url;
+		}
 
-    else lastModalLocation = "home";
+		else{
+		
+			var properArray = getProperArray(tempModalName[2]);
+			temp = properArray()[tempModalName[0]].content()[tempModalName[1]];
+			
+			tempUrl = (temp.url === undefined) ? "about:blank" : temp.url;		
+		}
+		
+		self.currentObject(temp);
+	}
+	
+	else tempUrl = src;
+	
+	//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
+	var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
+	$("#mBody").append(frameCode);
+	
+	var frame = $('#modalFrame')[0];  
+	frame.contentWindow.location.replace(tempUrl);
 
-    var tempUpdateTest = false;
-    if(typeof src == "string")
-        tempUpdateTest = true;
+	$("#spinnerDiv").show();
+	
+	$("#modalFrame").load(function(){
+	
+		spinner.stop();
+		
+		$("#spinnerDiv").hide();
+		$("#modalFrame").css("visibility", "visible");
+	});
+	
+	
+	$("#modal").modal();
+	
+	
 
-    var target = document.getElementById('spinnerDiv');
-
-    if(!tempUpdateTest){
-        self.currentResourceName($(this).attr("name"));
-        tempModalName = self.currentResourceName().split("_");
-        var temp;
-
-        //-1 means that the element isn't nested
-        if(tempModalName[0] == '-1'){
-
-            temp = self.bookmarks()[tempModalName[1]];
-            tempUrl = (temp.url === undefined) ? "about:blank": temp.url;
-        }
-
-        else{
-
-            var properArray = getProperArray(tempModalName[2]);
-            temp = properArray()[tempModalName[0]].content()[tempModalName[1]];
-
-            tempUrl = (temp.url === undefined) ? "about:blank" : temp.url;
-        }
-
-        self.currentObject(temp);
-    }
-
-    else tempUrl = src;
-
-    //Wrong way to do it: $("#modalFrame").attr({src:tempUrl});
-    var frame = $('#modalFrame')[0];
-    frame.contentWindow.location.replace(tempUrl);
-
-
-
-
-    $("#modalFrame").hide();
-    $("#spinnerDiv").show();
-
-    $("#modalFrame").load(function(){
-
-        spinner.stop();
-
-        $("#spinnerDiv").hide();
-        $("#modalFrame").show();
-    });
-
-
-    $("#modal").modal();
-
-
-
-
-    /*
-        While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
-
-        self.currentObject().timeline.push(NEW ENTRIES);
-    */
-
-
-    //console.log(self.currentObject().timeline());
-
-
-    if(spinner !== null){
-
-        //Checks to see if there are enough rows in the timeline to warrant showing the scroll bars
-        //Should be checked whenever an element is added to or removed from the timeline
-        if($("#timeline-table").height() > 640)
-            $(".modal-timeline").getNiceScroll().show();
-
-        spinner.spin(target);
-    }
-    else {
-
-        $(".modal-timeline").niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
-        spinner = new Spinner(opts).spin(target);
-    }
-
+	
+	/*
+		While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
+		
+		self.currentObject().timeline.push(NEW ENTRIES);
+	*/
+	
+	
+	//console.log(self.currentObject().timeline());
+	
+	
+	if(spinner != null){
+		
+		//Checks to see if there are enough rows in the timeline to warrant showing the scroll bars
+		//Should be checked whenever an element is added to or removed from the timeline
+		if($("#timeline-table").height() > 640)
+			$(".modal-timeline").getNiceScroll().show();
+			
+		spinner.spin(target);
+	}
+	else {
+		
+		$(".modal-timeline").niceScroll({"cursoropacitymax": .7, "cursorborderradius": 0} );
+		spinner = new Spinner(opts).spin(target);
+	}
 };
 
 
