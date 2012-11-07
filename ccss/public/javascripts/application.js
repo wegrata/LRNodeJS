@@ -77,6 +77,10 @@ var enableDrag = function(){
 };
 
 var handleMainResourceModal = function(src, direct){
+	
+	//src should either be the URL, or a jQuery object whose name attribute is the URL
+	src = (typeof src == "string")? src : $(this).attr("name");
+	
 
 	self.currentObject(new resourceObject("Item", src));
 	console.log(self.currentObject());
@@ -86,37 +90,9 @@ var handleMainResourceModal = function(src, direct){
 	if(direct !== true) lastModalLocation = "visual";
 	
 	else lastModalLocation = "home";
-	
-	var tempUpdateTest = false;
-	if(typeof src == "string")
-		tempUpdateTest = true;
 		
 	var target = document.getElementById('spinnerDiv');	
-	
-	if(!tempUpdateTest){
-		self.currentResourceName($(this).attr("name"));
-		tempModalName = self.currentResourceName().split("_");
-		var temp;
-		
-		//-1 means that the element isn't nested
-		if(tempModalName[0] == '-1'){
-			
-			temp = self.bookmarks()[tempModalName[1]];
-			tempUrl = (temp.url === undefined) ? "about:blank": temp.url;
-		}
-
-		else{
-		
-			var properArray = getProperArray(tempModalName[2]);
-			temp = properArray()[tempModalName[0]].content()[tempModalName[1]];
-			
-			tempUrl = (temp.url === undefined) ? "about:blank" : temp.url;		
-		}
-		
-		self.currentObject(temp);
-	}
-	
-	else tempUrl = src;
+	tempUrl = src;
 	
 	//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
 	var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
@@ -131,8 +107,11 @@ var handleMainResourceModal = function(src, direct){
 	
 		spinner.stop();
 		
-		$("#spinnerDiv").hide();
-		$("#modalFrame").css("visibility", "visible");
+		$("#spinnerDiv").hide("slow", function(){
+			
+			$("#modalFrame").css("visibility", "visible");
+		});
+		
 	});
 	
 	
@@ -170,7 +149,7 @@ var handleMainResourceModal = function(src, direct){
 
 var enableModal = function(name){
 
-    $(".draggable").click(handleMainResourceModal);
+    $(".draggable span").click(handleMainResourceModal);
 
     $("#modal").on("hidden", function(){
 
@@ -358,6 +337,7 @@ var mainViewModel = function(resources){
 
 
     //allOrganizations is defined outside of this script
+    console.log(allOrganizations);
     self.allOrganizations = allOrganizations;
     self.allTerms = allTerms;
 
@@ -426,68 +406,33 @@ var mainViewModel = function(resources){
     };
 
     self.moveResourceToBookmark = function(index){
-
+		
+		console.log(self.currentObject());
+		
         //Doing this kind of check is a workaround for not being able to pass
         //currentResourceName directly. Not sure what that's about..
-        if(typeof index != "string")
-            index = self.currentResourceName();
-
-        var arr = index.split("_");
-        var switchArr;
-
-
-        //Element is already in bookmarks.. remove from bookmarks
-        switchArr = getProperArray(arr[2]);
-        if(switchArr === "bookmarks"){
+		
+		//Element was found in bookmarks
+        if(self.bookmarks.indexOf(self.currentObject().url) !== -1){
 
             var currentName;
-            //Removing element from bookmarks
-            if(arr[0] == "-1"){
-                currentName = "-2_0_bookmarks";
-                self.currentResourceName(currentName);
-
-                self.currentObject(self.bookmarks()[arr[1]]);
-                self.bookmarks.remove(self.bookmarks()[arr[1]]);
-            }
-
-            //Re-adding removed element back to bookmarks
-            else{
-
-
-                self.bookmarks.push(self.currentObject());
-
-                currentName = "-1_" + (self.bookmarks().length-1) + "_" + "bookmarks";
-                self.currentResourceName(currentName);
-            }
-
-            console.log(self.bookmarks());
-            console.log(currentName);
+			currentName = "-2_0_bookmarks";
+			self.currentResourceName(currentName);
+			self.bookmarks.remove(self.currentObject().url);
+			
+			console.log(self.bookmarks().length);
         }
 
         else{
 
-            console.log(arr);
-            //return;
-
-            tempArr = switchArr()[arr[0]].content;
-
             /* Insert socket.io call here to add element to bookmarks, then check if successful */
 
             //Assign this resource a publisher, add it to bookmarks, and update currentResourceName to reflect that
-            tempArr()[arr[1]].publisher = switchArr()[arr[0]].name;
-            self.bookmarks.push(tempArr()[arr[1]]);
+            //self.currentObject().publisher = self.currentObject().url;
+            self.bookmarks.push(self.currentObject().url);
             self.currentResourceName("-1_" + (self.bookmarks().length-1) + "_" + "bookmarks");
 
             console.log(self.bookmarks().length);
-
-            //If this is the last element, swap whole publisher element instead of simply removing sub-element resource
-            if(tempArr().length == 1){
-
-                swapResourceElement(switchArr, arr[0], numOfPreviewElements);
-            }
-
-            else tempArr.remove(tempArr()[arr[1]]);
-
         }
 
         enableDrag();
@@ -508,16 +453,10 @@ var mainViewModel = function(resources){
     };
 
     self.isCurrentBookmarked = function(){
-
-        if(self.currentResourceName() === null)
-            return false;
-
-        var nameArr = self.currentResourceName().split("_");
-
-        if(nameArr[0] == "-1" && nameArr[2] == "bookmarks")
-            return true;
-
-        return false;
+	
+		
+		console.log("Is in bookmarks? ", self.bookmarks.indexOf(self.currentObject().url));
+        return (self.bookmarks.indexOf(self.currentObject().url) !== -1);
     };
 
     self.getResourcesByFollowers = function(){

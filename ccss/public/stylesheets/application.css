@@ -32,8 +32,7 @@
   }
   
   .draggable{
-	
-	width: 90px;
+	width: 90%;
 	background: #FFF;
 	text-align: center;
 	padding: 3px;
@@ -161,8 +160,15 @@
 	}
 	
 	.chatTools{
+		padding-top: 15px;
+		height: 15px;
+		text-align: center;
+	}
 	
-		height: 30px;
+	.chatTools span{
+		
+		color: #aaa;
+		padding: 0 20px;
 	}
 	
 	.chatBox textarea{

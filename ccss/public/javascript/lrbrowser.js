@@ -212,7 +212,7 @@ $(function() {
 		jsonp : 'callback',
 		beforeSend : function(jqXHR) {
 			
-			console.log("ajaxPool push: ", jqXHR);
+			//console.log("ajaxPool push: ", jqXHR);
 			ajaxPool.push(jqXHR);
 		}
 	});
@@ -815,7 +815,7 @@ function buildDocList(node) {
 	$("#doc_list_accordion").remove();
 	//$("#document_list").append('<div id="doc_list_accordion"/>');
 	temp.visualBrowserResults.removeAll();
-	console.log(node.data.doc_ids);
+	//console.log(node.data.doc_ids);
 	
 	for(var i = 0; i < node.data.doc_ids.length; i++) {
 		
