@@ -1,7 +1,157 @@
-var Placeholders=function(){function m(a){a.createTextRange?(a=a.createTextRange(),a.move("character",0),a.select()):a.selectionStart&&(a.focus(),a.setSelectionRange(0,0))}function r(){var a;if(this.value===this.getAttribute("placeholder"))if(k.hideOnFocus){if(this.className=this.className.replace(/\bplaceholderspolyfill\b/,""),this.value="",a=this.getAttribute("data-placeholdertype"))this.type=a}else m(this)}function n(){var a;if(""===this.value&&(this.className+=" placeholderspolyfill",this.value=
-this.getAttribute("placeholder"),a=this.getAttribute("data-placeholdertype")))this.type="text"}function s(){var a=this.getElementsByTagName("input"),c=this.getElementsByTagName("textarea"),e=a.length,i=e+c.length,g,f,d;for(d=0;d<i;d+=1)g=d<e?a[d]:c[d-e],f=g.getAttribute("placeholder"),g.value===f&&(g.value="")}function t(a){l=this.value;return!(l===this.getAttribute("placeholder")&&-1<u.indexOf(a.keyCode))}function v(){var a;if(this.value!==l&&(this.className=this.className.replace(/\bplaceholderspolyfill\b/,
-""),this.value=this.value.replace(this.getAttribute("placeholder"),""),a=this.getAttribute("data-placeholdertype")))this.type=a;""===this.value&&(n.call(this),m(this))}function j(a,c,e){if(a.addEventListener)return a.addEventListener(c,e.bind(a),!1);if(a.attachEvent)return a.attachEvent("on"+c,e.bind(a))}function o(a){k.hideOnFocus||(j(a,"keydown",t),j(a,"keyup",v));j(a,"focus",r);j(a,"blur",n)}function p(){var a=document.getElementsByTagName("input"),c=document.getElementsByTagName("textarea"),e=
-a.length,i=e+c.length,g,f,d,b;for(g=0;g<i;g+=1)if(f=g<e?a[g]:c[g-e],b=f.getAttribute("placeholder"),-1<q.indexOf(f.type)&&b&&(d=f.getAttribute("data-currentplaceholder"),b!==d)){if(f.value===d||f.value===b||!f.value)f.value=b,f.className+=" placeholderspolyfill";d||o(f);f.setAttribute("data-currentplaceholder",b)}}var q="text search url tel email password number".split(" "),k={live:!1,hideOnFocus:!1},u=[37,38,39,40],l;return{init:function(a){var c,e,i;if("undefined"===typeof document.createElement("input").placeholder){for(c in a)a.hasOwnProperty(c)&&
-(k[c]=a[c]);a=document.createElement("style");a.type="text/css";c=document.createTextNode(".placeholderspolyfill { color:#999 !important; }");a.styleSheet?a.styleSheet.cssText=c.nodeValue:a.appendChild(c);document.getElementsByTagName("head")[0].appendChild(a);Array.prototype.indexOf||(Array.prototype.indexOf=function(a,b){e=b||0;for(i=this.length;e<i;e+=1)if(this[e]===a)return e;return-1});Function.prototype.bind||(Function.prototype.bind=function(a){if(typeof this!=="function")throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-var b=Array.prototype.slice.call(arguments,1),d=this,c=function(){},e=function(){return d.apply(this instanceof c?this:a,b.concat(Array.prototype.slice.call(arguments)))};c.prototype=this.prototype;e.prototype=new c;return e});a=document.getElementsByTagName("input");c=document.getElementsByTagName("textarea");var g=a.length,f=g+c.length,d,b,h;for(d=0;d<f;d+=1)if(b=d<g?a[d]:c[d-g],h=b.getAttribute("placeholder"),-1<q.indexOf(b.type)&&h){if("password"===b.type)try{b.type="text",b.setAttribute("data-placeholdertype",
-"password")}catch(l){}b.setAttribute("data-currentplaceholder",h);if(""===b.value||b.value===h)b.className+=" placeholderspolyfill",b.value=h;b.form&&(h=b.form,h.getAttribute("data-placeholdersubmit")||(j(h,"submit",s),h.setAttribute("data-placeholdersubmit","true")));o(b)}k.live&&setInterval(p,100);return!0}return!1},refresh:p}}();
+/*! http://mths.be/placeholder v2.0.7 by @mathias */
+;(function(window, document, $) {
+
+	var isInputSupported = 'placeholder' in document.createElement('input'),
+	    isTextareaSupported = 'placeholder' in document.createElement('textarea'),
+	    prototype = $.fn,
+	    valHooks = $.valHooks,
+	    hooks,
+	    placeholder;
+
+	if (isInputSupported && isTextareaSupported) {
+
+		placeholder = prototype.placeholder = function() {
+			return this;
+		};
+
+		placeholder.input = placeholder.textarea = true;
+
+	} else {
+
+		placeholder = prototype.placeholder = function() {
+			var $this = this;
+			$this
+				.filter((isInputSupported ? 'textarea' : ':input') + '[placeholder]')
+				.not('.placeholder')
+				.bind({
+					'focus.placeholder': clearPlaceholder,
+					'blur.placeholder': setPlaceholder
+				})
+				.data('placeholder-enabled', true)
+				.trigger('blur.placeholder');
+			return $this;
+		};
+
+		placeholder.input = isInputSupported;
+		placeholder.textarea = isTextareaSupported;
+
+		hooks = {
+			'get': function(element) {
+				var $element = $(element);
+				return $element.data('placeholder-enabled') && $element.hasClass('placeholder') ? '' : element.value;
+			},
+			'set': function(element, value) {
+				var $element = $(element);
+				if (!$element.data('placeholder-enabled')) {
+					return element.value = value;
+				}
+				if (value == '') {
+					element.value = value;
+					// Issue #56: Setting the placeholder causes problems if the element continues to have focus.
+					if (element != document.activeElement) {
+						// We can't use `triggerHandler` here because of dummy text/password inputs :(
+						setPlaceholder.call(element);
+					}
+				} else if ($element.hasClass('placeholder')) {
+					clearPlaceholder.call(element, true, value) || (element.value = value);
+				} else {
+					element.value = value;
+				}
+				// `set` can not return `undefined`; see http://jsapi.info/jquery/1.7.1/val#L2363
+				return $element;
+			}
+		};
+
+		isInputSupported || (valHooks.input = hooks);
+		isTextareaSupported || (valHooks.textarea = hooks);
+
+		$(function() {
+			// Look for forms
+			$(document).delegate('form', 'submit.placeholder', function() {
+				// Clear the placeholder values so they don't get submitted
+				var $inputs = $('.placeholder', this).each(clearPlaceholder);
+				setTimeout(function() {
+					$inputs.each(setPlaceholder);
+				}, 10);
+			});
+		});
+
+		// Clear placeholder values upon page reload
+		$(window).bind('beforeunload.placeholder', function() {
+			$('.placeholder').each(function() {
+				this.value = '';
+			});
+		});
+
+	}
+
+	function args(elem) {
+		// Return an object of element attributes
+		var newAttrs = {},
+		    rinlinejQuery = /^jQuery\d+$/;
+		$.each(elem.attributes, function(i, attr) {
+			if (attr.specified && !rinlinejQuery.test(attr.name)) {
+				newAttrs[attr.name] = attr.value;
+			}
+		});
+		return newAttrs;
+	}
+
+	function clearPlaceholder(event, value) {
+		var input = this,
+		    $input = $(input);
+		if (input.value == $input.attr('placeholder') && $input.hasClass('placeholder')) {
+			if ($input.data('placeholder-password')) {
+				$input = $input.hide().next().show().attr('id', $input.removeAttr('id').data('placeholder-id'));
+				// If `clearPlaceholder` was called from `$.valHooks.input.set`
+				if (event === true) {
+					return $input[0].value = value;
+				}
+				$input.focus();
+			} else {
+				input.value = '';
+				$input.removeClass('placeholder');
+				input == document.activeElement && input.select();
+			}
+		}
+	}
+
+	function setPlaceholder() {
+		var $replacement,
+		    input = this,
+		    $input = $(input),
+		    $origInput = $input,
+		    id = this.id;
+		if (input.value == '') {
+			if (input.type == 'password') {
+				if (!$input.data('placeholder-textinput')) {
+					try {
+						$replacement = $input.clone().attr({ 'type': 'text' });
+					} catch(e) {
+						$replacement = $('<input>').attr($.extend(args(this), { 'type': 'text' }));
+					}
+					$replacement
+						.removeAttr('name')
+						.data({
+							'placeholder-password': true,
+							'placeholder-id': id
+						})
+						.bind('focus.placeholder', clearPlaceholder);
+					$input
+						.data({
+							'placeholder-textinput': $replacement,
+							'placeholder-id': id
+						})
+						.before($replacement);
+				}
+				$input = $input.removeAttr('id').hide().prev().attr('id', id).show();
+				// Note: `$input[0] != input` now!
+			}
+			$input.addClass('placeholder');
+			$input[0].value = $input.attr('placeholder');
+		} else {
+			$input.removeClass('placeholder');
+		}
+	}
+
+}(this, document, jQuery));

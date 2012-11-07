@@ -267,9 +267,7 @@
 		var allOrganizations = "{{orgs}}".split(",");
 		var allTerms = "{{terms}}".split(",");
 		
-		//console.log({{orgs}});		
-		Placeholders.init();
-	
+		//console.log({{orgs}});			
 	</script>
 	<script src="/javascripts/application.js"></script> 
 	<script>
@@ -278,10 +276,7 @@
 		
 		//Last modal location should either be home, or visual
 		var lastModalLocation = "home";
-		console.log(allOrganizations);
-		
-		
-		
+
 		ko.applyBindings(temp);
 		/*$.getJSON('/resources',function(data){
 			
@@ -306,6 +301,8 @@
 		$("#modal").hide();
 		var initialGraphBuild = false;
 		$(document).ready(function(){	
+			
+			$('input, textarea').placeholder();
 			
 			//Handle what happens when the back button is clicked
 			$(".backButtonModal").click(function(e){

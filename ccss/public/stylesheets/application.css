@@ -3,6 +3,11 @@
 	padding-bottom: 40px;
   }
   
+  input, textarea, input:focus, textarea:focus{
+  
+	outline: none;
+  }
+  
   #iframeHiddenFix{
 	
 		height: 1px;
