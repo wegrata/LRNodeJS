@@ -15,7 +15,26 @@
 var express  = require('express');
 var mustache = require('mustache');
 var config   = require('config');
-const AUDIENCE = "http://localhost:1337";
+var passport = require('passport');
+var browserid = require('passport-browserid').Strategy;
+passport.serializeUser(function(user, done) {
+  done(null, user.email);
+});
+
+passport.deserializeUser(function(email, done) {
+  done(null, { email: email });
+});
+passport.use(new browserid({
+    audience: 'http://localhost:1337'
+}, function(email, done){
+    console.log(email);
+    done(null, {"email": email});
+}));
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) { return next(); }
+  res.redirect('/');
+}
+
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
         if (typeof source == 'string') {
@@ -45,7 +64,7 @@ var app = module.exports = express.createServer();
 // Configuration
 
 app.configure(function(){
-	
+
     app.set('views', __dirname + '/views');
     app.set('view engine', 'mustache');
     app.set('view options', { layout: true });
@@ -53,6 +72,9 @@ app.configure(function(){
     app.use(express.bodyParser());
     app.use(express.cookieParser());
     app.use(express.methodOverride());
+    app.use(express.session({'secret': 'secret'}));
+    app.use(passport.initialize());
+    app.use(passport.session());
     app.use(app.router);
     app.use(express.static(__dirname + '/public'));
 });
@@ -67,8 +89,12 @@ app.get('/related', routes.related);
 app.get('/resources', routes.resources);
 app.get('/signup', routes.signup);
 app.get('/main', routes.main);
-app.post('/auth',routes.auth(AUDIENCE));
-app.post('/logout',routes.logout);
+app.post('/auth',
+  passport.authenticate('browserid', { failureRedirect: '/auth' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
 // start
 
 app.configure('development', function(){
