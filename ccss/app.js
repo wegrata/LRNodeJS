@@ -17,19 +17,13 @@ var mustache = require('mustache');
 var config   = require('config');
 var passport = require('passport');
 var browserid = require('passport-browserid').Strategy;
-passport.serializeUser(function(user, done) {
-  done(null, user.email);
-});
-
-passport.deserializeUser(function(email, done) {
-  done(null, { email: email });
-});
+var routes = require('./routes');
+var users = require('./routes/users');
+passport.serializeUser(users.serializeUser);
+passport.deserializeUser(users.deserializeUser);
 passport.use(new browserid({
     audience: 'http://localhost:1337'
-}, function(email, done){
-    done(null, {"email": email});
-}));
-
+}, users.validateUser));
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
         if (typeof source == 'string') {
@@ -53,7 +47,6 @@ var tmpl = { // template functions to render with mustache
     }
 };
 
-var routes = require('./routes');
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -84,16 +77,8 @@ app.get('/related', routes.related);
 app.get('/resources', routes.resources);
 app.get('/signup', routes.signup);
 app.get('/main', routes.main);
-app.post('/auth',
-  passport.authenticate('browserid', { failureRedirect: '/' }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    res.redirect('/');
-  });
-app.post('/logout', function(req, res){
-    req.logout();
-    res.redirect('/');
-});
+app.post('/auth', passport.authenticate('browserid', { failureRedirect: '/' }), users.auth);
+app.post('/logout', users.logout);
 // start
 
 app.configure('development', function(){
