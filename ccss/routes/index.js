@@ -46,7 +46,7 @@ exports.nodes = function( request, response, next ) {
     if (category) category = unescape(category);
     if (standard) standard = unescape(standard);
     if (parent)   parent   = unescape(parent);
-    
+
     var nodesParams = {
     include_docs: true
     };
@@ -83,7 +83,7 @@ exports.nodes = function( request, response, next ) {
     nodesView.query(nodesParams, nodesFinished);
     }
 };
- 
+
 // route for displaying categorized standards
 //   pass params.category to filter by category
 exports.standards = function( request, response, next ) {
@@ -126,8 +126,8 @@ exports.browser = function( request, response, next ) {
         })
         }
     };
-	
-	viewOptions.layout = (request.query.ajax === undefined)? true : false;
+
+  viewOptions.layout = (request.query.ajax === undefined)? true : false;
     response.render('browser.html', viewOptions);
     });
 };
@@ -151,83 +151,38 @@ exports.index = function(request,response) {
      //For testing purporses.. may have to make this a global array..
      opts.locals = opts.locals || {};
      opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
-					 'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
-					 'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
-	 opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
-					 'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
-					 'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
-     
+           'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
+           'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
+     opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
+           'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
+           'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
+
     response.render('index.html', opts);
 };
 exports.visual = function(request,response) {
-	var viewOptions = {};
-	viewOptions.layout = (request.query.ajax === undefined)? true : false;
+  var viewOptions = {};
+  viewOptions.layout = (request.query.ajax === undefined)? true : false;
     response.render('visual.html', viewOptions);
 };
 
-
-exports.auth = function (audience) {
-  return function(req, resp){
-    function onVerifyResp(bidRes) {
-      var data = "";
-      bidRes.setEncoding('utf8');
-      bidRes.on('data', function (chunk) {
-        data += chunk;
-      });
-      bidRes.on('end', function () {
-        var verified = JSON.parse(data);
-        resp.contentType('application/json');
-        if (verified.status == 'okay') {
-          console.info('browserid auth successful, setting req.session.email');
-          req.session.email = verified.email;
-          resp.redirect('/');
-        } else {
-          console.error(verified.reason);
-          resp.writeHead(403);
-        }
-        resp.write(data);
-        resp.end();
-      });
-    }
-    
-    var assertion = req.body.assertion;
-    var body = qs.stringify({
-      assertion: assertion,
-      audience: audience
-    });
-    console.info('verifying with browserid');
-    var request = https.request({
-      host: 'verifier.login.persona.org',
-      path: '/verify',
-      method: 'POST',
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-        'content-length': body.length
-      }
-    }, onVerifyResp);
-    request.write(body);
-    request.end();
-  };
-};
-
 exports.main = function(request, response){
-	
-	//I assume this is how we know whether or not a user is logged in
-	if (request.session)
-		resp.redirect('/index');
-	 
-	else
-		response.render('main.html');
+
+  //I assume this is how we know whether or not a user is logged in
+  if (request.session)
+    resp.redirect('/index');
+
+  else
+    response.render('main.html');
 };
 
 exports.signup = function(request, response){
-	
-	//I assume this is how we know whether or not a user is logged in
-	if (request.session)
-		resp.redirect('/index');
-	 
-	else
-		response.render('signup.html');
+
+  //I assume this is how we know whether or not a user is logged in
+  if (request.session)
+    resp.redirect('/index');
+
+  else
+    response.render('signup.html');
 };
 
 exports.logout = function (req, resp) {
