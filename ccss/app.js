@@ -66,7 +66,7 @@ app.post('/nodes/', routes.nodes);
 app.get('/related', routes.related);
 app.get('/resources', routes.resources);
 app.get('/signup', routes.signup);
-app.get('/main', routes.main);
+app.post('/main', routes.main);
 app.post('/auth',routes.auth(AUDIENCE));
 app.post('/logout',routes.logout);
 // start

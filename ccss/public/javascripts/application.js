@@ -25,8 +25,23 @@ var urlTransform = {
 
         var temp = (urlObj.pathname[0] == "/") ? urlObj.pathname.substr(1, urlObj.pathname.length - 1) : urlObj.pathname;
         var id = temp.split("/")[idIndex];
+        //console.log(urlObj.pathname);
 
         return "http://3dr.adlnet.gov/Public/Model.aspx?ContentObjectID=" + id;
+    }
+};
+
+var reverseTransform = {
+
+    "3dr.adlnet.gov" : function(urlObj){
+
+        //After splitting, this is the index of the most important part of the URL (the id)
+        var idIndex = 1;
+        var id = urlObj.href.split("=")[idIndex];
+        
+        //console.log(urlObj.href.split("="));
+
+        return "http://3dr.adlnet.gov/api/rest/"+id+"/Format/dae?ID=00-00-00";
     }
 };
 
@@ -78,28 +93,21 @@ var enableDrag = function(){
 
 var handleMainResourceModal = function(src, direct){
 	
+	//if we're not accessing directly, back should lead to visual browser
+	lastModalLocation = (direct !== true)?  "visual" : "home";
+	
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
 	src = (typeof src == "string")? src : $(this).attr("name");
 	
-
-	self.currentObject(new resourceObject("Item", src));
-	console.log(self.currentObject());
-	
-	
-	//if we're not accessing directly, back should lead to visual browser
-	if(direct !== true) lastModalLocation = "visual";
-	
-	else lastModalLocation = "home";
-		
 	var target = document.getElementById('spinnerDiv');	
-	tempUrl = src;
+	self.currentObject(new resourceObject("Item", src));
 	
 	//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
 	var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
 	$("#mBody").append(frameCode);
 	
 	var frame = $('#modalFrame')[0];  
-	frame.contentWindow.location.replace(tempUrl);
+	frame.contentWindow.location.replace(src);
 
 	$("#spinnerDiv").show();
 	
@@ -114,17 +122,36 @@ var handleMainResourceModal = function(src, direct){
 		
 	});
 	
-	
 	$("#modal").modal();
-	
-	
-
 	
 	/*
 		While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
 		
 		self.currentObject().timeline.push(NEW ENTRIES);
 	*/
+	var tempUrl = getLocation(src);
+	if(reverseTransform[tempUrl.hostname] != undefined)
+		src = reverseTransform[tempUrl.hostname](tempUrl);
+	
+	console.log(src);
+	$.ajax("https://node02.public.learningregistry.net/obtain?request_id="+src,{
+		dataType : 'jsonp',
+		jsonp : 'callback',
+	}).success(function(data){
+			
+			if (tempUrl.hostname == "3dr.adlnet.gov"){
+				
+				for(var i = 0; i < data.documents[0].document.length; i++){
+					
+					if(data.documents[0].document[i].resource_data_type == "paradata")
+						self.currentObject().timeline.push($.parseJSON( data.documents[0].document[i].resource_data ));
+					
+				}
+				
+				console.log(self.currentObject().timeline());
+			}
+			console.log(data);
+	});
 	
 	
 	//console.log(self.currentObject().timeline());
@@ -285,10 +312,11 @@ var getProperArray = function(str){
     }
 };
 
-var generateAuthorSpan = function(str, author){
+var generateAuthorSpan = function(str, author, content){
 
     //Check for any potential XSS attacks
 
+	content = (content == undefined) ? "Testing" : content;
     var title = author + '<button type="button" onclick="hidePopover()" class="close closeTimeline" aria-hidden="true">&times;</button>';
 
     var bottomBar = '<div class="bottomBar">'+
@@ -297,9 +325,14 @@ var generateAuthorSpan = function(str, author){
                         '<i name="'+author+'" rel="tooltip" title="View Raw Paradata" onclick="handleOnclickUserBar(this)" class="icon-file"></i>'+
                     '</div>';
 
-    var content = '<div>TESTING POPOVER .. hi there buddy.. how are you?</div>' + bottomBar;
+    var content = '<div>'+content+'</div>' + bottomBar;
 
     return "<br/><span data-content='"+content+"' data-title='"+title+"' data-trigger='manual' class='author-timeline'>" + str + "</span>";
+};
+
+var createJSON = function(obj, type){
+	
+	return JSON.stringify({action: type, subject: obj});
 };
 
 /* The main View Model used by Knockout.js */
@@ -353,35 +386,53 @@ var mainViewModel = function(resources){
     };
 
     self.generateParadataText = function(e, i){
-
+		
+		/*
+		 * TO-DO: Finish coming up with a generalized solution for most paradata documents 
+		 */
+		
+		
         //console.log(e.activity);
-        var actor = e.activity.actor.description[0];
-        var verb = e.activity.verb.action;
+        var actor = (e.activity.actor === undefined)? "" : e.activity.actor.description[0];
+        var verb = e.activity.verb.action.toLowerCase();
         var date = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
         var detail = (e.activity.verb.detail === undefined) ? "" : e.activity.verb.detail;
-
+		var content = (e.activity.content === undefined)? "" : e.activity.content;
+		
         //Handle each verb differently
         switch(verb){
 
             case "rated":
                 return actor + " " + verb + " this " + generateAuthorSpan(date, actor);
+                
             case "commented":
                 return detail + " " + generateAuthorSpan(actor + " on " + date, actor);
+                
+            case "downloaded":
+				return "TESTING!";
+				
+			case "published":
+				return generateAuthorSpan(date, actor, content);
+				
+			case "viewed":
+				return "TESTING!";
         }
     };
 
     self.followOrganization = function(e){
 
-        console.log(e);
+        console.log(createJSON(e, "follow"));
         //return;
 
         /* Add jQuery/socket.io call here */
-        /*$.post('/follow',JSON.stringify(e)).success(function(data){
-            console.log(data);
+        $.post('/main',createJSON(e, "follow")).success(function(data){
+          
+            self.followers.push({name:e, content:[]});
+            //console.log(data);
         }).error(function(error){
             console.error(error);
-        });*/
-        self.followers.push({name:e, content:[]});
+        });
+        
 
         //self.getResourcesByFollowers();
 

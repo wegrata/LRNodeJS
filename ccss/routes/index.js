@@ -147,6 +147,10 @@ exports.index = function(request,response) {
     var opts = {};
     if (request.session)
       opts.user = request.session.email;
+      
+    /*I assume this is how we know whether or not a user is logged in
+	else
+	  response.redirect('/signup');*/
      
      //For testing purporses.. may have to make this a global array..
      opts.locals = opts.locals || {};
@@ -212,12 +216,10 @@ exports.auth = function (audience) {
 
 exports.main = function(request, response){
 	
-	//I assume this is how we know whether or not a user is logged in
-	if (request.session)
-		resp.redirect('/index');
-	 
-	else
-		response.render('main.html');
+    var viewOptions = {
+        layout: false
+	}
+	response.render('main.html', viewOptions);
 };
 
 exports.signup = function(request, response){
