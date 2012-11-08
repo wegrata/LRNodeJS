@@ -212,7 +212,7 @@ $(function() {
 		jsonp : 'callback',
 		beforeSend : function(jqXHR) {
 			
-			console.log("ajaxPool push: ", jqXHR);
+			//console.log("ajaxPool push: ", jqXHR);
 			ajaxPool.push(jqXHR);
 		}
 	});
@@ -815,20 +815,23 @@ function buildDocList(node) {
 	$("#doc_list_accordion").remove();
 	//$("#document_list").append('<div id="doc_list_accordion"/>');
 	temp.visualBrowserResults.removeAll();
-	console.log(node.data.doc_ids);
 	
-	for(var i = 0; i < node.data.doc_ids.length; i++) {
+	for(var i = 0, tempURLs = []; i < node.data.doc_ids.length; i++) {
 		
 		//We also have access to paradata here
 		
-		if(docDictionary[node.data.doc_ids[i]].type != "paradata")
+		//if(docDictionary[node.data.doc_ids[i]].type != "paradata")
+		//console.log(docDictionary[node.data.doc_ids[i]].url);
+		//if($.inArray(docDictionary[node.data.doc_ids[i]].url, tempURLs) == -1){
 			temp.visualBrowserResults.push(docDictionary[node.data.doc_ids[i]]);
+			tempURLs.push(docDictionary[node.data.doc_ids[i]].url);
+		//}
 			
 		//var listing = buildListing(node.data.doc_ids[doc_id]);
 		//$("#doc_list_accordion").append(listing);
 	}
 	
-	//console.log(temp.visualBrowserResults());
+	console.log(temp.visualBrowserResults());
 	$(".paradataLoader").click(function() {
 		loadParadata($(this).attr('id'));
 	});
@@ -843,9 +846,9 @@ function buildListing(doc_id) {
 	
 	if(doc) {
 		
-		if(doc.type === 'paradata') {
-			return '';
-		}
+		//if(doc.type === 'paradata') {
+		//	return '';
+		//}
 		
 		var url = doc.url;
 		var display_url;

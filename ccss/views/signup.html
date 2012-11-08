@@ -72,18 +72,7 @@
 			</div>
 		  </div>
 		</div>
-		<div>
-		  <hr>
 
-		  <footer>
-			<div>
-				<p>Disclaimer of Endorsement. The ADL Initiative does not necessarily endorse the organizations providing data, metadata, paradata, and related content. All ratings and comments represent independent user evaluations and do not represent the views of the ADL Initiative.</p>
-
-				<p>Sponsored by the Office of the Under Secretary of Defense for Personnel and Readiness (OUSD P&amp;R). 
-				This is an official website of the U.S. Government &copy;2012 Advanced Distributed Learning (ADL). </p>
-			</div>
-		  </footer>
-		</div>
 	</div><!-- /container -->
 
     <!-- Le javascript
@@ -92,37 +81,37 @@
     <script src="/javascripts/jquery.js"></script>
 	<script src="/javascripts/jquery-ui.js"></script>
     <script src="/javascripts/bootstrap.js"></script>
-	<script src="/javascripts/application.js"></script>
+
 	<script src="/javascripts/Placeholders.js"></script>
 	<script type="text/javascript">
-		Placeholders.init();
-		var temp = new mainViewModel(previewResources);
+
+		//var temp = new mainViewModel(previewResources);
 		var slides = ["first", "second", "third"];
 		var current = 0;
 		
-		ko.applyBindings(temp);
-		console.log(self.data());
+		//ko.applyBindings(temp);
+		//console.log(self.data());
 		
 
 		
 		$(function(){
 			
-			enableDrag();
+			$('input, textarea').placeholder();
 			
-		$(".submit").click(function(evt){
-		
-			console.log("CLICK!!");
-		
-			var styleObj = {"visibility": "visible"};
-			$("#" + slides[current+1]).css(styleObj);
-			$("#" + slides[current+1]).show( "drop", {direction: "right"}, 800, function(){ $(this).css({position:"relative"});} );
-			$("#" + slides[current]).hide( "drop", {direction: "left"}, 800, function(){} );
+			$(".submit").click(function(evt){
 			
-			current++;
+				console.log("CLICK!!");
 			
-			evt.stopPropagation();
-		});
-			
+				var styleObj = {"visibility": "visible"};
+				$("#" + slides[current+1]).css(styleObj);
+				$("#" + slides[current+1]).show( "drop", {direction: "right"}, 800, function(){ $(this).css({position:"relative"});} );
+				$("#" + slides[current]).hide( "drop", {direction: "left"}, 800, function(){} );
+				
+				current++;
+				
+				evt.stopPropagation();
+			});
+				
 			$( ".dropbox" ).droppable({
 				drop: function( event, ui ) {
 					
@@ -130,12 +119,10 @@
 						
 						console.log(ui.draggable.attr("name"));
 
-						temp.deleteSpecifiedResource(ui.draggable.attr("name"));
+					//	temp.deleteSpecifiedResource(ui.draggable.attr("name"));
 					});
 
 				}
 			});
 		});
 	</script>
-  </body>
-</html>

@@ -47,12 +47,13 @@ var tmpl = { // template functions to render with mustache
     }
 };
 
+var routes = require('./routes');
 var app = module.exports = express.createServer();
 
 // Configuration
 
 app.configure(function(){
-
+	
     app.set('views', __dirname + '/views');
     app.set('view engine', 'mustache');
     app.set('view options', { layout: true });
