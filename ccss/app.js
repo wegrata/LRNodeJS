@@ -53,7 +53,7 @@ var app = module.exports = express.createServer();
 // Configuration
 
 app.configure(function(){
-	
+
     app.set('views', __dirname + '/views');
     app.set('view engine', 'mustache');
     app.set('view options', { layout: true });
@@ -77,9 +77,11 @@ app.post('/nodes/', routes.nodes);
 app.get('/related', routes.related);
 app.get('/resources', routes.resources);
 app.get('/signup', routes.signup);
-app.get('/main', routes.main);
 app.post('/auth', passport.authenticate('browserid', { failureRedirect: '/' }), users.auth);
 app.post('/logout', users.logout);
+app.post('/main', function(req, res){
+    res.end(JSON.stringify(req.body));
+});
 // start
 
 app.configure('development', function(){

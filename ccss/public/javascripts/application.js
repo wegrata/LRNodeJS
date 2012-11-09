@@ -38,7 +38,7 @@ var reverseTransform = {
         //After splitting, this is the index of the most important part of the URL (the id)
         var idIndex = 1;
         var id = urlObj.href.split("=")[idIndex];
-        
+
         //console.log(urlObj.href.split("="));
 
         return "http://3dr.adlnet.gov/api/rest/"+id+"/Format/dae?ID=00-00-00";
@@ -92,83 +92,83 @@ var enableDrag = function(){
 };
 
 var handleMainResourceModal = function(src, direct){
-	
+
 	//if we're not accessing directly, back should lead to visual browser
 	lastModalLocation = (direct !== true)?  "visual" : "home";
-	
+
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
 	src = (typeof src == "string")? src : $(this).attr("name");
-	
-	var target = document.getElementById('spinnerDiv');	
+
+	var target = document.getElementById('spinnerDiv');
 	self.currentObject(new resourceObject("Item", src));
-	
+
 	//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
 	var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
 	$("#mBody").append(frameCode);
-	
-	var frame = $('#modalFrame')[0];  
+
+	var frame = $('#modalFrame')[0];
 	frame.contentWindow.location.replace(src);
 
 	$("#spinnerDiv").show();
-	
+
 	$("#modalFrame").load(function(){
-	
+
 		spinner.stop();
-		
+
 		$("#spinnerDiv").hide("slow", function(){
-			
+
 			$("#modalFrame").css("visibility", "visible");
 		});
-		
+
 	});
-	
+
 	$("#modal").modal();
-	
+
 	/*
 		While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
-		
+
 		self.currentObject().timeline.push(NEW ENTRIES);
 	*/
 	var tempUrl = getLocation(src);
-	if(reverseTransform[tempUrl.hostname] != undefined)
+	if(reverseTransform[tempUrl.hostname] !== undefined)
 		src = reverseTransform[tempUrl.hostname](tempUrl);
-	
+
 	console.log(src);
 	$.ajax("https://node02.public.learningregistry.net/obtain?request_id="+src,{
 		dataType : 'jsonp',
-		jsonp : 'callback',
+		jsonp : 'callback'
 	}).success(function(data){
-			
+
 			if (tempUrl.hostname == "3dr.adlnet.gov"){
-				
+
 				for(var i = 0; i < data.documents[0].document.length; i++){
-					
+
 					if(data.documents[0].document[i].resource_data_type == "paradata")
 						self.currentObject().timeline.push($.parseJSON( data.documents[0].document[i].resource_data ));
-					
+
 				}
-				
+
 				console.log(self.currentObject().timeline());
 			}
 			console.log(data);
 	});
-	
-	
+
+
 	//console.log(self.currentObject().timeline());
-	
-	
-	if(spinner != null){
-		
+
+
+	if(spinner !== null){
+
 		//Checks to see if there are enough rows in the timeline to warrant showing the scroll bars
 		//Should be checked whenever an element is added to or removed from the timeline
 		if($("#timeline-table").height() > 640)
 			$(".modal-timeline").getNiceScroll().show();
-			
+
 		spinner.spin(target);
 	}
 	else {
-		
-		$(".modal-timeline").niceScroll({"cursoropacitymax": .7, "cursorborderradius": 0} );
+
+		$(".modal-timeline").niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
 		spinner = new Spinner(opts).spin(target);
 	}
 };
@@ -316,7 +316,7 @@ var generateAuthorSpan = function(str, author, content){
 
     //Check for any potential XSS attacks
 
-	content = (content == undefined) ? "Testing" : content;
+	content = (content === undefined) ? "Testing" : content;
     var title = author + '<button type="button" onclick="hidePopover()" class="close closeTimeline" aria-hidden="true">&times;</button>';
 
     var bottomBar = '<div class="bottomBar">'+
@@ -325,13 +325,13 @@ var generateAuthorSpan = function(str, author, content){
                         '<i name="'+author+'" rel="tooltip" title="View Raw Paradata" onclick="handleOnclickUserBar(this)" class="icon-file"></i>'+
                     '</div>';
 
-    var content = '<div>'+content+'</div>' + bottomBar;
+    var localContent = '<div>'+content+'</div>' + bottomBar;
 
-    return "<br/><span data-content='"+content+"' data-title='"+title+"' data-trigger='manual' class='author-timeline'>" + str + "</span>";
+    return "<br/><span data-content='"+localContent+"' data-title='"+title+"' data-trigger='manual' class='author-timeline'>" + str + "</span>";
 };
 
 var createJSON = function(obj, type){
-	
+
 	return JSON.stringify({action: type, subject: obj});
 };
 
@@ -386,34 +386,34 @@ var mainViewModel = function(resources){
     };
 
     self.generateParadataText = function(e, i){
-		
+
 		/*
-		 * TO-DO: Finish coming up with a generalized solution for most paradata documents 
+		 * TO-DO: Finish coming up with a generalized solution for most paradata documents
 		 */
-		
-		
+
+
         //console.log(e.activity);
         var actor = (e.activity.actor === undefined)? "" : e.activity.actor.description[0];
         var verb = e.activity.verb.action.toLowerCase();
         var date = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
         var detail = (e.activity.verb.detail === undefined) ? "" : e.activity.verb.detail;
 		var content = (e.activity.content === undefined)? "" : e.activity.content;
-		
+
         //Handle each verb differently
         switch(verb){
 
             case "rated":
                 return actor + " " + verb + " this " + generateAuthorSpan(date, actor);
-                
+
             case "commented":
                 return detail + " " + generateAuthorSpan(actor + " on " + date, actor);
-                
+
             case "downloaded":
 				return "TESTING!";
-				
+
 			case "published":
 				return generateAuthorSpan(date, actor, content);
-				
+
 			case "viewed":
 				return "TESTING!";
         }
@@ -421,18 +421,27 @@ var mainViewModel = function(resources){
 
     self.followOrganization = function(e){
 
-        console.log(createJSON(e, "follow"));
         //return;
 
         /* Add jQuery/socket.io call here */
-        $.post('/main',createJSON(e, "follow")).success(function(data){
-          
-            self.followers.push({name:e, content:[]});
+        $.ajax({
+            type: "POST",
+            url: "/main",
+            dataType: "json",
+            jsonp: false,
+            contentType: 'application/json',
+            data: createJSON(e, "follow"),
+            success: function(data){
+                console.log(data);
+                self.followers.push({name:data.subject, content:[]});
             //console.log(data);
-        }).error(function(error){
-            console.error(error);
+            },
+            error: function(error){
+                console.error(error);
+            }
         });
-        
+        //$.post('/main',createJSON(e, "follow"), success, "json").error(error);
+
 
         //self.getResourcesByFollowers();
 
@@ -457,12 +466,12 @@ var mainViewModel = function(resources){
     };
 
     self.moveResourceToBookmark = function(index){
-		
+
 		console.log(self.currentObject());
-		
+
         //Doing this kind of check is a workaround for not being able to pass
         //currentResourceName directly. Not sure what that's about..
-		
+
 		//Element was found in bookmarks
         if(self.bookmarks.indexOf(self.currentObject().url) !== -1){
 
@@ -470,7 +479,7 @@ var mainViewModel = function(resources){
 			currentName = "-2_0_bookmarks";
 			self.currentResourceName(currentName);
 			self.bookmarks.remove(self.currentObject().url);
-			
+
 			console.log(self.bookmarks().length);
         }
 
@@ -504,8 +513,8 @@ var mainViewModel = function(resources){
     };
 
     self.isCurrentBookmarked = function(){
-	
-		
+
+
 		console.log("Is in bookmarks? ", self.bookmarks.indexOf(self.currentObject().url));
         return (self.bookmarks.indexOf(self.currentObject().url) !== -1);
     };
