@@ -13,6 +13,7 @@
     "request":"2.9.203",
     "forever":"0.10.0",
     "passport":"*",
-    "passport-browserid":"*"
+    "passport-browserid":"*",
+    "underscore":"*"
   }
 }
