@@ -433,6 +433,7 @@ var mainViewModel = function(resources){
             data: createJSON(e, "follow"),
             success: function(data){
                 console.log(data);
+                self.data.remove(e);
                 self.followers.push({name:data.subject, content:[]});
             //console.log(data);
             },

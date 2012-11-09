@@ -32,8 +32,11 @@ var createUser = function(email, done){
 };
 exports.follow = function(currentUser, targetUser, callback){
     var currentUserDoc = usersDb.doc(currentUser._id);
-    currentUserDoc.body.follows.push(targetUser);
-    doc.save(callback);
+    currentUserDoc.get(function(err, doc){
+        doc.following.push(targetUser);
+        currentUserDoc.body = doc;
+        currentUserDoc.save(callback);
+    });
 };
 function getUser(email, success, failure){
     var userParams = {
