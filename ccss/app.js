@@ -79,7 +79,7 @@ app.get('/resources', routes.resources);
 app.get('/signup', routes.signup);
 app.post('/auth', passport.authenticate('browserid', { failureRedirect: '/' }), users.auth);
 app.post('/logout', users.logout);
-app.post('/main', function(req, res){
+app.post('/main', passport.authenticate('browserid', { failureFlash: 'Invalid credentials'  }), function(req, res){
     res.end(JSON.stringify(req.body));
 });
 // start
