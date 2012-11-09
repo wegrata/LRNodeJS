@@ -371,7 +371,7 @@ var mainViewModel = function(resources){
 
     //allOrganizations is defined outside of this script
     console.log(allOrganizations);
-    self.allOrganizations = allOrganizations;
+    self.allOrganizations = ko.observableArray(allOrganizations);
     self.allTerms = allTerms;
 
     self.checkTimelineLength = function(obj){
@@ -432,8 +432,7 @@ var mainViewModel = function(resources){
             contentType: 'application/json',
             data: createJSON(e, "follow"),
             success: function(data){
-                console.log(data);
-                self.data.remove(e);
+                self.allOrganizations.remove(e);
                 self.followers.push({name:data.subject, content:[]});
             //console.log(data);
             },
