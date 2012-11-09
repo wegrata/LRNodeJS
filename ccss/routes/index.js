@@ -149,6 +149,7 @@ exports.index = function(request,response) {
     if (request.user)
       opts.locals.user = request.user;
      //For testing purporses.. may have to make this a global array..
+     opts.locals = opts.locals || {};
      opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
            'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
            'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
@@ -172,4 +173,19 @@ exports.main = function(request, response){
 
   else
     response.render('main.html');
+};
+
+exports.signup = function(request, response){
+
+  //I assume this is how we know whether or not a user is logged in
+  if (request.session)
+    resp.redirect('/index');
+
+  else
+    response.render('signup.html');
+};
+
+exports.logout = function (req, resp) {
+  req.session.destroy();
+  resp.redirect('/');
 };

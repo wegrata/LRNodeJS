@@ -30,6 +30,11 @@ var createUser = function(email, done){
         }
     });
 };
+exports.follow = function(currentUser, targetUser, callback){
+    var currentUserDoc = usersDb.doc(currentUser._id);
+    currentUserDoc.body.follows.push(targetUser);
+    doc.save(callback);
+};
 function getUser(email, success, failure){
     var userParams = {
         include_docs: true,

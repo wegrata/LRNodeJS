@@ -47,6 +47,7 @@ var tmpl = { // template functions to render with mustache
     }
 };
 
+var routes = require('./routes');
 var app = module.exports = express.createServer();
 
 // Configuration
@@ -76,9 +77,11 @@ app.post('/nodes/', routes.nodes);
 app.get('/related', routes.related);
 app.get('/resources', routes.resources);
 app.get('/signup', routes.signup);
-app.get('/main', routes.main);
 app.post('/auth', passport.authenticate('browserid', { failureRedirect: '/' }), users.auth);
 app.post('/logout', users.logout);
+app.post('/main', passport.authenticate('browserid', { failureFlash: 'Invalid credentials'  }), function(req, res){
+    res.end(JSON.stringify(req.body));
+});
 // start
 
 app.configure('development', function(){

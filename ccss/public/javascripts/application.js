@@ -25,8 +25,23 @@ var urlTransform = {
 
         var temp = (urlObj.pathname[0] == "/") ? urlObj.pathname.substr(1, urlObj.pathname.length - 1) : urlObj.pathname;
         var id = temp.split("/")[idIndex];
+        //console.log(urlObj.pathname);
 
         return "http://3dr.adlnet.gov/Public/Model.aspx?ContentObjectID=" + id;
+    }
+};
+
+var reverseTransform = {
+
+    "3dr.adlnet.gov" : function(urlObj){
+
+        //After splitting, this is the index of the most important part of the URL (the id)
+        var idIndex = 1;
+        var id = urlObj.href.split("=")[idIndex];
+
+        //console.log(urlObj.href.split("="));
+
+        return "http://3dr.adlnet.gov/api/rest/"+id+"/Format/dae?ID=00-00-00";
     }
 };
 
@@ -78,91 +93,82 @@ var enableDrag = function(){
 
 var handleMainResourceModal = function(src, direct){
 
-	self.currentObject(new resourceObject("Item", src));
-	console.log(self.currentObject());
-	
-	
 	//if we're not accessing directly, back should lead to visual browser
-	if(direct !== true) lastModalLocation = "visual";
-	
-	else lastModalLocation = "home";
-	
-	var tempUpdateTest = false;
-	if(typeof src == "string")
-		tempUpdateTest = true;
-		
-	var target = document.getElementById('spinnerDiv');	
-	
-	if(!tempUpdateTest){
-		self.currentResourceName($(this).attr("name"));
-		tempModalName = self.currentResourceName().split("_");
-		var temp;
-		
-		//-1 means that the element isn't nested
-		if(tempModalName[0] == '-1'){
-			
-			temp = self.bookmarks()[tempModalName[1]];
-			tempUrl = (temp.url === undefined) ? "about:blank": temp.url;
-		}
+	lastModalLocation = (direct !== true)?  "visual" : "home";
 
-		else{
-		
-			var properArray = getProperArray(tempModalName[2]);
-			temp = properArray()[tempModalName[0]].content()[tempModalName[1]];
-			
-			tempUrl = (temp.url === undefined) ? "about:blank" : temp.url;		
-		}
-		
-		self.currentObject(temp);
-	}
-	
-	else tempUrl = src;
-	
+	//src should either be the URL, or a jQuery object whose name attribute is the URL
+	src = (typeof src == "string")? src : $(this).attr("name");
+
+	var target = document.getElementById('spinnerDiv');
+	self.currentObject(new resourceObject("Item", src));
+
 	//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
 	var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
 	$("#mBody").append(frameCode);
-	
-	var frame = $('#modalFrame')[0];  
-	frame.contentWindow.location.replace(tempUrl);
+
+	var frame = $('#modalFrame')[0];
+	frame.contentWindow.location.replace(src);
 
 	$("#spinnerDiv").show();
-	
-	$("#modalFrame").load(function(){
-	
-		spinner.stop();
-		
-		$("#spinnerDiv").hide();
-		$("#modalFrame").css("visibility", "visible");
-	});
-	
-	
-	$("#modal").modal();
-	
-	
 
-	
+	$("#modalFrame").load(function(){
+
+		spinner.stop();
+
+		$("#spinnerDiv").hide("slow", function(){
+
+			$("#modalFrame").css("visibility", "visible");
+		});
+
+	});
+
+	$("#modal").modal();
+
 	/*
 		While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
-		
+
 		self.currentObject().timeline.push(NEW ENTRIES);
 	*/
-	
-	
+	var tempUrl = getLocation(src);
+	if(reverseTransform[tempUrl.hostname] !== undefined)
+		src = reverseTransform[tempUrl.hostname](tempUrl);
+
+	console.log(src);
+	$.ajax("https://node02.public.learningregistry.net/obtain?request_id="+src,{
+		dataType : 'jsonp',
+		jsonp : 'callback'
+	}).success(function(data){
+
+			if (tempUrl.hostname == "3dr.adlnet.gov"){
+
+				for(var i = 0; i < data.documents[0].document.length; i++){
+
+					if(data.documents[0].document[i].resource_data_type == "paradata")
+						self.currentObject().timeline.push($.parseJSON( data.documents[0].document[i].resource_data ));
+
+				}
+
+				console.log(self.currentObject().timeline());
+			}
+			console.log(data);
+	});
+
+
 	//console.log(self.currentObject().timeline());
-	
-	
-	if(spinner != null){
-		
+
+
+	if(spinner !== null){
+
 		//Checks to see if there are enough rows in the timeline to warrant showing the scroll bars
 		//Should be checked whenever an element is added to or removed from the timeline
 		if($("#timeline-table").height() > 640)
 			$(".modal-timeline").getNiceScroll().show();
-			
+
 		spinner.spin(target);
 	}
 	else {
-		
-		$(".modal-timeline").niceScroll({"cursoropacitymax": .7, "cursorborderradius": 0} );
+
+		$(".modal-timeline").niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
 		spinner = new Spinner(opts).spin(target);
 	}
 };
@@ -170,7 +176,7 @@ var handleMainResourceModal = function(src, direct){
 
 var enableModal = function(name){
 
-    $(".draggable").click(handleMainResourceModal);
+    $(".draggable span").click(handleMainResourceModal);
 
     $("#modal").on("hidden", function(){
 
@@ -306,10 +312,11 @@ var getProperArray = function(str){
     }
 };
 
-var generateAuthorSpan = function(str, author){
+var generateAuthorSpan = function(str, author, content){
 
     //Check for any potential XSS attacks
 
+	content = (content === undefined) ? "Testing" : content;
     var title = author + '<button type="button" onclick="hidePopover()" class="close closeTimeline" aria-hidden="true">&times;</button>';
 
     var bottomBar = '<div class="bottomBar">'+
@@ -318,9 +325,14 @@ var generateAuthorSpan = function(str, author){
                         '<i name="'+author+'" rel="tooltip" title="View Raw Paradata" onclick="handleOnclickUserBar(this)" class="icon-file"></i>'+
                     '</div>';
 
-    var content = '<div>TESTING POPOVER .. hi there buddy.. how are you?</div>' + bottomBar;
+    var localContent = '<div>'+content+'</div>' + bottomBar;
 
-    return "<br/><span data-content='"+content+"' data-title='"+title+"' data-trigger='manual' class='author-timeline'>" + str + "</span>";
+    return "<br/><span data-content='"+localContent+"' data-title='"+title+"' data-trigger='manual' class='author-timeline'>" + str + "</span>";
+};
+
+var createJSON = function(obj, type){
+
+	return JSON.stringify({action: type, subject: obj});
 };
 
 /* The main View Model used by Knockout.js */
@@ -358,6 +370,7 @@ var mainViewModel = function(resources){
 
 
     //allOrganizations is defined outside of this script
+    console.log(allOrganizations);
     self.allOrganizations = allOrganizations;
     self.allTerms = allTerms;
 
@@ -374,34 +387,61 @@ var mainViewModel = function(resources){
 
     self.generateParadataText = function(e, i){
 
+		/*
+		 * TO-DO: Finish coming up with a generalized solution for most paradata documents
+		 */
+
+
         //console.log(e.activity);
-        var actor = e.activity.actor.description[0];
-        var verb = e.activity.verb.action;
+        var actor = (e.activity.actor === undefined)? "" : e.activity.actor.description[0];
+        var verb = e.activity.verb.action.toLowerCase();
         var date = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
         var detail = (e.activity.verb.detail === undefined) ? "" : e.activity.verb.detail;
+		var content = (e.activity.content === undefined)? "" : e.activity.content;
 
         //Handle each verb differently
         switch(verb){
 
             case "rated":
                 return actor + " " + verb + " this " + generateAuthorSpan(date, actor);
+
             case "commented":
                 return detail + " " + generateAuthorSpan(actor + " on " + date, actor);
+
+            case "downloaded":
+				return "TESTING!";
+
+			case "published":
+				return generateAuthorSpan(date, actor, content);
+
+			case "viewed":
+				return "TESTING!";
         }
     };
 
     self.followOrganization = function(e){
 
-        console.log(e);
         //return;
 
         /* Add jQuery/socket.io call here */
-        /*$.post('/follow',JSON.stringify(e)).success(function(data){
-            console.log(data);
-        }).error(function(error){
-            console.error(error);
-        });*/
-        self.followers.push({name:e, content:[]});
+        $.ajax({
+            type: "POST",
+            url: "/main",
+            dataType: "json",
+            jsonp: false,
+            contentType: 'application/json',
+            data: createJSON(e, "follow"),
+            success: function(data){
+                console.log(data);
+                self.followers.push({name:data.subject, content:[]});
+            //console.log(data);
+            },
+            error: function(error){
+                console.error(error);
+            }
+        });
+        //$.post('/main',createJSON(e, "follow"), success, "json").error(error);
+
 
         //self.getResourcesByFollowers();
 
@@ -427,67 +467,32 @@ var mainViewModel = function(resources){
 
     self.moveResourceToBookmark = function(index){
 
+		console.log(self.currentObject());
+
         //Doing this kind of check is a workaround for not being able to pass
         //currentResourceName directly. Not sure what that's about..
-        if(typeof index != "string")
-            index = self.currentResourceName();
 
-        var arr = index.split("_");
-        var switchArr;
-
-
-        //Element is already in bookmarks.. remove from bookmarks
-        switchArr = getProperArray(arr[2]);
-        if(switchArr === "bookmarks"){
+		//Element was found in bookmarks
+        if(self.bookmarks.indexOf(self.currentObject().url) !== -1){
 
             var currentName;
-            //Removing element from bookmarks
-            if(arr[0] == "-1"){
-                currentName = "-2_0_bookmarks";
-                self.currentResourceName(currentName);
+			currentName = "-2_0_bookmarks";
+			self.currentResourceName(currentName);
+			self.bookmarks.remove(self.currentObject().url);
 
-                self.currentObject(self.bookmarks()[arr[1]]);
-                self.bookmarks.remove(self.bookmarks()[arr[1]]);
-            }
-
-            //Re-adding removed element back to bookmarks
-            else{
-
-
-                self.bookmarks.push(self.currentObject());
-
-                currentName = "-1_" + (self.bookmarks().length-1) + "_" + "bookmarks";
-                self.currentResourceName(currentName);
-            }
-
-            console.log(self.bookmarks());
-            console.log(currentName);
+			console.log(self.bookmarks().length);
         }
 
         else{
 
-            console.log(arr);
-            //return;
-
-            tempArr = switchArr()[arr[0]].content;
-
             /* Insert socket.io call here to add element to bookmarks, then check if successful */
 
             //Assign this resource a publisher, add it to bookmarks, and update currentResourceName to reflect that
-            tempArr()[arr[1]].publisher = switchArr()[arr[0]].name;
-            self.bookmarks.push(tempArr()[arr[1]]);
+            //self.currentObject().publisher = self.currentObject().url;
+            self.bookmarks.push(self.currentObject().url);
             self.currentResourceName("-1_" + (self.bookmarks().length-1) + "_" + "bookmarks");
 
             console.log(self.bookmarks().length);
-
-            //If this is the last element, swap whole publisher element instead of simply removing sub-element resource
-            if(tempArr().length == 1){
-
-                swapResourceElement(switchArr, arr[0], numOfPreviewElements);
-            }
-
-            else tempArr.remove(tempArr()[arr[1]]);
-
         }
 
         enableDrag();
@@ -509,15 +514,9 @@ var mainViewModel = function(resources){
 
     self.isCurrentBookmarked = function(){
 
-        if(self.currentResourceName() === null)
-            return false;
 
-        var nameArr = self.currentResourceName().split("_");
-
-        if(nameArr[0] == "-1" && nameArr[2] == "bookmarks")
-            return true;
-
-        return false;
+		console.log("Is in bookmarks? ", self.bookmarks.indexOf(self.currentObject().url));
+        return (self.bookmarks.indexOf(self.currentObject().url) !== -1);
     };
 
     self.getResourcesByFollowers = function(){
