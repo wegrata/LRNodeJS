@@ -16,7 +16,7 @@ var https = require('https'),
 var couchdb = require('couchdb-api');
 var config  = require('config');
 var r       = require('request');
-
+var underscore = require('underscore');
 // couchdb db
 var server       = couchdb.srv('localhost', 5984, false, true);
 var standardsDb  = server.db('standards');
@@ -153,6 +153,12 @@ exports.index = function(request,response) {
      opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
            'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
            'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
+     if(request.user){
+        opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
+          return !underscore.contains(request.user.following, org);
+        });
+        opts.locals.followed = underscore.uniq(request.user.following);
+     }
      opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
            'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
            'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];

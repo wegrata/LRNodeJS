@@ -79,8 +79,20 @@ app.get('/resources', routes.resources);
 app.get('/signup', routes.signup);
 app.post('/auth', passport.authenticate('browserid', { failureRedirect: '/' }), users.auth);
 app.post('/logout', users.logout);
-app.post('/main', passport.authenticate('browserid', { failureFlash: 'Invalid credentials'  }), function(req, res){
-    res.end(JSON.stringify(req.body));
+app.post('/main', function(req, res){
+    switch (req.body.action.toLowerCase()){
+        case "follow":
+            users.follow(req.user, req.body.subject, function(err, response){
+                if(err) {
+                    console.error(err);
+                    res.end();
+                }else{
+                    req.user.following.push(req.body.subject);
+                    res.end(JSON.stringify({user: response, subject: req.body.subject}));
+                }
+            });
+            break;
+    }
 });
 // start
 
