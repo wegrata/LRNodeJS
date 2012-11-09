@@ -83,7 +83,7 @@ app.post('/logout', users.logout);
 
 app.configure('development', function(){
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-    app.listen(1337);
+    app.listen(80);
 });
 
 app.configure('production', function(){
