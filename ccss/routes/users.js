@@ -53,6 +53,7 @@ function getUser(email, success, failure){
 }
 exports.validateUser = function(email, done){
     var successHandler = function(result){
+            console.log(result)
             if (result.total_rows === 0){
                 createUser(email, done);
             }else{

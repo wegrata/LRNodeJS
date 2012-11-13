@@ -22,7 +22,7 @@ var users = require('./routes/users');
 passport.serializeUser(users.serializeUser);
 passport.deserializeUser(users.deserializeUser);
 passport.use(new browserid({
-    audience: 'http://localhost:1337'
+    audience: 'http://12.109.40.31'
 }, users.validateUser));
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
