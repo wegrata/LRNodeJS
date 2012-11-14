@@ -133,23 +133,30 @@ var handleMainResourceModal = function(src, direct){
 	if(reverseTransform[tempUrl.hostname] !== undefined)
 		src = reverseTransform[tempUrl.hostname](tempUrl);
 
-	console.log(src);
+	console.log("This is the src we will be using to search: ", src);
 	$.ajax("https://node02.public.learningregistry.net/obtain?request_id="+src,{
 		dataType : 'jsonp',
 		jsonp : 'callback'
 	}).success(function(data){
 
-			if (tempUrl.hostname == "3dr.adlnet.gov"){
-
+			//if (tempUrl.hostname == "3dr.adlnet.gov"){
+				
+				//For each document found in data
+				var jsonData;
 				for(var i = 0; i < data.documents[0].document.length; i++){
 
-					if(data.documents[0].document[i].resource_data_type == "paradata")
-						self.currentObject().timeline.push($.parseJSON( data.documents[0].document[i].resource_data ));
+					if(data.documents[0].document[i].resource_data_type == "paradata"){
+						
+						jsonData = (typeof data.documents[0].document[i].resource_data == "string") ? 
+									$.parseJSON( data.documents[0].document[i].resource_data ) : data.documents[0].document[i].resource_data;
+									
+						self.currentObject().timeline.push(jsonData);
+					}
 
 				}
 
 				console.log(self.currentObject().timeline());
-			}
+			//}
 			console.log(data);
 	});
 
@@ -312,11 +319,18 @@ var getProperArray = function(str){
     }
 };
 
+
+
 var generateAuthorSpan = function(str, author, content){
 
     //Check for any potential XSS attacks
-
-	content = (content === undefined) ? "Testing" : content;
+	
+	content = (content == undefined)? "" : content.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+	author = author.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+	str = str.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+	
+	console.log("Debug span ", content + " " + author + " " + str);
+	
     var title = author + '<button type="button" onclick="hidePopover()" class="close closeTimeline" aria-hidden="true">&times;</button>';
 
     var bottomBar = '<div class="bottomBar">'+
@@ -346,14 +360,14 @@ var mainViewModel = function(resources){
     self.followers = ko.observableArray(followingList);
     self.visualBrowserResults = ko.observableArray();
 
-    self.getShorterStr = function(str, length, url){
+    self.getShorterArr = function(str, length, url){
 
         if(typeof str == "string"){
 
             var temp = getLocation(str);
 
             //Check to see if we should transform the url
-            if(urlTransform[temp.hostname] !== undefined && typeof url == "boolean")
+            if(urlTransform[temp.hostname] !== undefined && url == undefined && length == undefined)
                 str = urlTransform[temp.hostname](temp);
 
             else str = (str.length > length)? str.substr(0, length) + "..." : str;
@@ -361,8 +375,10 @@ var mainViewModel = function(resources){
             return str;
         }
 
-        else
+        else if(str !== undefined){
+			
             return (str.length > length)? str.splice(0, length) : str;
+		}
     };
 
     self.currentObject = ko.observable({});
@@ -390,33 +406,69 @@ var mainViewModel = function(resources){
 		/*
 		 * TO-DO: Finish coming up with a generalized solution for most paradata documents
 		 */
-
-
-        //console.log(e.activity);
-        var actor = (e.activity.actor === undefined)? "" : e.activity.actor.description[0];
-        var verb = e.activity.verb.action.toLowerCase();
-        var date = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
-        var detail = (e.activity.verb.detail === undefined) ? "" : e.activity.verb.detail;
-		var content = (e.activity.content === undefined)? "" : e.activity.content;
-
+			console.log("current resource ", e);
+		
+			var verb = e.activity.verb.action.toLowerCase();
+			var dateStr = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
+			
+			//These three don't exist for viewed verb
+			var detail = (e.activity.verb.detail === undefined)? "hi" : e.activity.verb.detail;
+			var content = (e.activity.content === undefined)? "hi" : e.activity.content;
+			
+			var actor = (e.activity.actor === undefined)? "hi" : (e.activity.actor.description == undefined && e.activity.actor.displayName !== undefined) ? 
+					    e.activity.actor.displayName : e.activity.actor.description[0];
+			
+			
+		var date = new Date(dateStr);
+		
+		//Not a valid date object
+		if(isNaN(date.getTime())){
+			
+			if(self.currentObject().url.indexOf("3dr.adlnet.gov") > -1){
+				
+				//This gets the timestamp within "/Date(x)/"
+				date = new Date(parseInt(dateStr.substr(6, dateStr.length - 8)));
+			}
+			
+			else if(false){
+				
+				
+			}
+			
+			else
+				console.log("may not be working");
+				
+				
+		}
+		
+		console.log(date.toDateString(), " ", date.getTime());
+		dateStr = moment(date.getTime()).fromNow();
+		
         //Handle each verb differently
         switch(verb){
 
             case "rated":
-                return actor + " " + verb + " this " + generateAuthorSpan(date, actor);
+                return actor + " " + verb + " this " + generateAuthorSpan(dateStr, actor);
 
             case "commented":
-                return detail + " " + generateAuthorSpan(actor + " on " + date, actor);
+                return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor);
 
             case "downloaded":
-				return "TESTING!";
-
+				return generateAuthorSpan(dateStr, actor, content);
+			
+			//published = uploaded for 3DR
 			case "published":
-				return generateAuthorSpan(date, actor, content);
+				return generateAuthorSpan(dateStr, actor, content);
 
 			case "viewed":
-				return "TESTING!";
+				return content + " " + generateAuthorSpan(dateStr, actor);
+				
+			case "matched":
+				return actor + " has a match " + generateAuthorSpan(dateStr, actor, content);
         }
+        
+        
+        return "Unable to display paradata document.";
     };
 
     self.followOrganization = function(e){

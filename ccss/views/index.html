@@ -187,8 +187,8 @@
 				<tbody data-bind="foreach: visualBrowserResults">
 					<tr>
 						<td>
-							<a class="resultClick" data-bind="text:$root.getShorterStr(url, 50), attr:{name: $root.getShorterStr(url, url.length, true)}"></a><br/>
-							<a class="resultClick" data-bind="text:$root.getShorterStr(keys, 4), attr:{name: $root.getShorterStr(url, url.length, true)}"></a>
+							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url)}"></a><br/>
+							<a class="resultClick" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url)}"></a>
 						</td>
 					</tr>
 				</tbody>
@@ -225,6 +225,7 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
 	<script src="https://login.persona.org/include.js"></script>
+	<script src="/javascripts/moment.min.js"></script>
 
 	<script src="/javascripts/jquery.js"></script>
 	<script src="//code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
@@ -398,7 +399,7 @@
 							"verb": {
 								"action": "commented",
 								"detail": $(this).val(),
-								"date": "2012-09-27"
+								"date": "September 27, 2012"
 							},
 							"object": temp.currentObject().url
 						}
