@@ -16,6 +16,8 @@
         self.organizations needs only to contain an array of strings that can be used to search against a node
 */
 
+var currentObjectMetadata = [];
+
 var urlTransform = {
 
     "3dr.adlnet.gov" : function(urlObj){
@@ -114,12 +116,9 @@ var handleMainResourceModal = function(src, direct){
 	$("#modalFrame").load(function(){
 
 		spinner.stop();
-
 		$("#spinnerDiv").hide("slow", function(){
-
 			$("#modalFrame").css("visibility", "visible");
 		});
-
 	});
 
 	$("#modal").modal();
@@ -139,30 +138,26 @@ var handleMainResourceModal = function(src, direct){
 		jsonp : 'callback'
 	}).success(function(data){
 
-			//if (tempUrl.hostname == "3dr.adlnet.gov"){
+		//For each document found in data
+		var jsonData;
+		for(var i = 0; i < data.documents[0].document.length; i++){
+
+			if(data.documents[0].document[i].resource_data_type == "paradata"){
 				
-				//For each document found in data
-				var jsonData;
-				for(var i = 0; i < data.documents[0].document.length; i++){
-
-					if(data.documents[0].document[i].resource_data_type == "paradata"){
-						
-						jsonData = (typeof data.documents[0].document[i].resource_data == "string") ? 
-									$.parseJSON( data.documents[0].document[i].resource_data ) : data.documents[0].document[i].resource_data;
-									
-						self.currentObject().timeline.push(jsonData);
-					}
-
-				}
-
-				console.log(self.currentObject().timeline());
-			//}
-			console.log(data);
+				jsonData = (typeof data.documents[0].document[i].resource_data == "string") ? 
+							$.parseJSON( data.documents[0].document[i].resource_data ) : data.documents[0].document[i].resource_data;
+							
+				self.currentObject().timeline.push(jsonData);
+			}
+			
+			else if(data.documents[0].document[i].resource_data_type == "metadata"){
+				
+				currentObjectMetadata.push(data.documents[0].document[i]);
+			}
+		}
+		console.log(self.currentObject().timeline());
+		console.log(data);
 	});
-
-
-	//console.log(self.currentObject().timeline());
-
 
 	if(spinner !== null){
 
@@ -484,6 +479,8 @@ var mainViewModel = function(resources){
             contentType: 'application/json',
             data: createJSON(e, "follow"),
             success: function(data){
+				
+				console.log("added");
                 self.allOrganizations.remove(e);
                 self.followers.push({name:data.subject, content:[]});
             //console.log(data);

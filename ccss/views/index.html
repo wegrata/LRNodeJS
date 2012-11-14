@@ -1,5 +1,4 @@
- <div class="container">
-
+ <div class="container">	
  	<div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div style="height: 30px;" class="modal-header timelineModal">
 
@@ -29,12 +28,10 @@
 
 			<span data-bind="if: checkTimelineLength(currentObject().timeline) == 0">&nbsp;&nbsp;Be the first to interact!</span>
 		</div>
-
+		
 		<div class="modal-iframe">
 			<div id="mBody" class="modal-body">
 				<div id="spinnerDiv" style="margin: 100px auto; height: 20%; width:20%;"></div>
-
-
 			</div>
 		</div>
 
@@ -226,6 +223,7 @@
     <!-- Placed at the end of the document so the pages load faster -->
 	<script src="https://login.persona.org/include.js"></script>
 	<script src="/javascripts/moment.min.js"></script>
+	<script src="/javascripts/prettify.js"></script>
 
 	<script src="/javascripts/jquery.js"></script>
 	<script src="//code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
@@ -249,6 +247,7 @@
 	<link type="text/css" href="/themes/Aristo/Aristo.css" rel="stylesheet" />
 	<!--<link type="text/css" href="themes/demos.css" rel="stylesheet" />-->
 	<link type="text/css" href="/stylesheets/Hypertree.css" rel="stylesheet" />
+	<link type="text/css" href="/stylesheets/prettify.css" rel="stylesheet" />
 
 	<script type="text/javascript">
 
@@ -280,6 +279,7 @@
 		for (var f in followed){
 			temp.followers.push({name:followed[f], content:[]});
 		}
+		
 		ko.applyBindings(temp);
 		/*$.getJSON('/resources',function(data){
 
@@ -304,8 +304,26 @@
 		$("#modal").hide();
 		var initialGraphBuild = false;
 		$(document).ready(function(){
-
+			
 			$('input, textarea').placeholder();
+
+			//View a resource's metadata
+			$(".chatTools").on("click", ".icon-file", function(){
+				
+				//Watch out for XSS attacks
+				console.log("metadata: ", currentObjectMetadata);
+				var metadata = '<pre class="prettyprint">';
+				
+				for(var i = 0; i < currentObjectMetadata.length; i++){
+					metadata += JSON.stringify(currentObjectMetadata[i], null, 4);
+				}
+				
+				
+				$("#modalFrame").remove();
+				$(".modal-body").append(metadata + "</pre>");
+				prettyPrint();
+			});
+
 
 			//Handle what happens when the back button is clicked
 			$(".backButtonModal").click(function(e){
@@ -316,6 +334,7 @@
 				if(lastModalLocation == "home"){
 
 					$("#modalFrame").remove();
+					$(".prettyprint").remove();
 					$("#modal").modal("hide");
 					//$("#modal").css("visibility", "hidden");
 
@@ -325,6 +344,7 @@
 				else{
 
 					$("#modalFrame").remove();
+					$(".prettyprint").remove();
 					$("#modal").modal("hide");
 					//$("#modal").css("visibility", "hidden");
 
