@@ -184,8 +184,8 @@ exports.main = function(request, response){
 exports.signup = function(request, response){
 
   //I assume this is how we know whether or not a user is logged in
-  if (request.session)
-    resp.redirect('/index');
+  if (request.user)
+    response.redirect('/');
 
   else
     response.render('signup.html');
@@ -193,5 +193,5 @@ exports.signup = function(request, response){
 
 exports.logout = function (req, resp) {
   req.session.destroy();
-  resp.redirect('/');
+  resp.redirect('/signup');
 };
