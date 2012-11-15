@@ -8,6 +8,11 @@
 	outline: none;
   }
   
+  .popover{
+	
+	word-wrap: break-word !important;
+  }
+  
   #iframeHiddenFix{
 	
 		height: 1px;

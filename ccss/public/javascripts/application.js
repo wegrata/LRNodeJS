@@ -17,6 +17,8 @@
 */
 
 var currentObjectMetadata = [];
+var lastContentFrameSource = "";
+var saveFrameState = "";
 
 var urlTransform = {
 
@@ -93,6 +95,30 @@ var enableDrag = function(){
     });
 };
 
+var generateContentFrame = function(src, alreadyAppended){
+	
+	if(alreadyAppended !== true){
+		
+		//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
+		var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
+		$("#mBody").append(frameCode);
+	}
+
+	var frame = $('#modalFrame')[0];
+	frame.contentWindow.location.replace(src);
+	
+	if(alreadyAppended !== true){
+		$("#spinnerDiv").show();
+		$("#modalFrame").load(function(){
+
+			spinner.stop();
+			$("#spinnerDiv").hide("slow", function(){
+				$("#modalFrame").css("visibility", "visible");
+			});
+		});
+	}
+};
+
 var handleMainResourceModal = function(src, direct){
 
 	//if we're not accessing directly, back should lead to visual browser
@@ -100,26 +126,14 @@ var handleMainResourceModal = function(src, direct){
 
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
 	src = (typeof src == "string")? src : $(this).attr("name");
+	lastContentFrameSource = src;
 
 	var target = document.getElementById('spinnerDiv');
 	self.currentObject(new resourceObject("Item", src));
-
-	//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
-	var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
-	$("#mBody").append(frameCode);
-
-	var frame = $('#modalFrame')[0];
-	frame.contentWindow.location.replace(src);
-
-	$("#spinnerDiv").show();
-
-	$("#modalFrame").load(function(){
-
-		spinner.stop();
-		$("#spinnerDiv").hide("slow", function(){
-			$("#modalFrame").css("visibility", "visible");
-		});
-	});
+	
+	//Remove any residual JSON prettyprinted documents
+	$(".prettyprint").remove();
+	generateContentFrame(src);
 
 	$("#modal").modal();
 
@@ -140,6 +154,7 @@ var handleMainResourceModal = function(src, direct){
 
 		//For each document found in data
 		var jsonData;
+		currentObjectMetadata = [];
 		for(var i = 0; i < data.documents[0].document.length; i++){
 
 			if(data.documents[0].document[i].resource_data_type == "paradata"){
@@ -316,7 +331,7 @@ var getProperArray = function(str){
 
 
 
-var generateAuthorSpan = function(str, author, content){
+var generateAuthorSpan = function(str, author, content, i){
 
     //Check for any potential XSS attacks
 	
@@ -331,7 +346,7 @@ var generateAuthorSpan = function(str, author, content){
     var bottomBar = '<div class="bottomBar">'+
                         '<i name="'+author+'" rel="tooltip" title="Follow User" onclick="handleOnclickUserBar(this)" class="icon-star"></i>'+
                         '<i name="'+author+'" rel="tooltip" title="View User Profile" onclick="handleOnclickUserBar(this)" class="icon-user"></i>'+
-                        '<i name="'+author+'" rel="tooltip" title="View Raw Paradata" onclick="handleOnclickUserBar(this)" class="icon-file"></i>'+
+                        '<i rel="tooltip" title="View Raw Paradata" onclick="handleOnclickUserBar(this)" class="icon-file" name="paradata'+i+'"></i>'+
                     '</div>';
 
     var localContent = '<div>'+content+'</div>' + bottomBar;
@@ -344,6 +359,34 @@ var createJSON = function(obj, type){
 	return JSON.stringify({action: type, subject: obj});
 };
 
+var displayObjectData = function(pmdata){
+	
+		lastModalLocation = "frame";
+
+		//Watch out for XSS attacks
+		console.log("metadata: ", pmdata);
+		var metadata = '<pre class="prettyprint">';
+		
+		if($.isArray(pmdata)){
+			for(var i = 0; i < pmdata.length; i++){
+				metadata += JSON.stringify(pmdata[i], null, 4);
+			}
+			
+			metadata = (pmdata.length == 0)? "<center class='prettyprint' style='margin-top: 20%;'>No metadata found</center>" : metadata;
+		}
+		
+		else {
+			
+			metadata += JSON.stringify(pmdata, null, 4);
+		}
+		
+		saveFrameState = $("#mBody").html();
+		$("#modalFrame").remove();
+		$(".prettyprint").remove();
+		$(".modal-body").append(metadata + "</pre>");
+		prettyPrint();
+};
+
 /* The main View Model used by Knockout.js */
 var mainViewModel = function(resources){
 
@@ -354,7 +397,13 @@ var mainViewModel = function(resources){
     self.bookmarks = ko.observableArray();
     self.followers = ko.observableArray(followingList);
     self.visualBrowserResults = ko.observableArray();
-
+	
+	
+	self.handleDataClick = function(e){
+		
+		displayObjectData(currentObjectMetadata);
+	};
+	
     self.getShorterArr = function(str, length, url){
 
         if(typeof str == "string"){
@@ -400,20 +449,18 @@ var mainViewModel = function(resources){
 
 		/*
 		 * TO-DO: Finish coming up with a generalized solution for most paradata documents
-		 */
-			console.log("current resource ", e);
+		 */		
+	
+		var verb = e.activity.verb.action.toLowerCase();
+		var dateStr = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
 		
-			var verb = e.activity.verb.action.toLowerCase();
-			var dateStr = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
-			
-			//These three don't exist for viewed verb
-			var detail = (e.activity.verb.detail === undefined)? "hi" : e.activity.verb.detail;
-			var content = (e.activity.content === undefined)? "hi" : e.activity.content;
-			
-			var actor = (e.activity.actor === undefined)? "hi" : (e.activity.actor.description == undefined && e.activity.actor.displayName !== undefined) ? 
-					    e.activity.actor.displayName : e.activity.actor.description[0];
-			
-			
+		//These three don't exist for viewed verb
+		var detail = (e.activity.verb.detail === undefined)? "hi" : e.activity.verb.detail;
+		var content = (e.activity.content === undefined)? "hi" : e.activity.content;
+		
+		var actor = (e.activity.actor === undefined)? "hi" : (e.activity.actor.description == undefined && e.activity.actor.displayName !== undefined) ? 
+					e.activity.actor.displayName : e.activity.actor.description[0];
+		
 		var date = new Date(dateStr);
 		
 		//Not a valid date object
@@ -443,23 +490,23 @@ var mainViewModel = function(resources){
         switch(verb){
 
             case "rated":
-                return actor + " " + verb + " this " + generateAuthorSpan(dateStr, actor);
+                return actor + " " + verb + " this " + generateAuthorSpan(dateStr, actor, undefined, i);
 
             case "commented":
-                return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor);
+                return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, undefined, i);
 
             case "downloaded":
-				return generateAuthorSpan(dateStr, actor, content);
+				return generateAuthorSpan(dateStr, actor, content, i);
 			
 			//published = uploaded for 3DR
 			case "published":
-				return generateAuthorSpan(dateStr, actor, content);
+				return generateAuthorSpan(dateStr, actor, content, i);
 
 			case "viewed":
-				return content + " " + generateAuthorSpan(dateStr, actor);
+				return content + " " + generateAuthorSpan(dateStr, actor, undefined, i);
 				
 			case "matched":
-				return actor + " has a match " + generateAuthorSpan(dateStr, actor, content);
+				return actor + " has a match " + generateAuthorSpan(dateStr, actor, content, i);
         }
         
         
