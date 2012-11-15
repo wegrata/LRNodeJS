@@ -172,6 +172,7 @@ exports.visual = function(request,response) {
 };
 
 exports.main = function(request, response){
+
   //I assume this is how we know whether or not a user is logged in
   if (request.session)
     resp.redirect('/index');
