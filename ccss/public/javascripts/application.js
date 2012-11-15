@@ -362,6 +362,7 @@ var createJSON = function(obj, type){
 var displayObjectData = function(pmdata){
 	
 		lastModalLocation = "frame";
+		$(".prettyprint").remove();
 
 		//Watch out for XSS attacks
 		console.log("metadata: ", pmdata);
@@ -380,9 +381,12 @@ var displayObjectData = function(pmdata){
 			metadata += JSON.stringify(pmdata, null, 4);
 		}
 		
-		saveFrameState = $("#mBody").html();
-		$("#modalFrame").remove();
-		$(".prettyprint").remove();
+		
+		if($("#modalFrame").length > 0){
+			saveFrameState = $("#mBody").html();
+			$("#modalFrame").remove();
+		}
+		
 		$(".modal-body").append(metadata + "</pre>");
 		prettyPrint();
 };
