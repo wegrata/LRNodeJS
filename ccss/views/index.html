@@ -95,7 +95,7 @@
 				</div>
 			</div>
 			<div class="row dropbox">
-				<span data-bind="visible: bookmarks().length == 0" class="dropText">Drop stuff</span>
+				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarks</span>
 
 				<!-- ko foreach: bookmarks -->
 					<div class="draggable lr_border_trans pull-left">
@@ -319,32 +319,26 @@
 
 				e.preventDefault();
 				e.stopPropagation();
-
+				
+				lastModalLocation = (directAccess === true && lastModalLocation == "visual") ? "home" : lastModalLocation;
+				$(".prettyprint").remove();
+				
 				if(lastModalLocation == "home"){
-
 					$("#modalFrame").remove();
-					$(".prettyprint").remove();
 					$("#modal").modal("hide");
-					//$("#modal").css("visibility", "hidden");
 
 					$("#visualBrowser").modal("hide");
 				}
 				
 				else if(lastModalLocation == "frame"){
-					
-					$(".prettyprint").remove();
 					$("#mBody").append(saveFrameState);
-					console.log(saveFrameState);
 					generateContentFrame(lastContentFrameSource, true);
 					lastModalLocation = "visual";
 				}
 
 				else{
-
 					$("#modalFrame").remove();
-					$(".prettyprint").remove();
 					$("#modal").modal("hide");
-					//$("#modal").css("visibility", "hidden");
 
 					$("#visualBrowser").modal("show");
 					lastModalLocation = "home";
@@ -426,10 +420,7 @@
 					console.log(temp.currentObject());
 					temp.currentObject().timeline.push(mockParadata);
 
-					//Scroll bar fix...
-					$(".modal-timeline").getNiceScroll().hide();
-					$(".modal-timeline").getNiceScroll().show();
-					$(".modal-timeline").getNiceScroll()[0].noticeCursor();
+					scrollbarFix();
 
 					//console.log($(".modal-timeline").getNiceScroll());
 					$(this).val("");

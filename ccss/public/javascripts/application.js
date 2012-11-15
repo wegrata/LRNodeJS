@@ -16,9 +16,7 @@
         self.organizations needs only to contain an array of strings that can be used to search against a node
 */
 
-var currentObjectMetadata = [];
-var lastContentFrameSource = "";
-var saveFrameState = "";
+var currentObjectMetadata = [], lastContentFrameSource = "", saveFrameState = "", directAccess = false;
 
 var urlTransform = {
 
@@ -54,6 +52,14 @@ var getLocation = function(href) {
     var l = document.createElement("a");
     l.href = href;
     return l;
+};
+
+var scrollbarFix = function(){
+
+	//Scroll bar fix...
+	$(".modal-timeline").getNiceScroll().hide();
+	$(".modal-timeline").getNiceScroll().show();
+	$(".modal-timeline").getNiceScroll()[0].noticeCursor();
 };
 
 var opts = {
@@ -122,6 +128,7 @@ var generateContentFrame = function(src, alreadyAppended){
 var handleMainResourceModal = function(src, direct){
 
 	//if we're not accessing directly, back should lead to visual browser
+	directAccess = direct;
 	lastModalLocation = (direct !== true)?  "visual" : "home";
 
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
@@ -178,14 +185,22 @@ var handleMainResourceModal = function(src, direct){
 
 		//Checks to see if there are enough rows in the timeline to warrant showing the scroll bars
 		//Should be checked whenever an element is added to or removed from the timeline
+		console.log("height: ", $("#timeline-table").height());
 		if($("#timeline-table").height() > 640)
 			$(".modal-timeline").getNiceScroll().show();
+		
+		scrollbarFix();
 
 		spinner.spin(target);
 	}
 	else {
 
 		$(".modal-timeline").niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
+		if($("#timeline-table").height() > 640)
+			$(".modal-timeline").getNiceScroll().show();
+		
+		scrollbarFix();
+		
 		spinner = new Spinner(opts).spin(target);
 	}
 };
