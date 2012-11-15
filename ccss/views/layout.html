@@ -7,7 +7,7 @@
 <html lang="en">
   <head>
 	<script src="/javascripts/knockout.js"></script>
-	
+
     <meta charset="utf-8">
     <title>LR Prototype</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +17,7 @@
     <!-- Le styles -->
 	<!--<link rel="stylesheet" href="/stylesheets/style.css">-->
 	<link rel="stylesheet" href="/stylesheets/site.css">
-	
+
 	 <link href="/stylesheets/bootstrap.css" rel="stylesheet">
 	<link href="/stylesheets/application.css" rel="stylesheet">
 
@@ -40,7 +40,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          
+          <a class="brand" href="#"><img src="/images/customLogoIcon.png" /></a>
           <div class="nav-collapse collapse">
 			<div class="span4">
 				<a class="brand" href="#"><img src="/images/customLogoIcon.png" /></a>
@@ -50,16 +50,16 @@
 				</ul>
 			</div>
             <div class="navbar-form pull-left" id="signinForm">
-             		 
+
 				<div id="searchinput" class="input-append span6">
 				  <input class="input-xlarge" id="term" type="text" placeholder="Search for resources, websites, etc."/>
 				  <button class="btn"id="Search" style="margin-top:0;" type="button">Search</button>
 				</div>
-				
+
 				<div class="pull-right">
 				  {{#user}}
+					{{email}}
 					<form action="/logout" method="post">
-						{{email}}
 						<input type="submit" value="logout" />
 					</form>
 				  {{/user}}
@@ -78,8 +78,9 @@
         </div>
       </div>
     </div>
-  {{>body}}
-  
+    <section style="margin-top:5em;">
+  		{{>body}}
+  	</section>
 	<div>
 
 	  <hr>
@@ -87,7 +88,7 @@
 			<div>
 				<p>Disclaimer of Endorsement. The ADL Initiative does not necessarily endorse the organizations providing data, metadata, paradata, and related content. All ratings and comments represent independent user evaluations and do not represent the views of the ADL Initiative.</p>
 
-				<p>Sponsored by the Office of the Under Secretary of Defense for Personnel and Readiness (OUSD P&amp;R). 
+				<p>Sponsored by the Office of the Under Secretary of Defense for Personnel and Readiness (OUSD P&amp;R).
 				This is an official website of the U.S. Government &copy;2012 Advanced Distributed Learning (ADL). </p>
 			</div>
 		  </footer>
