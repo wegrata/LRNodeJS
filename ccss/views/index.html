@@ -19,9 +19,16 @@
 		<div class="modal-timeline">
 			<table id="timeline-table" class="table table-striped">
 				<tbody data-bind="foreach: currentObject().timeline">
-					<tr><td data-bind="html: $root.generateParadataText($data, $index),
-									   style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF',
-									   'border-top': $index()==0 ? 'none' : '1px #DDD solid'}"></td>
+				
+				
+					<tr><td data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF', 'border-top': $index()==0 ? 'none' : '1px #DDD solid'}">
+									   
+							<div data-bind="html: $root.generateParadataText($data, $index()), attr:{id: 'paradata' + $index() }"></div>
+									   
+
+						</td>
+									   
+									   
 					</tr>
 				</tbody>
 			</table>
@@ -38,7 +45,7 @@
 
 		<div class="chatTools">
 			<span style="border-right: 1px solid #aaa">
-				<a href="#" data-placement="top" rel="tooltip" data-original-title="View Metadata"><i class="icon-file"></i></a>
+				<a data-bind="click: handleDataClick" href="#" data-placement="top" rel="tooltip" data-original-title="View Metadata"><i class="icon-file"></i></a>
 			</span>
 			<span style="border-right: 1px solid #aaa">
 				<a href="#" data-placement="top" rel="tooltip" data-original-title="Vote Up"><i class="icon-plus"></i></a>&nbsp;
@@ -88,7 +95,7 @@
 				</div>
 			</div>
 			<div class="row dropbox">
-				<span data-bind="visible: bookmarks().length == 0" class="dropText">Drop stuff</span>
+				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarks</span>
 
 				<!-- ko foreach: bookmarks -->
 					<div class="draggable lr_border_trans pull-left">
@@ -307,51 +314,37 @@
 			
 			$('input, textarea').placeholder();
 
-			//View a resource's metadata
-			$(".chatTools").on("click", ".icon-file", function(){
-				
-				//Watch out for XSS attacks
-				console.log("metadata: ", currentObjectMetadata);
-				var metadata = '<pre class="prettyprint">';
-				
-				for(var i = 0; i < currentObjectMetadata.length; i++){
-					metadata += JSON.stringify(currentObjectMetadata[i], null, 4);
-				}
-				
-				
-				$("#modalFrame").remove();
-				$(".modal-body").append(metadata + "</pre>");
-				prettyPrint();
-			});
-
-
 			//Handle what happens when the back button is clicked
 			$(".backButtonModal").click(function(e){
 
 				e.preventDefault();
 				e.stopPropagation();
-
+				
+				lastModalLocation = (directAccess === true && lastModalLocation == "visual") ? "home" : lastModalLocation;
+				$(".prettyprint").remove();
+				
 				if(lastModalLocation == "home"){
-
 					$("#modalFrame").remove();
-					$(".prettyprint").remove();
 					$("#modal").modal("hide");
-					//$("#modal").css("visibility", "hidden");
 
 					$("#visualBrowser").modal("hide");
 				}
-
-				else{
-
-					$("#modalFrame").remove();
-					$(".prettyprint").remove();
-					$("#modal").modal("hide");
-					//$("#modal").css("visibility", "hidden");
-
-					$("#visualBrowser").modal("show");
+				
+				else if(lastModalLocation == "frame"){
+					$("#mBody").append(saveFrameState);
+					generateContentFrame(lastContentFrameSource, true);
+					lastModalLocation = "visual";
 				}
 
-				lastModalLocation = "home";
+				else{
+					$("#modalFrame").remove();
+					$("#modal").modal("hide");
+
+					$("#visualBrowser").modal("show");
+					lastModalLocation = "home";
+				}
+
+				
 			});
 
 			var handleDoSearch = function(e, str) {
@@ -427,10 +420,7 @@
 					console.log(temp.currentObject());
 					temp.currentObject().timeline.push(mockParadata);
 
-					//Scroll bar fix...
-					$(".modal-timeline").getNiceScroll().hide();
-					$(".modal-timeline").getNiceScroll().show();
-					$(".modal-timeline").getNiceScroll()[0].noticeCursor();
+					scrollbarFix();
 
 					//console.log($(".modal-timeline").getNiceScroll());
 					$(this).val("");
@@ -505,17 +495,23 @@
 		};
 
 		var handleOnclickUserBar = function(obj){
-
-			console.log(obj);
+			
 			var cacheObj = $(obj);
 			var name = cacheObj.attr("name");
 			var className = cacheObj.attr("class");
 
 			if(className == "icon-star")
 				self.followUser(name);
-
-			console.log(className);
-
+				
+			else if(className == "icon-file"){
+				
+				
+			}
+			
+			//Substr gets the number portion of "paradataX"
+			var test = cacheObj.attr("name").substr(8, cacheObj.attr("name").length-8);
+			console.log(test, self.currentObject().timeline()[test]);
+			displayObjectData(self.currentObject().timeline()[test]);
 		};
 
 	</script>
