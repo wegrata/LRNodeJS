@@ -60,7 +60,6 @@ exports.validateUser = function(email, done){
             }
     };
     var failureHandler = function(err){
-            console.error(err);
             if(err.error == 'not_found'){
                 createUser(email, done);
             }
@@ -69,9 +68,35 @@ exports.validateUser = function(email, done){
 };
 exports.logout = function(req, res){
     req.logout();
+    req.session.destroy();
     res.redirect('/');
 };
 exports.auth = function(req, res) {
     // Successful authentication, redirect home.
-    res.redirect('/');
+    if(req.user.jobTitle)
+        res.redirect('/');
+    else
+        res.redirect('/signup');
+};
+
+exports.signup = function(request, response){
+    response.render('signup.html');
+};
+exports.signupHandler = function(req, res){
+    console.log(req.body);
+
+    var currentUserDoc = usersDb.doc(req.user._id);
+    currentUserDoc.get(function(err, doc){
+        doc.fullName = req.body.fullName;
+        doc.jobTitle = req.body.jobTitle;
+        doc.education = req.body.education;
+        currentUserDoc.body = doc;
+        currentUserDoc.save(function(doc, error){
+            req.user.fullName = req.body.fullName;
+            req.user.jobTitle = req.body.jobTitle;
+            req.user.education = req.body.education;
+            res.redirect('/');
+        });
+    });
+
 };
