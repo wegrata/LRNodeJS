@@ -13,6 +13,11 @@
 	word-wrap: break-word !important;
   }
   
+  .bodyHideOverflow{
+  
+	overflow: hidden;
+  }
+  
   #iframeHiddenFix{
 	
 		height: 1px;
