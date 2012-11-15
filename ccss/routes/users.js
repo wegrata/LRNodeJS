@@ -80,11 +80,13 @@ exports.auth = function(req, res) {
 };
 
 exports.signup = function(request, response){
-    response.render('signup.html');
+    var opts = {};
+    opts.locals = opts.locals || {};
+    if (request.user)
+      opts.locals.user = request.user;
+    response.render('signup.html', opts);
 };
 exports.signupHandler = function(req, res){
-    console.log(req.body);
-
     var currentUserDoc = usersDb.doc(req.user._id);
     currentUserDoc.get(function(err, doc){
         doc.fullName = req.body.fullName;
