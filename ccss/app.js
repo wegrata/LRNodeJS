@@ -76,7 +76,8 @@ app.get('/visual', routes.visual);
 app.post('/nodes/', routes.nodes);
 app.get('/related', routes.related);
 app.get('/resources', routes.resources);
-app.get('/signup', routes.signup);
+app.get('/signup', users.signup);
+app.post('/signup', users.signupHandler);
 app.post('/auth', passport.authenticate('browserid', { failureRedirect: '/' }), users.auth);
 app.post('/logout', users.logout);
 app.post('/main', function(req, res){

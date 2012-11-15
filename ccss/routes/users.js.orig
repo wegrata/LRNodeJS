@@ -53,7 +53,12 @@ function getUser(email, success, failure){
 }
 exports.validateUser = function(email, done){
     var successHandler = function(result){
+<<<<<<< HEAD
+            console.log(result)
+            if (result.total_rows === 0){
+=======
             if (result.rows.length === 0){
+>>>>>>> 61a8feb9fba953f61c2c3e0268e20d4e0ed2c4d8
                 createUser(email, done);
             }else{
                 done(null, result.rows[0].doc);
@@ -73,6 +78,10 @@ exports.logout = function(req, res){
 };
 exports.auth = function(req, res) {
     // Successful authentication, redirect home.
+<<<<<<< HEAD
+    res.redirect('/');
+};
+=======
     if(req.user.jobTitle)
         res.redirect('/');
     else
