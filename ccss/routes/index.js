@@ -20,12 +20,12 @@ var underscore = require('underscore');
 // couchdb db
 var server       = couchdb.srv('localhost', 5984, false, true);
 var standardsDb  = server.db('standards');
-
+var usersDb      = server.db('users');
 // views
 var nodesView      = standardsDb.ddoc('nodes').view('parent-grade');
 var categoriesView = standardsDb.ddoc('nodes').view('categories');
 var standardsView  = standardsDb.ddoc('nodes').view('standards');
-
+var jobTitleView  = usersDb.ddoc("users").view("jobTitle");
 // route to display nodes hierarchically
 //   set body.category + body.standard for standard's child nodes
 //   OR body.parent for child nodes of parent
@@ -162,8 +162,20 @@ exports.index = function(request,response) {
      opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
            'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
            'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
-
-    response.render('index.html', opts);
+    if (request.user && request.user.jobTitle){
+      params = {
+          include_docs: true,
+          key: request.user.jobTitle
+      };
+      jobTitleView.query(params, function(err, result){
+          opts.locals.sameOccupation = result.rows.map( function(n) {
+                      return n.value;
+                  });
+        response.render('index.html', opts);
+      });
+    }else{
+      response.render('index.html', opts);
+    }
 };
 exports.visual = function(request,response) {
   var viewOptions = {};
