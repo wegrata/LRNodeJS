@@ -1,4 +1,4 @@
- <div class="container">
+ <div class="container">	
  	<div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 		<div style="height: 30px;" class="modal-header timelineModal">
 
@@ -19,23 +19,23 @@
 		<div class="modal-timeline">
 			<table id="timeline-table" class="table table-striped">
 				<tbody data-bind="foreach: currentObject().timeline">
-
-
+				
+				
 					<tr><td data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF', 'border-top': $index()==0 ? 'none' : '1px #DDD solid'}">
-
+									   
 							<div data-bind="html: $root.generateParadataText($data, $index()), attr:{id: 'paradata' + $index() }"></div>
-
+									   
 
 						</td>
-
-
+									   
+									   
 					</tr>
 				</tbody>
 			</table>
 
 			<span data-bind="if: checkTimelineLength(currentObject().timeline) == 0">&nbsp;&nbsp;Be the first to interact!</span>
 		</div>
-
+		
 		<div class="modal-iframe">
 			<div id="mBody" class="modal-body">
 				<div id="spinnerDiv" style="margin: 100px auto; height: 20%; width:20%;"></div>
@@ -195,9 +195,9 @@
 			<table class="table table-striped">
 				<tbody data-bind="foreach: visualBrowserResults">
 					<tr>
-						<td>
-							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url)}"></a><br/>
-							<a class="resultClick" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url)}"></a>
+						<td style="padding-top: 15px; padding-bottom: 15px;">
+							<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url)}"><br/></a>
+							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url)}"></a>
 						</td>
 					</tr>
 				</tbody>
@@ -291,7 +291,7 @@
 		for (var f in followed){
 			temp.followers.push({name:followed[f], content:[]});
 		}
-
+		
 		ko.applyBindings(temp);
 		/*$.getJSON('/resources',function(data){
 
@@ -316,7 +316,7 @@
 		$("#modal").hide();
 		var initialGraphBuild = false;
 		$(document).ready(function(){
-
+s			
 			$('input, textarea').placeholder();
 
 			//Handle what happens when the back button is clicked
@@ -324,7 +324,10 @@
 
 				e.preventDefault();
 				e.stopPropagation();
-
+				
+				lastModalLocation = (directAccess === true && lastModalLocation == "visual") ? "home" : lastModalLocation;
+				$(".prettyprint").remove();
+				
 				if(lastModalLocation == "home"){
 
 					$("#modalFrame").remove();
@@ -334,7 +337,7 @@
 
 					$("#visualBrowser").modal("hide");
 				}
-
+				
 				else if(lastModalLocation == "frame"){
 
 					$(".prettyprint").remove();
@@ -355,7 +358,7 @@
 					lastModalLocation = "home";
 				}
 
-
+				
 			});
 
 			var handleDoSearch = function(e, str) {
@@ -422,7 +425,7 @@
 							"verb": {
 								"action": "commented",
 								"detail": $(this).val(),
-								"date": "September 27, 2012"
+								"date": new Date()
 							},
 							"object": temp.currentObject().url
 						}
@@ -431,10 +434,7 @@
 					console.log(temp.currentObject());
 					temp.currentObject().timeline.push(mockParadata);
 
-					//Scroll bar fix...
-					$(".modal-timeline").getNiceScroll().hide();
-					$(".modal-timeline").getNiceScroll().show();
-					$(".modal-timeline").getNiceScroll()[0].noticeCursor();
+					scrollbarFix();
 
 					//console.log($(".modal-timeline").getNiceScroll());
 					$(this).val("");
@@ -509,19 +509,19 @@
 		};
 
 		var handleOnclickUserBar = function(obj){
-
+			
 			var cacheObj = $(obj);
 			var name = cacheObj.attr("name");
 			var className = cacheObj.attr("class");
 
 			if(className == "icon-star")
 				self.followUser(name);
-
+				
 			else if(className == "icon-file"){
-
-
+				
+				
 			}
-
+			
 			//Substr gets the number portion of "paradataX"
 			var test = cacheObj.attr("name").substr(8, cacheObj.attr("name").length-8);
 			console.log(test, self.currentObject().timeline()[test]);
