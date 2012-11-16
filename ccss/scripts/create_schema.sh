@@ -28,17 +28,22 @@ curl -X PUT http://admin:password@localhost:5984/standards/_design/nodes --data 
     }
   }
 }'
-curl -X PUT http://admin:password@localhost:5984/_desing/users -H "Content-Type:application/json" --data '
+curl -X PUT http://admin:password@localhost:5984/users/_design/users -H "Content-Type:application/json" --data '
 {
    "_id": "_design/users",
-   "_rev": "4-bd136ed7cbef172f7f42b4b85a72d27b",
    "language": "javascript",
-   "views": {
-       "organizations": {
-           "map": "function(doc) { if (doc.isOrginization === true) emit(doc.name, null); }"
-       },
-       "users": {
-           "map": "function(doc) { if (doc.isOrginization === false) emit(doc.email, null); }"
-       }
-   }
+    "views": {
+        "organizations": {
+            "map": "function(doc) { if (doc.isOrginization === true) emit(doc.name, null); }"
+        },
+        "users": {
+            "map": "function(doc) { if (doc.isOrginization === false) emit(doc.email, null); }"
+        },
+        "jobTitle": {
+            "map": "function(doc) { if (doc.isOrginization === false && doc.jobTitle) emit(doc.jobTitle, null); }"
+        },
+        "following": {
+            "map": "function(doc) { if (doc.isOrginization === false && doc.following) { for(var i in doc.following) emit(doc.following[i], null);}}"
+        }
+    }
 }'

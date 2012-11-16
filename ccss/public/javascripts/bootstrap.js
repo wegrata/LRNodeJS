@@ -766,6 +766,7 @@
       }
 
     , show: function () {
+		$("body").addClass("bodyHideOverflow");
         var that = this
           , e = $.Event('show')
 
@@ -808,6 +809,7 @@
       }
 
     , hide: function (e) {
+		$("body").removeClass("bodyHideOverflow");
         e && e.preventDefault()
 
         var that = this

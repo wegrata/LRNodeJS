@@ -40,48 +40,46 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#"><img src="/images/customLogoIcon.png" /></a>
           <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#about">About</a></li>
-              <li><a href="#contact">Contact</a></li>
-            </ul>
-            <div class="navbar-form pull-right" id="signinForm">
-
-
-			<div id="searchinput" class="input-append">
-			  <input class="input-xxlarge" id="term" type="text" placeholder="Search for resources, websites, etc.">
-			  <button class="btn"id="Search" style="margin-top:0;" type="button">Search</button>
+			<div class="span4">
+				<a class="brand" href="#"><img src="/images/customLogoIcon.png" /></a>
+				<ul class="nav">
+				  <li class="active"><a href="#">Home</a></li>
+				  <li><a href="#">Contact</a></li>
+				</ul>
 			</div>
-      {{#user}}
-        {{#fullName}}
-          {{fullName}}
-        {{/fullName}}
-        {{^fullName}}
-          {{email}}
-        {{/fullName}}
-        <form action="/logout" method="post">
-            <input type="submit" value="logout" />
-        </form>
-      {{/user}}
-      {{^user}}
-        <form action="/auth" method="post" style="display:none;">
-          <input type="text" name="assertion"/>
-        </form>
-        <img src="https://browserid.org/i/sign_in_red.png" id="browserid"/>
-      {{/user}}
-              <!--<input class="span2" type="text" placeholder="Email" name="email"/>
-              <input class="span2" type="password" placeholder="Password" name="password"/>
-              <input type="submit" class="btn" value="Sign Initiative"></input>-->
-            </div>
+            <div class="navbar-form pull-left" id="signinForm">
+
+				<div id="searchinput" class="input-append span6">
+				  <input class="input-xlarge" id="term" type="text" placeholder="Search for resources, websites, etc."/>
+				  <button class="btn"id="Search" style="margin-top:0;" type="button">Search</button>
+				</div>
+
+				<div class="pull-right">
+				  {{#user}}
+					{{email}}
+					<form action="/logout" method="post">
+						<input type="submit" value="logout" />
+					</form>
+				  {{/user}}
+				  {{^user}}
+					<form action="/auth" method="post" style="display:none;">
+					  <input type="text" name="assertion"/>
+					</form>
+					<img src="https://browserid.org/i/sign_in_red.png" id="browserid"/>
+				  {{/user}}
+				 </div>
+				  <!--<input class="span2" type="text" placeholder="Email" name="email"/>
+				  <input class="span2" type="password" placeholder="Password" name="password"/>
+				  <input type="submit" class="btn" value="Sign Initiative"></input>-->
+			</div>
           </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
-  <section style="margin-top:5em;">
-    {{>body}}
-  </section>
+    <section style="margin-top:5em;">
+  		{{>body}}
+  	</section>
 	<div>
 
 	  <hr>

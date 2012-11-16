@@ -16,6 +16,10 @@
         self.organizations needs only to contain an array of strings that can be used to search against a node
 */
 
+var currentObjectMetadata = [];
+var lastContentFrameSource = "";
+var saveFrameState = "";
+
 var urlTransform = {
 
     "3dr.adlnet.gov" : function(urlObj){
@@ -91,6 +95,30 @@ var enableDrag = function(){
     });
 };
 
+var generateContentFrame = function(src, alreadyAppended){
+	
+	if(alreadyAppended !== true){
+		
+		//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
+		var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
+		$("#mBody").append(frameCode);
+	}
+
+	var frame = $('#modalFrame')[0];
+	frame.contentWindow.location.replace(src);
+	
+	if(alreadyAppended !== true){
+		$("#spinnerDiv").show();
+		$("#modalFrame").load(function(){
+
+			spinner.stop();
+			$("#spinnerDiv").hide("slow", function(){
+				$("#modalFrame").css("visibility", "visible");
+			});
+		});
+	}
+};
+
 var handleMainResourceModal = function(src, direct){
 
 	//if we're not accessing directly, back should lead to visual browser
@@ -98,29 +126,14 @@ var handleMainResourceModal = function(src, direct){
 
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
 	src = (typeof src == "string")? src : $(this).attr("name");
+	lastContentFrameSource = src;
 
 	var target = document.getElementById('spinnerDiv');
 	self.currentObject(new resourceObject("Item", src));
-
-	//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
-	var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
-	$("#mBody").append(frameCode);
-
-	var frame = $('#modalFrame')[0];
-	frame.contentWindow.location.replace(src);
-
-	$("#spinnerDiv").show();
-
-	$("#modalFrame").load(function(){
-
-		spinner.stop();
-
-		$("#spinnerDiv").hide("slow", function(){
-
-			$("#modalFrame").css("visibility", "visible");
-		});
-
-	});
+	
+	//Remove any residual JSON prettyprinted documents
+	$(".prettyprint").remove();
+	generateContentFrame(src);
 
 	$("#modal").modal();
 
@@ -133,29 +146,33 @@ var handleMainResourceModal = function(src, direct){
 	if(reverseTransform[tempUrl.hostname] !== undefined)
 		src = reverseTransform[tempUrl.hostname](tempUrl);
 
-	console.log(src);
+	console.log("This is the src we will be using to search: ", src);
 	$.ajax("https://node02.public.learningregistry.net/obtain?request_id="+src,{
 		dataType : 'jsonp',
 		jsonp : 'callback'
 	}).success(function(data){
 
-			if (tempUrl.hostname == "3dr.adlnet.gov"){
+		//For each document found in data
+		var jsonData;
+		currentObjectMetadata = [];
+		for(var i = 0; i < data.documents[0].document.length; i++){
 
-				for(var i = 0; i < data.documents[0].document.length; i++){
-
-					if(data.documents[0].document[i].resource_data_type == "paradata")
-						self.currentObject().timeline.push($.parseJSON( data.documents[0].document[i].resource_data ));
-
-				}
-
-				console.log(self.currentObject().timeline());
+			if(data.documents[0].document[i].resource_data_type == "paradata"){
+				
+				jsonData = (typeof data.documents[0].document[i].resource_data == "string") ? 
+							$.parseJSON( data.documents[0].document[i].resource_data ) : data.documents[0].document[i].resource_data;
+							
+				self.currentObject().timeline.push(jsonData);
 			}
-			console.log(data);
+			
+			else if(data.documents[0].document[i].resource_data_type == "metadata"){
+				
+				currentObjectMetadata.push(data.documents[0].document[i]);
+			}
+		}
+		console.log(self.currentObject().timeline());
+		console.log(data);
 	});
-
-
-	//console.log(self.currentObject().timeline());
-
 
 	if(spinner !== null){
 
@@ -312,17 +329,24 @@ var getProperArray = function(str){
     }
 };
 
-var generateAuthorSpan = function(str, author, content){
+
+
+var generateAuthorSpan = function(str, author, content, i){
 
     //Check for any potential XSS attacks
-
-	content = (content === undefined) ? "Testing" : content;
+	
+	content = (content == undefined)? "" : content.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+	author = author.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+	str = str.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+	
+	console.log("Debug span ", content + " " + author + " " + str);
+	
     var title = author + '<button type="button" onclick="hidePopover()" class="close closeTimeline" aria-hidden="true">&times;</button>';
 
     var bottomBar = '<div class="bottomBar">'+
                         '<i name="'+author+'" rel="tooltip" title="Follow User" onclick="handleOnclickUserBar(this)" class="icon-star"></i>'+
                         '<i name="'+author+'" rel="tooltip" title="View User Profile" onclick="handleOnclickUserBar(this)" class="icon-user"></i>'+
-                        '<i name="'+author+'" rel="tooltip" title="View Raw Paradata" onclick="handleOnclickUserBar(this)" class="icon-file"></i>'+
+                        '<i rel="tooltip" title="View Raw Paradata" onclick="handleOnclickUserBar(this)" class="icon-file" name="paradata'+i+'"></i>'+
                     '</div>';
 
     var localContent = '<div>'+content+'</div>' + bottomBar;
@@ -335,6 +359,38 @@ var createJSON = function(obj, type){
 	return JSON.stringify({action: type, subject: obj});
 };
 
+var displayObjectData = function(pmdata){
+	
+		lastModalLocation = "frame";
+		$(".prettyprint").remove();
+
+		//Watch out for XSS attacks
+		console.log("metadata: ", pmdata);
+		var metadata = '<pre class="prettyprint">';
+		
+		if($.isArray(pmdata)){
+			for(var i = 0; i < pmdata.length; i++){
+				metadata += JSON.stringify(pmdata[i], null, 4);
+			}
+			
+			metadata = (pmdata.length == 0)? "<center class='prettyprint' style='margin-top: 20%;'>No metadata found</center>" : metadata;
+		}
+		
+		else {
+			
+			metadata += JSON.stringify(pmdata, null, 4);
+		}
+		
+		
+		if($("#modalFrame").length > 0){
+			saveFrameState = $("#mBody").html();
+			$("#modalFrame").remove();
+		}
+		
+		$(".modal-body").append(metadata + "</pre>");
+		prettyPrint();
+};
+
 /* The main View Model used by Knockout.js */
 var mainViewModel = function(resources){
 
@@ -345,15 +401,21 @@ var mainViewModel = function(resources){
     self.bookmarks = ko.observableArray();
     self.followers = ko.observableArray(followingList);
     self.visualBrowserResults = ko.observableArray();
-
-    self.getShorterStr = function(str, length, url){
+	
+	
+	self.handleDataClick = function(e){
+		
+		displayObjectData(currentObjectMetadata);
+	};
+	
+    self.getShorterArr = function(str, length, url){
 
         if(typeof str == "string"){
 
             var temp = getLocation(str);
 
             //Check to see if we should transform the url
-            if(urlTransform[temp.hostname] !== undefined && typeof url == "boolean")
+            if(urlTransform[temp.hostname] !== undefined && url == undefined && length == undefined)
                 str = urlTransform[temp.hostname](temp);
 
             else str = (str.length > length)? str.substr(0, length) + "..." : str;
@@ -361,8 +423,10 @@ var mainViewModel = function(resources){
             return str;
         }
 
-        else
+        else if(str !== undefined){
+			
             return (str.length > length)? str.splice(0, length) : str;
+		}
     };
 
     self.currentObject = ko.observable({});
@@ -389,34 +453,68 @@ var mainViewModel = function(resources){
 
 		/*
 		 * TO-DO: Finish coming up with a generalized solution for most paradata documents
-		 */
-
-
-        //console.log(e.activity);
-        var actor = (e.activity.actor === undefined)? "" : e.activity.actor.description[0];
-        var verb = e.activity.verb.action.toLowerCase();
-        var date = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
-        var detail = (e.activity.verb.detail === undefined) ? "" : e.activity.verb.detail;
-		var content = (e.activity.content === undefined)? "" : e.activity.content;
-
+		 */		
+	
+		var verb = e.activity.verb.action.toLowerCase();
+		var dateStr = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
+		
+		//These three don't exist for viewed verb
+		var detail = (e.activity.verb.detail === undefined)? "hi" : e.activity.verb.detail;
+		var content = (e.activity.content === undefined)? "hi" : e.activity.content;
+		
+		var actor = (e.activity.actor === undefined)? "hi" : (e.activity.actor.description == undefined && e.activity.actor.displayName !== undefined) ? 
+					e.activity.actor.displayName : e.activity.actor.description[0];
+		
+		var date = new Date(dateStr);
+		
+		//Not a valid date object
+		if(isNaN(date.getTime())){
+			
+			if(self.currentObject().url.indexOf("3dr.adlnet.gov") > -1){
+				
+				//This gets the timestamp within "/Date(x)/"
+				date = new Date(parseInt(dateStr.substr(6, dateStr.length - 8)));
+			}
+			
+			else if(false){
+				
+				
+			}
+			
+			else
+				console.log("may not be working");
+				
+				
+		}
+		
+		console.log(date.toDateString(), " ", date.getTime());
+		dateStr = moment(date.getTime()).fromNow();
+		
         //Handle each verb differently
         switch(verb){
 
             case "rated":
-                return actor + " " + verb + " this " + generateAuthorSpan(date, actor);
+                return actor + " " + verb + " this " + generateAuthorSpan(dateStr, actor, undefined, i);
 
             case "commented":
-                return detail + " " + generateAuthorSpan(actor + " on " + date, actor);
+                return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, undefined, i);
 
             case "downloaded":
-				return "TESTING!";
-
+				return generateAuthorSpan(dateStr, actor, content, i);
+			
+			//published = uploaded for 3DR
 			case "published":
-				return generateAuthorSpan(date, actor, content);
+				return generateAuthorSpan(dateStr, actor, content, i);
 
 			case "viewed":
-				return "TESTING!";
+				return content + " " + generateAuthorSpan(dateStr, actor, undefined, i);
+				
+			case "matched":
+				return actor + " has a match " + generateAuthorSpan(dateStr, actor, content, i);
         }
+        
+        
+        return "Unable to display paradata document.";
     };
 
     self.followOrganization = function(e){
@@ -432,6 +530,8 @@ var mainViewModel = function(resources){
             contentType: 'application/json',
             data: createJSON(e, "follow"),
             success: function(data){
+				
+				console.log("added");
                 self.allOrganizations.remove(e);
                 self.followers.push({name:data.subject, content:[]});
             //console.log(data);
