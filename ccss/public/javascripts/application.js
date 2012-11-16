@@ -472,12 +472,13 @@ var mainViewModel = function(resources){
 	
 		var verb = e.activity.verb.action.toLowerCase();
 		var dateStr = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
+		var content = (e.activity.content === undefined)? "hi" : e.activity.content;
+		var measure = (e.activity.verb.measure === undefined)? "hi" : e.activity.verb.measure;
 		
 		//These three don't exist for viewed verb
 		var detail = (e.activity.verb.detail === undefined)? "hi" : e.activity.verb.detail;
-		var content = (e.activity.content === undefined)? "hi" : e.activity.content;
 		
-		var actor = (e.activity.actor === undefined)? "hi" : (e.activity.actor.description == undefined && e.activity.actor.displayName !== undefined) ? 
+		var actor = (e.activity.actor === undefined)? "Unknown User" : (e.activity.actor.description == undefined && e.activity.actor.displayName !== undefined) ? 
 					e.activity.actor.displayName : e.activity.actor.description[0];
 		
 		var date = new Date(dateStr);
@@ -502,8 +503,9 @@ var mainViewModel = function(resources){
 				
 		}
 		
-		console.log(date.toDateString(), " ", date.getTime());
+		console.log("Final content char: ",content[content.length-1]);
 		dateStr = moment(date.getTime()).fromNow();
+		content = (content[content.length-1] == ".")? content.substr(0, content.length-1) : content;
 		
         //Handle each verb differently
         switch(verb){
@@ -512,17 +514,17 @@ var mainViewModel = function(resources){
                 return actor + " " + verb + " this " + generateAuthorSpan(dateStr, actor, undefined, i);
 
             case "commented":
-                return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, undefined, i);
+                return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " commented on this resource.", i);
 
             case "downloaded":
-				return generateAuthorSpan(dateStr, actor, content, i);
+				return content + " " + measure.value + " times " + generateAuthorSpan(dateStr, actor, content, i);
 			
 			//published = uploaded for 3DR
 			case "published":
-				return generateAuthorSpan(dateStr, actor, content, i);
+				return content + " " + generateAuthorSpan(dateStr, actor, content, i);
 
 			case "viewed":
-				return content + " " + generateAuthorSpan(dateStr, actor, undefined, i);
+				return content + " is " + measure.value + generateAuthorSpan(dateStr, actor, undefined, i);
 				
 			case "matched":
 				return actor + " has a match " + generateAuthorSpan(dateStr, actor, content, i);

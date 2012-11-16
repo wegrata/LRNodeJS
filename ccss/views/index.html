@@ -190,9 +190,9 @@
 			<table class="table table-striped">
 				<tbody data-bind="foreach: visualBrowserResults">
 					<tr>
-						<td>
-							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url)}"></a><br/>
-							<a class="resultClick" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url)}"></a>
+						<td style="padding-top: 15px; padding-bottom: 15px;">
+							<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url)}"><br/></a>
+							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url)}"></a>
 						</td>
 					</tr>
 				</tbody>
@@ -411,7 +411,7 @@
 							"verb": {
 								"action": "commented",
 								"detail": $(this).val(),
-								"date": "September 27, 2012"
+								"date": new Date()
 							},
 							"object": temp.currentObject().url
 						}
