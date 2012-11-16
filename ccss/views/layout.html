@@ -57,7 +57,12 @@
 
 				<div class="pull-right">
 				  {{#user}}
-					{{email}}
+				  	{{#fullName}}
+				  		{{fullName}}
+				  	{{/fullName}}
+				  	{{^fullName}}
+						{{email}}
+					{{/fullName}}
 					<form action="/logout" method="post">
 						<input type="submit" value="logout" />
 					</form>
