@@ -32,30 +32,17 @@
   </head>
    <body>
 
-    <div class="navbar navbar-inverse navbar-fixed-top">
-      <div class="navbar-inner">
+    <div class="navbar navbar-inverse small">
+      <div class="navbar-inner small">
         <div class="container">
-          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <div class="nav-collapse collapse">
-			<div class="span4">
-				<a class="brand" href="#"><img src="/images/customLogoIcon.png" /></a>
+          <div class="nav-collapse collapse ">
+			<div class="span4 center">
 				<ul class="nav">
 				  <li class="active"><a href="#">Home</a></li>
-				  <li><a href="#">Contact</a></li>
+				  <li><a href="#">About</a></li>
 				</ul>
-			</div>
-            <div class="navbar-form pull-left" id="signinForm">
-
-				<div id="searchinput" class="input-append span6">
-				  <input class="input-xlarge" id="term" type="text" placeholder="Search for resources, websites, etc."/>
-				  <button class="btn"id="Search" style="margin-top:0;" type="button">Search</button>
-				</div>
-
-				<div class="pull-right">
+				
+				<div>
 				  {{#user}}
 					{{email}}
 					<form action="/logout" method="post">
@@ -68,14 +55,37 @@
 					</form>
 					<img src="https://browserid.org/i/sign_in_red.png" id="browserid"/>
 				  {{/user}}
-				 </div>
-				  <!--<input class="span2" type="text" placeholder="Email" name="email"/>
-				  <input class="span2" type="password" placeholder="Password" name="password"/>
-				  <input type="submit" class="btn" value="Sign Initiative"></input>-->
+				</div>
 			</div>
           </div><!--/.nav-collapse -->
         </div>
       </div>
+    </div>
+    <div class="navbar navbar-inverse">
+		<div class="navbar-inner backColor">
+			<div class="container">
+				<div class="nav-collapse collapse">
+				
+					<div class="navbar-form span10 center" id="signinForm">
+						<!--<a class="brand" href="#"><img src="/images/customLogoIcon.png" /></a>-->
+							
+							<ul>
+								<li><a class="btn" id="defaultTab" href="/sites">Site</a></li>
+								<li><a class="btn" href="#browser">Standard</a></li>
+								
+							
+
+								<li id="searchinput" class="input-append">
+									 <input class="input-xlarge" id="term" type="text" placeholder="Or by keyword"/>
+									 <button class="btn"id="Search" style="margin-top:0;" type="button">Search</button>
+								</li>
+							</ul>
+
+					</div>	
+				</div>
+			</div>		
+			
+		</div>
     </div>
     <section style="margin-top:1em;">
   		{{>body}}

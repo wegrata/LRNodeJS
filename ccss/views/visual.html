@@ -1,48 +1,78 @@
-
-		<!--[if IE]><script src="excanvas.js"></script><![endif]-->
-
-			<div class="span6">
-				<div class=left_column >
-					<div class="text" >
-						<div style="text-align: center;">
-							<div id="progressbar" align="center"></div>
-						</div>
-						<div id="status">
-							...
-						</div>
-					</div>
-					<br>
-					<div class="text">
-						<div id="results_summary"></div>
-					</div>
-					<br>
-					<div id = "debugDiv" class="text">
-						<div id="debug">
-							...
-						</div>
-					</div>
-				</div>
-					<div><div id="infovis"/></div>
+ 	<div class="container">
+		<div style="height: 30px;" class="modal-header visualModal">
+			<div>
+				<span id="doc_list_header"></span> <span>Search</span>
 			</div>
-			<div class="span3">
-				<div id=spacer style="height: 65px;"></div>
-				<h4>RESULTS</h4>
-				<span id="doc_list_header"></span>
-				<div id="document_list">
-					<div id="doc_list_accordion"></div>
+		</div>
+
+		<div class="resultModal span4">
+			<table class="table table-striped">
+				<tbody data-bind="foreach: visualBrowserResults">
+					<tr>
+						<td style="padding-top: 15px; padding-bottom: 15px;">
+							<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"><br/></a>
+							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="infovizModal span8">
+
+			<div id="infovis"></div>
+
+			<div class="text" >
+				<div style="text-align: center;">
+					<div id="progressbar" align="center"></div>
+				</div>
+				<div id="status">
+					...
 				</div>
 			</div>
+			<br>
+			<div class="text">
+				<div id="results_summary"></div>
+			</div>
+			<br>
+			<div id = "debugDiv" class="text">
+				<div id="debug">
+					...
+				</div>
+			</div>
+
+		</div>
+	</div>
 		
 
+	<script src="https://login.persona.org/include.js"></script>
+	<script src="/javascripts/moment.min.js"></script>
+	<script src="/javascripts/prettify.js"></script>
 
-		<script language="javascript" type="text/javascript" src="/javascript/jit-yc.js"></script>
-		<script type="text/javascript" src="/javascript/lrbrowser.js"></script>
-		<script type="text/javascript" src="/javascript/paradata.js"></script>
-		<script type="text/javascript" src="/javascript/utils.js"></script>
-		<link type="text/css" href="/themes/Aristo/Aristo.css" rel="stylesheet" />
-		<!--<link type="text/css" href="themes/demos.css" rel="stylesheet" />-->
-		<link type="text/css" href="/stylesheets/lrbrowser.css" rel="stylesheet" />
-		<link type="text/css" href="/stylesheets/Hypertree.css" rel="stylesheet" />
+	<script src="/javascripts/jquery.js"></script>
+	<script src="//code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+	<script src="/javascripts/bootstrap.js"></script>
+
+	<script type="text/javascript" src="/javascripts/libs/modernizr-2.0.6.min.js"></script>
+	<script type="text/javascript" src="/javascript/ui/jquery.cookie.js"></script>
+	<script type="text/javascript" src="/javascripts/libs/jquery.ba-hashchange.min.js.txt"></script>
+
+	<script type="text/javascript" src="/javascript/jquery.xml2json.js"></script>
+	<script type="text/javascript" src="/javascript/ui/jquery.eComboBox.js"></script>
+
+	<script src="/javascripts/Placeholders.js"></script>
+	<script src="/javascripts/spin.min.js"></script>
+	<script src="/javascripts/jquery.nicescroll.js"></script>
+
+	<script language="javascript" type="text/javascript" src="/javascript/jit-yc.js"></script>
+	<script type="text/javascript" src="/javascript/lrbrowser.js"></script>
+	<script type="text/javascript" src="/javascript/paradata.js"></script>
+	<script type="text/javascript" src="/javascript/utils.js"></script>
+	<link type="text/css" href="/themes/Aristo/Aristo.css" rel="stylesheet" />
+	<!--<link type="text/css" href="themes/demos.css" rel="stylesheet" />-->
+	<link type="text/css" href="/stylesheets/Hypertree.css" rel="stylesheet" />
+	<link type="text/css" href="/stylesheets/prettify.css" rel="stylesheet" />
+	<script src="/javascripts/application.js"></script>
 		
 		<script type="text/javascript">
 		  var _gaq = _gaq || [];
@@ -54,7 +84,16 @@
 		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 		  })();
+			
+			var initialGraphBuild = false;
+			var allOrganizations = "{{orgs}}".split(","), allTerms = "{{terms}}".split(","), temp = new mainViewModel([]);
 		
+			console.log(allTerms);
+			ko.applyBindings(temp);
+			$(document).ready(function(){
+				
+				startNewSearch("{{query}}");
+			});
 		</script>
 
 <!--<script>

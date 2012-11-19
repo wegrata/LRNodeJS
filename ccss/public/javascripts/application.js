@@ -127,13 +127,13 @@ var generateContentFrame = function(src, alreadyAppended){
 
 var handleMainResourceModal = function(src, direct){
 
-	//if we're not accessing directly, back should lead to visual browser
-	directAccess = direct;
-	lastModalLocation = (direct !== true)?  "visual" : "home";
+	
 
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
 	src = (typeof src == "string")? src : $(this).attr("name");
-	lastContentFrameSource = src;
+	var tempUrl = getLocation(src);
+	
+	src = (urlTransform[tempUrl.hostname] !== undefined ) ? urlTransform[tempUrl.hostname](tempUrl) : src;
 
 	var target = document.getElementById('spinnerDiv');
 	self.currentObject(new resourceObject("Item", src));
@@ -142,14 +142,12 @@ var handleMainResourceModal = function(src, direct){
 	$(".prettyprint").remove();
 	generateContentFrame(src);
 
-	$("#modal").modal();
-
 	/*
 		While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
 
 		self.currentObject().timeline.push(NEW ENTRIES);
 	*/
-	var tempUrl = getLocation(src);
+	
 	if(reverseTransform[tempUrl.hostname] !== undefined)
 		src = reverseTransform[tempUrl.hostname](tempUrl);
 

@@ -131,9 +131,8 @@
 
 				<div id="index-tabs">
 					<ul class="nav nav-tabs">
-						<li><a class="dynLoad" id="defaultTab" href="#organizations">Sites</a></li>
-						<li><a class="dynLoad" href="#browser">Standards Brower</a></li>
-						<li><a class="dynLoad" href="#users">Users</a></li>
+						<li><a class="dynLoad btn" id="defaultTab" href="#organizations">Sites</a></li>
+						<li><a class="dynLoad btn" href="#browser">Standards Brower</a></li>
 					</ul>
 
 					<div class="tab-content">
@@ -141,27 +140,7 @@
 					  <div class="tab-pane" id="users"></div>
 
 
-					  <div class="tab-pane accordion friends" id="organizations"  data-bind="foreach:allOrganizations">
-							<div class="accordion-group organizationAcc">
 
-								<div class="accordion-heading">
-								  <a class="accordion-toggle" data-parent="#organizations" data-toggle="collapse"  data-bind="html: $data, attr:{href:$root.getOrganizationAccordionId($index, '#')}" ></a>
-								</div>
-
-								<div data-bind="attr:{id:$root.getOrganizationAccordionId($index, '')}" class="accordion-body collapse">
-								  <div class="accordion-inner" style="height:100px;">
-
-									<div class="customH4">
-
-										<p>Possibly a preview of a few resources...</p><br/>
-										<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-star"></i> Follow Organization</a>
-										<a data-bind="attr:{name:$index()}" class="btn btn-small followOrg"><i class="icon-th-large"></i> View All Resources</a>
-
-									</div>
-								  </div>
-								</div>
-						   </div>
-					  </div>
 
 					</div>
 				</div>
@@ -171,59 +150,6 @@
 		</div>
       </div>
  </div>
-
- 	<div class="modal" id="visualBrowser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div style="height: 30px;" class="modal-header visualModal">
-			<a data-placement="right" rel="tooltip" data-original-title="Back" class="btn backButtonModal"  style="float: left; cursor: pointer;" href="#">
-				<i class="icon-arrow-left"></i>
-			</a>
-			<div>
-				<span id="doc_list_header"></span> <span>Search</span>
-			</div>
-		</div>
-
-		<div class="resultModal">
-
-
-
-
-			<table class="table table-striped">
-				<tbody data-bind="foreach: visualBrowserResults">
-					<tr>
-						<td style="padding-top: 15px; padding-bottom: 15px;">
-							<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url)}"><br/></a>
-							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url)}"></a>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-
-		<div class="infovizModal">
-
-			<div id="infovis"></div>
-
-			<div class="text" >
-				<div style="text-align: center;">
-					<div id="progressbar" align="center"></div>
-				</div>
-				<div id="status">
-					...
-				</div>
-			</div>
-			<br>
-			<div class="text">
-				<div id="results_summary"></div>
-			</div>
-			<br>
-			<div id = "debugDiv" class="text">
-				<div id="debug">
-					...
-				</div>
-			</div>
-
-		</div>
-	</div>
 
     <!-- Le javascript
     ================================================== -->
