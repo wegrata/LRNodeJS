@@ -186,7 +186,7 @@ var handleMainResourceModal = function(src, direct){
 		//Checks to see if there are enough rows in the timeline to warrant showing the scroll bars
 		//Should be checked whenever an element is added to or removed from the timeline
 		console.log("height: ", $("#timeline-table").height());
-		if($("#timeline-table").height() > 640)
+		if($("#timeline-table").height() > 460)
 			$(".modal-timeline").getNiceScroll().show();
 		
 		scrollbarFix();
@@ -196,7 +196,7 @@ var handleMainResourceModal = function(src, direct){
 	else {
 
 		$(".modal-timeline").niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
-		if($("#timeline-table").height() > 640)
+		if($("#timeline-table").height() > 460)
 			$(".modal-timeline").getNiceScroll().show();
 		
 		scrollbarFix();

@@ -76,7 +76,7 @@
 		text-overflow: ellipsis;
 		border: 1px solid #DDD;
 
-		min-height: 300px;
+		min-height: 250px;
 	}
 	
 	
@@ -153,7 +153,7 @@
 		
 		float: right;
 		width: 85%;
-		height: 750px;
+		height: 600px;
 	}
 	
 	.modal-timeline{
@@ -162,7 +162,7 @@
 		width: 15%;
 		overflow: scroll;
 		overflow-x: hidden;
-		height: 590px;
+		height: 460px;
 	}
 	
 	.chatBox, .chatTools{
@@ -222,11 +222,11 @@
 	
 	.modal-header div{
 	
-		font-size: 24px;
+		font-size: 20px;
 		text-align: center;
 		margin: auto auto;
 		padding-top: 4px;
-		width: 30%;
+		width: 80%;
 		display: block;
 	}
 	
@@ -304,6 +304,7 @@ select { width: 150px; }*/
 	height: 100%;
 	float: left;
 	display: block;
+	overflow: hidden;
 }
 
 
