@@ -1,60 +1,47 @@
-<div class="container">
-		<div style="height: 30px;" class="modal-header timelineModal">
+<div class="timeline-container">
+	<div class="modal-timeline">
+		<table id="timeline-table" class="table table-striped">
+			<tbody data-bind="foreach: currentObject().timeline">
+			
+			
+				<tr><td data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF', 'border-top': $index()==0 ? 'none' : '1px #DDD solid'}">
+								   
+						<div data-bind="html: $root.generateParadataText($data, $index()), attr:{id: 'paradata' + $index() }"></div>
+								   
 
-			<a class="btn" data-placement="left" rel="tooltip" data-original-title="Bookmark Resource" data-bind="visible: !isCurrentBookmarked(), click: moveResourceToBookmark" style="float: right;" href="#">
-				<i class="icon-heart"></i>
-			</a>
-			<a class="btn disabled" data-placement="left" rel="tooltip" data-original-title="Remove from Bookmarks" data-bind="visible: isCurrentBookmarked(), click: moveResourceToBookmark" style="float: right; cursor: pointer;" href="#">
-				<i class="icon-heart"></i>
-			</a>
-			<div>
-				<span data-bind="text: currentObject().title"></span>
-			</div>
-		</div>
+					</td>
+								   
+								   
+				</tr>
+			</tbody>
+		</table>
 
-		<div class="modal-timeline">
-			<table id="timeline-table" class="table table-striped">
-				<tbody data-bind="foreach: currentObject().timeline">
-				
-				
-					<tr><td data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF', 'border-top': $index()==0 ? 'none' : '1px #DDD solid'}">
-									   
-							<div data-bind="html: $root.generateParadataText($data, $index()), attr:{id: 'paradata' + $index() }"></div>
-									   
-
-						</td>
-									   
-									   
-					</tr>
-				</tbody>
-			</table>
-
-			<span data-bind="if: checkTimelineLength(currentObject().timeline) == 0">&nbsp;&nbsp;Be the first to interact!</span>
-		</div>
-		
-		<div class="modal-iframe">
-			<div id="mBody" class="modal-body">
-				<div id="spinnerDiv" style="margin: 100px auto; height: 20%; width:20%;"></div>
-			</div>
-		</div>
-
-
-		<div class="chatTools">
-			<span style="border-right: 1px solid #aaa">
-				<a data-bind="click: handleDataClick" href="#" data-placement="top" rel="tooltip" data-original-title="View Metadata"><i class="icon-file"></i></a>
-			</span>
-			<span style="border-right: 1px solid #aaa">
-				<a href="#" data-placement="top" rel="tooltip" data-original-title="Vote Up"><i class="icon-plus"></i></a>&nbsp;
-				<a href="#" data-placement="top" rel="tooltip" data-original-title="Vote Down"><i class="icon-minus"></i></a>
-			</span>
-			<span>
-				<a href="#" data-placement="top" rel="tooltip" data-original-title="Flag for Review"><i class="icon-flag"></i></a>
-			</span>
-		</div>
-		<div class="chatBox">
-			<textarea placeholder="Add comment here (press Enter to send)."></textarea>
+		<span data-bind="if: checkTimelineLength(currentObject().timeline) == 0">&nbsp;&nbsp;Be the first to interact!</span>
+	</div>
+	
+	<div class="modal-iframe">
+		<div id="mBody" class="modal-body">
+			<div id="spinnerDiv" style="margin: 100px auto; height: 20%; width:20%;"></div>
 		</div>
 	</div>
+
+
+	<div class="chatTools">
+		<span style="border-right: 1px solid #aaa">
+			<a data-bind="click: handleDataClick" href="#" data-placement="top" rel="tooltip" data-original-title="View Metadata"><i class="icon-file"></i></a>
+		</span>
+		<span style="border-right: 1px solid #aaa">
+			<a href="#" data-placement="top" rel="tooltip" data-original-title="Vote Up"><i class="icon-plus"></i></a>&nbsp;
+			<a href="#" data-placement="top" rel="tooltip" data-original-title="Vote Down"><i class="icon-minus"></i></a>
+		</span>
+		<span>
+			<a href="#" data-placement="top" rel="tooltip" data-original-title="Flag for Review"><i class="icon-flag"></i></a>
+		</span>
+	</div>
+	<div class="chatBox">
+		<textarea placeholder="Add comment here (press Enter to send)."></textarea>
+	</div>
+</div>
 
     <!-- Le javascript
     ================================================== -->
