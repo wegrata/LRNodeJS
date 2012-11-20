@@ -64,36 +64,46 @@
       <div class="row">
 		<div class="span3">
 			<div class="row">
-				<div class="accordion friends" id="accordion2" data-bind="foreach: followers">
+				<!-- ko if:  followers().length > 0 -->
+					<div class="accordion friends" id="accordion2" data-bind="foreach: followers">
 
-				  <div class="accordion-group">
+					  <div class="accordion-group">
 
-					<div class="accordion-heading">
-					  <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" data-bind="attr:{href:$root.getCollapseId(name, '#')}, text: name" ></a>
-					  <!-- ko if: $data.isUser -->
-						<i style="float: right; margin: 9px;" class="icon-user"></i>
-					  <!-- /ko -->
-					</div>
+						<div class="accordion-heading">
+						  <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" data-bind="attr:{href:$root.getCollapseId(name, '#')}, text: name" ></a>
+						  <!-- ko if: $data.isUser -->
+							<i style="float: right; margin: 9px;" class="icon-user"></i>
+						  <!-- /ko -->
+						</div>
 
-					<div data-bind="attr:{id:$root.getCollapseId(name)}" class="accordion-body collapse">
-					  <div class="accordion-inner" style="height:200px;">
-						Info:<br/>
-						Total Resources:<br/>
-						New Resources:<br/>
+						<div data-bind="attr:{id:$root.getCollapseId(name)}" class="accordion-body collapse">
+						  <div class="accordion-inner" style="height:200px;">
+							Info:<br/>
+							Total Resources:<br/>
+							New Resources:<br/>
 
-						<!-- ko foreach: content -->
-							<div class="draggable lr_border_trans pull-left" data-bind="attr: {name: $root.generateName($parentContext.$index(), $index(), 'followers')}">
-								<span style="white-space: nowrap;" data-bind="text: title"></span><br/>
+							<!-- ko foreach: content -->
+								<div class="draggable lr_border_trans pull-left" data-bind="attr: {name: $root.generateName($parentContext.$index(), $index(), 'followers')}">
+									<span style="white-space: nowrap;" data-bind="text: title"></span><br/>
 
-							</div>
-						<!-- /ko -->
+								</div>
+							<!-- /ko -->
+
+						  </div>
+						</div>
 
 					  </div>
 					</div>
-
-				  </div>
+				<!-- /ko -->
+				<!-- ko ifnot: followers().length > 0 -->
+				<div class="dropbox" style="margin-bottom: 40px;">
+					<span class="dropText">&nbsp;&nbsp;Following</span>
 				</div>
+					
+				<!-- /ko -->
+
 			</div>
+
 			<div class="row dropbox">
 				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarks</span>
 
@@ -290,7 +300,9 @@
 		//Last modal location should either be home, or visual
 		var lastModalLocation = "home";
 		for (var f in followed){
-			temp.followers.push({name:followed[f], content:[]});
+			
+			if(followed[f].length > 0)
+				temp.followers.push({name:followed[f], content:[]});
 		}
 
 		ko.applyBindings(temp);

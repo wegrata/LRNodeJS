@@ -186,7 +186,7 @@ var handleMainResourceModal = function(src, direct){
 		//Checks to see if there are enough rows in the timeline to warrant showing the scroll bars
 		//Should be checked whenever an element is added to or removed from the timeline
 		console.log("height: ", $("#timeline-table").height());
-		if($("#timeline-table").height() > 640)
+		if($("#timeline-table").height() > 460)
 			$(".modal-timeline").getNiceScroll().show();
 		
 		scrollbarFix();
@@ -196,7 +196,7 @@ var handleMainResourceModal = function(src, direct){
 	else {
 
 		$(".modal-timeline").niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
-		if($("#timeline-table").height() > 640)
+		if($("#timeline-table").height() > 460)
 			$(".modal-timeline").getNiceScroll().show();
 		
 		scrollbarFix();
@@ -234,8 +234,9 @@ var previewObject = function(name, content){
 
 var resourceObject = function(name, url, timeline){
 
-    this.title = name;
+    
     this.url = (url !== undefined) ? url : null;
+    this.title = getLocation(url).hostname;
 
     //The timeline should be an observable array of paradata objects
     this.timeline = (timeline !== undefined) ? ko.observableArray(timeline) : ko.observableArray();
@@ -504,8 +505,11 @@ var mainViewModel = function(resources){
 		}
 		
 		console.log("Final content char: ",content[content.length-1]);
-		dateStr = moment(date.getTime()).fromNow();
+		dateStr = moment(date.getTime()).format("M/D/YYYY"); //moment(date.getTime()).fromNow();
+		
+		//3DR paradata fixes. Remove period, and fix "a user". More fixes (for all orgs) to come.
 		content = (content[content.length-1] == ".")? content.substr(0, content.length-1) : content;
+		content = (content.indexOf("The a user") > -1)? "The anonymous user" + content.substr(10, content.length - 9): content;
 		
         //Handle each verb differently
         switch(verb){
