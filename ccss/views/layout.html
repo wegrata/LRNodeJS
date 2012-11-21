@@ -23,6 +23,7 @@
 
 
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.9.0/themes/base/jquery-ui.css" />
+	<script src="https://login.persona.org/include.js"></script>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -36,13 +37,14 @@
       <div class="navbar-inner small">
         <div class="container">
           <div class="nav-collapse collapse ">
-			<div class="span4 center">
+			<div class="span12 center">
 				<ul class="nav">
 				  <li class="active"><a href="#">Home</a></li>
 				  <li><a href="#">About</a></li>
+				  <li><a href="#">Developers</a></li>
 				</ul>
 				
-				<div>
+				<div style="float:right;">
 				  {{#user}}
 					{{email}}
 					<form action="/logout" method="post">
@@ -60,32 +62,6 @@
           </div><!--/.nav-collapse -->
         </div>
       </div>
-    </div>
-    <div class="navbar navbar-inverse">
-		<div class="navbar-inner backColor">
-			<div class="container">
-				<div class="nav-collapse collapse">
-				
-					<div class="navbar-form span10 center" id="signinForm">
-						<!--<a class="brand" href="#"><img src="/images/customLogoIcon.png" /></a>-->
-							
-							<ul>
-								<li><a class="btn" id="defaultTab" href="/sites">Site</a></li>
-								<li><a class="btn" href="#browser">Standard</a></li>
-								
-							
-
-								<li id="searchinput" class="input-append">
-									 <input class="input-xlarge" id="term" type="text" placeholder="Or by keyword"/>
-									 <button class="btn"id="Search" style="margin-top:0;" type="button">Search</button>
-								</li>
-							</ul>
-
-					</div>	
-				</div>
-			</div>		
-			
-		</div>
     </div>
     <section style="margin-top:1em;">
   		{{>body}}

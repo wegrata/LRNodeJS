@@ -181,6 +181,14 @@ exports.timeline = function(request,response) {
     response.render('timeline.html', viewOptions);
 };
 
+exports.landing = function(request,response) {
+  var viewOptions = {locals:{}};
+  viewOptions.layout = (request.query.ajax === undefined)? true : false;
+  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  
+    response.render('landing.html', viewOptions);
+};
+
 exports.sites = function(request,response) {
      var opts = {};
     opts.locals = opts.locals || {};

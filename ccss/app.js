@@ -22,7 +22,7 @@ var users = require('./routes/users');
 passport.serializeUser(users.serializeUser);
 passport.deserializeUser(users.deserializeUser);
 passport.use(new browserid({
-    audience: 'http://localhost:1337'
+    audience: 'http://192.168.190.128:1337'
 }, users.validateUser));
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
@@ -78,6 +78,7 @@ app.post('/nodes/', routes.nodes);
 app.get('/related', routes.related);
 app.get('/resources', routes.resources);
 app.get('/sites', routes.sites);
+app.get('/landing', routes.landing);
 app.get('/signup', users.signup);
 app.post('/signup', users.signupHandler);
 app.post('/auth', passport.authenticate('browserid', { failureRedirect: '/' }), users.auth);
