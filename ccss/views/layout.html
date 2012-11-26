@@ -63,10 +63,15 @@
         </div>
       </div>
     </div>
-    <section style="margin-top:1em;">
+    {{^hide.topMargin}}
+      <section style="margin-top: 1em;">
+    {{/hide.topMargin}}
   		{{>body}}
-  	</section>
-	<div>
+  	{{^hide.topMargin}}
+  	  </section>
+  	{{/hide.topMargin}}
+  	{{^hide.footer}}
+	 <div>
 
 	  <hr>
 		  <footer>
@@ -77,7 +82,8 @@
 				This is an official website of the U.S. Government &copy;2012 Advanced Distributed Learning (ADL). </p>
 			</div>
 		  </footer>
-	</div>
+	 </div>
+	{{/hide.footer}}
   <script>
     $("#browserid").click(function(){
       navigator.id.getVerifiedEmail(function(assertion) {

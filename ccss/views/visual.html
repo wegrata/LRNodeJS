@@ -7,16 +7,19 @@
 
 		<div class="resultModal span4">
 			<table class="table table-striped">
-				<tbody data-bind="foreach: visualBrowserResults">
+				<tbody data-bind="foreach: getResults()">
 					<tr>
 						<td style="padding-top: 15px; padding-bottom: 15px;">
-							<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"><br/></a>
+							<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a><br/>
 							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a>
 						</td>
 					</tr>
 				</tbody>
 			</table>
+			
+			
 		</div>
+		
 
 		<div class="infovizModal span8">
 
@@ -42,6 +45,7 @@
 			</div>
 
 		</div>
+		<span style="float: left;" class="btn" data-bind="click: updateSlice">Load More</span>
 	</div>
 		
 
@@ -89,11 +93,19 @@
 			var allOrganizations = "{{orgs}}".split(","), allTerms = "{{terms}}".split(","), temp = new mainViewModel([]);
 		
 			console.log(allTerms);
+			
+			
 			ko.applyBindings(temp);
 			$(document).ready(function(){
 				
 				startNewSearch("{{query}}");
+				var cacheJObj = $(".resultModal");
+				cacheJObj.niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
+				totalSlice = 5;
+				
+				
 			});
+			
 		</script>
 
 <!--<script>

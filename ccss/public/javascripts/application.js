@@ -16,7 +16,7 @@
         self.organizations needs only to contain an array of strings that can be used to search against a node
 */
 
-var currentObjectMetadata = [], lastContentFrameSource = "", saveFrameState = "", directAccess = false;
+var currentObjectMetadata = [], lastContentFrameSource = "", saveFrameState = "", directAccess = false, totalSlice = 6, loadIndex = 1, newLoad = 10;
 
 var urlTransform = {
 
@@ -54,12 +54,12 @@ var getLocation = function(href) {
     return l;
 };
 
-var scrollbarFix = function(){
-
-	//Scroll bar fix...
-	$(".modal-timeline").getNiceScroll().hide();
-	$(".modal-timeline").getNiceScroll().show();
-	$(".modal-timeline").getNiceScroll()[0].noticeCursor();
+var scrollbarFix = function(obj){
+	
+	obj = (obj == undefined)? $(".modal-timeline") : obj;
+	
+	obj.getNiceScroll().remove();
+	obj.niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
 };
 
 var opts = {
@@ -413,8 +413,21 @@ var mainViewModel = function(resources){
     self.data = ko.observableArray(resources);
     self.bookmarks = ko.observableArray();
     self.followers = ko.observableArray(followingList);
-    self.visualBrowserResults = ko.observableArray();
+    self.results = ko.observableArray();
 	
+	self.getResults = function(){
+		
+		return self.results.slice(0, totalSlice);
+	};
+	
+	self.updateSlice = function(){
+		
+		totalSlice += newLoad * loadIndex;
+		loadIndex++;
+		self.results.valueHasMutated();
+		console.log(totalSlice);
+		scrollbarFix($(".resultModal"));
+	};
 	
 	self.handleDataClick = function(e){
 		

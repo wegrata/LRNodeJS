@@ -100,7 +100,7 @@ exports.standards = function( request, response, next ) {
     if (err) return next(err);
 
     var viewOptions = {
-        layout: false,
+        layout: true,
         locals: {
         categories: result.rows.map( function(n) {
             return { name: n.key, standards: n.value };
@@ -177,6 +177,7 @@ exports.timeline = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  viewOptions.locals.hide = {topMargin:true, footer: true};
   
     response.render('timeline.html', viewOptions);
 };

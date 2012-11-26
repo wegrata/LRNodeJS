@@ -7,11 +7,7 @@
 				<tr><td data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF', 'border-top': $index()==0 ? 'none' : '1px #DDD solid'}">
 								   
 						<div data-bind="html: $root.generateParadataText($data, $index()), attr:{id: 'paradata' + $index() }"></div>
-								   
-
-					</td>
-								   
-								   
+					</td>			   
 				</tr>
 			</tbody>
 		</table>
@@ -81,6 +77,238 @@
 		handleMainResourceModal("{{query}}");
 		console.log(allTerms);
 		ko.applyBindings(temp);
+
+		//Last modal location should either be home, or visual
+		var lastModalLocation = "home";
+		for (var f in followed){
+			temp.followers.push({name:followed[f], content:[]});
+		}
+
+		/*$.getJSON('/resources',function(data){
+
+			console.log(data);
+			return;
+			for(var title in data){
+				var items = new Array();
+				for(var i in data[title]){
+					items.push(new resourceObject(data[title][i].title, data[title][i].resource_url))
+				}
+				temp.data.push(new previewObject(title, data[title]));
+			}
+
+		})
+
+		<% for(var i in relationships){ %>
+			var title = "<%= relationships[i].title %>";
+			var r = new previewObject(title,[]);
+			temp.followers.push(r);
+		<%}%>*/
+
+		$("#modal").hide();
+		var initialGraphBuild = false;
+		$(document).ready(function(){
+			
+			$('input, textarea').placeholder();
+
+			//Handle what happens when the back button is clicked
+			$(".backButtonModal").click(function(e){
+
+				e.preventDefault();
+				e.stopPropagation();
+				
+				lastModalLocation = (directAccess === true && lastModalLocation == "visual") ? "home" : lastModalLocation;
+				$(".prettyprint").remove();
+				
+				if(lastModalLocation == "home"){
+					$("#modalFrame").remove();
+					$("#modal").modal("hide");
+
+					$("#visualBrowser").modal("hide");
+				}
+				
+				else if(lastModalLocation == "frame"){
+					$("#mBody").append(saveFrameState);
+					generateContentFrame(lastContentFrameSource, true);
+					lastModalLocation = "visual";
+				}
+
+				else{
+					$("#modalFrame").remove();
+					$("#modal").modal("hide");
+
+					$("#visualBrowser").modal("show");
+					lastModalLocation = "home";
+				}
+
+				
+			});
+
+			var handleDoSearch = function(e, str) {
+
+				e.preventDefault();
+				e.stopPropagation();
+				lastModalLocation = "home";
+				if(typeof str != "string"){
+					//Enter was pressed
+					if(e.which == 13){
+						/* Additional optional logic. Is keyword or url search? */
+						$("#visualBrowser").modal("show");
+
+						//There's no reason to perform a new search if it's the same as the last
+						str = $("#term").val();
+						if(lastSearchCache != str){
+							lastSearchCache = str;
+							startNewSearch(str);
+						}
+					}
+				}
+				else {
+					console.log(str);
+					$("#visualBrowser").modal("show");
+
+					//There's no reason to perform a new search if it's the same as the last
+					if(lastSearchCache != str){
+						lastSearchCache = str;
+						startNewSearch(str);
+					}
+				}
+			};
+
+
+			$(".followOrg").click(function(e){
+
+				//$("#term").val(allTerms[$(this).attr("name")]);
+				handleDoSearch(e, allTerms[$(this).attr("name")]);
+
+			});
+
+			$("#term").keyup(handleDoSearch);
+			$("#Search").click(handleDoSearch);
+
+			enableDrag();
+			enableModal();
+
+			$(".chatBox textarea").keyup(function(e){
+
+				//Enter was pressed
+				if(e.which == 13){
+
+					//add element to observable array, send a request via socketio, and remove current textarea value
+					var mockParadata = {
+						"activity": {
+							"actor": {
+								"objectType": "teacher",
+								"description": [
+								"You",
+								"high school",
+								"math"
+								]
+							},
+							"verb": {
+								"action": "commented",
+								"detail": $(this).val(),
+								"date": new Date()
+							},
+							"object": temp.currentObject().url
+						}
+					};
+
+					console.log(temp.currentObject());
+					temp.currentObject().timeline.push(mockParadata);
+
+					scrollbarFix();
+
+					//console.log($(".modal-timeline").getNiceScroll());
+					$(this).val("");
+				}
+				//console.log(e.which);
+			});
+
+			$(".resultModal").on("click", ".resultClick", function(e){
+
+				e.preventDefault();
+				e.stopPropagation();
+
+				$("#visualBrowser").modal("hide");
+				handleMainResourceModal($(this).attr("name"));
+				console.log("show click");
+			});
+
+			$("table").on("click", ".author-timeline", function(evt){
+
+				$(".author-timeline").not(this).popover('hide');
+				$(this).popover('toggle');
+
+				//Enable tooltips
+				$(".bottomBar i").tooltip();
+
+				//evt.stopPropagation();
+			});
+
+
+
+
+
+
+					//LInitial tab display
+			//$("#browser").load("/browser?ajax");
+			$('#defaultTab').tab("show");
+			var alreadyLoaded = ["#organizations"];
+
+
+			/*$('.collapse').collapse('hide');
+			$(".organizationAcc").click(function(){
+
+				console.log("CLICK!");
+				$(this).children(".collapse").collapse('toggle');
+			});*/
+
+
+			$(".dynLoad").click(function(e){
+				e.preventDefault();
+
+				var temp = $(this);
+				temp.tab("show");
+
+				//Check whether or not the tab has ever been clicked on
+				if(jQuery.inArray(temp.attr("href"), alreadyLoaded) == -1){
+
+					alreadyLoaded.push(temp.attr("href"));
+					var saveName = temp.attr("href").split("#")[1];
+					$("#" + saveName).load("/" + saveName + "?ajax");
+				}
+			});
+
+
+
+
+
+		});
+
+		var hidePopover = function(){
+
+			$(".author-timeline").popover('hide');
+		};
+
+		var handleOnclickUserBar = function(obj){
+			
+			var cacheObj = $(obj);
+			var name = cacheObj.attr("name");
+			var className = cacheObj.attr("class");
+
+			if(className == "icon-star")
+				self.followUser(name);
+				
+			else if(className == "icon-file"){
+				
+				
+			}
+			
+			//Substr gets the number portion of "paradataX"
+			var test = cacheObj.attr("name").substr(8, cacheObj.attr("name").length-8);
+			console.log(test, self.currentObject().timeline()[test]);
+			displayObjectData(self.currentObject().timeline()[test]);
+		};
 	</script>
 
 	<!--[if lt IE 7 ]>

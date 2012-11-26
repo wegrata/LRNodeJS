@@ -58,6 +58,16 @@
 		text-align: center;
 	}
 	
+	.activity table{
+	
+		border-collapse: separate;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 5px;
+		text-overflow: ellipsis;
+		border: 1px solid #DDD;
+	}
+	
 	.dropbox{
 	
 		background: #FFF;
@@ -134,6 +144,11 @@
 		margin-right: 0 !important;
 	}
 	
+	.timeline-container{
+	
+		height: 700px;
+	}
+	
 	.modal-iframe, .modal-bookmark{
 	
 		margin: 0;
@@ -154,7 +169,7 @@
 		width: 12%;
 		overflow: scroll;
 		overflow-x: hidden;
-		height: 590px;
+		height: 80%;
 	}
 	
 	.chatBox, .chatTools{
@@ -170,6 +185,7 @@
 		padding-top: 15px;
 		height: 15px;
 		text-align: center;
+		height: 10%;
 	}
 	
 	.chatTools span{
@@ -307,6 +323,7 @@ select { width: 150px; }*/
 	width: 30%;
 	overflow: auto;
 	overflow-x: hidden;
+	word-break:break-all;
 }
 
 .resultClick{
@@ -330,9 +347,7 @@ select { width: 150px; }*/
 
 .small{
 
-	height: 25px;
 	min-height: 25px;
-	max-height: 25px;
 }
 
 .small a{

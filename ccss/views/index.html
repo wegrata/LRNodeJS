@@ -1,100 +1,27 @@
  <div class="container">	
- 	<div class="modal" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div style="height: 30px;" class="modal-header timelineModal">
+		<div class="row learningRegistryImage">
+			<form method="get" action="/visual" id="searchinput" class="input-append" style="margin-left:auto; margin-right:auto;">>
+				 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Search the Learning Registry for resources"/>
+				 <input class="btn btn-primary"id="Search" style="margin-top:0;" type="submit" value="Search" />
 
-			<a class="btn" data-placement="left" rel="tooltip" data-original-title="Bookmark Resource" data-bind="visible: !isCurrentBookmarked(), click: moveResourceToBookmark" style="float: right;" href="#">
-				<i class="icon-heart"></i>
-			</a>
-			<a class="btn disabled" data-placement="left" rel="tooltip" data-original-title="Remove from Bookmarks" data-bind="visible: isCurrentBookmarked(), click: moveResourceToBookmark" style="float: right; cursor: pointer;" href="#">
-				<i class="icon-heart"></i>
-			</a>
-			<a data-placement="right" rel="tooltip" data-original-title="Back" class="btn backButtonModal"  style="float: left; cursor: pointer;" href="#">
-				<i class="icon-arrow-left"></i>
-			</a>
-			<div>
-				<span data-bind="text: currentObject().title"></span>
+			</form>
+		</div>
+		<div class="row">
+			<div class="span8 activity">
+				<h4>Recent Activity</h4>
+				<table class="table table-striped">
+					<tbody>
+						<tr style="border-top:none;">
+							<td style="border-top:none;"> Hi</td>
+						</tr>
+						<tr>
+							<td> Hey</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
-		</div>
 
-		<div class="modal-timeline">
-			<table id="timeline-table" class="table table-striped">
-				<tbody data-bind="foreach: currentObject().timeline">
-				
-				
-					<tr><td data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF', 'border-top': $index()==0 ? 'none' : '1px #DDD solid'}">
-									   
-							<div data-bind="html: $root.generateParadataText($data, $index()), attr:{id: 'paradata' + $index() }"></div>
-									   
-
-						</td>
-									   
-									   
-					</tr>
-				</tbody>
-			</table>
-
-			<span data-bind="if: checkTimelineLength(currentObject().timeline) == 0">&nbsp;&nbsp;Be the first to interact!</span>
-		</div>
-		
-		<div class="modal-iframe">
-			<div id="mBody" class="modal-body">
-				<div id="spinnerDiv" style="margin: 100px auto; height: 20%; width:20%;"></div>
-			</div>
-		</div>
-
-
-		<div class="chatTools">
-			<span style="border-right: 1px solid #aaa">
-				<a data-bind="click: handleDataClick" href="#" data-placement="top" rel="tooltip" data-original-title="View Metadata"><i class="icon-file"></i></a>
-			</span>
-			<span style="border-right: 1px solid #aaa">
-				<a href="#" data-placement="top" rel="tooltip" data-original-title="Vote Up"><i class="icon-plus"></i></a>&nbsp;
-				<a href="#" data-placement="top" rel="tooltip" data-original-title="Vote Down"><i class="icon-minus"></i></a>
-			</span>
-			<span>
-				<a href="#" data-placement="top" rel="tooltip" data-original-title="Flag for Review"><i class="icon-flag"></i></a>
-			</span>
-		</div>
-		<div class="chatBox">
-			<textarea placeholder="Add comment here (press Enter to send)."></textarea>
-		</div>
-	</div>
-
-      <!-- Example row of columns -->
-      <div class="row">
-		<div class="span3">
-			<div class="row">
-				<div class="accordion friends" id="accordion2" data-bind="foreach: followers">
-
-				  <div class="accordion-group">
-
-					<div class="accordion-heading">
-					  <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" data-bind="attr:{href:$root.getCollapseId(name, '#')}, text: name" ></a>
-					  <!-- ko if: $data.isUser -->
-						<i style="float: right; margin: 9px;" class="icon-user"></i>
-					  <!-- /ko -->
-					</div>
-
-					<div data-bind="attr:{id:$root.getCollapseId(name)}" class="accordion-body collapse">
-					  <div class="accordion-inner" style="height:200px;">
-						Info:<br/>
-						Total Resources:<br/>
-						New Resources:<br/>
-
-						<!-- ko foreach: content -->
-							<div class="draggable lr_border_trans pull-left" data-bind="attr: {name: $root.generateName($parentContext.$index(), $index(), 'followers')}">
-								<span style="white-space: nowrap;" data-bind="text: title"></span><br/>
-
-							</div>
-						<!-- /ko -->
-
-					  </div>
-					</div>
-
-				  </div>
-				</div>
-			</div>
-			<div class="row dropbox">
+			<div class="span3 dropbox">
 				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarks</span>
 
 				<!-- ko foreach: bookmarks -->
@@ -103,52 +30,9 @@
 
 					</div>
 				<!-- /ko -->
-
 			</div>
 		</div>
-		<div class="span8 offset1">
-		  	<div class="row">
 
-				<div style="text-align: center;" data-bind="foreach: data" >
-					<div data-bind="if: $index() < numOfPreviewElements" class="span3">
-
-						<div class="customH4">
-							<span data-bind="text: name"></span>
-							<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-plus-sign"></i></a>
-						</div>
-
-						<!-- ko foreach: content -->
-							<div class="draggable lr_border_trans pull-left" data-bind="attr: {name: $root.generateName($parentContext.$index(), $index(), 'data')}">
-
-								<span style="white-space: nowrap;" data-bind="text: $data.title"></span><br/>
-								<img src="/images/qmark.png" />
-							</div>
-						<!-- /ko -->
-					</div>
-				</div>
-
-
-
-				<div id="index-tabs">
-					<ul class="nav nav-tabs">
-						<li><a class="dynLoad btn" id="defaultTab" href="#organizations">Sites</a></li>
-						<li><a class="dynLoad btn" href="#browser">Standards Brower</a></li>
-					</ul>
-
-					<div class="tab-content">
-					  <div class="tab-pane active" id="browser"></div>
-					  <div class="tab-pane" id="users"></div>
-
-
-
-
-					</div>
-				</div>
-
-
-			</div>
-		</div>
-      </div>
  </div>
 
     <!-- Le javascript
@@ -156,31 +40,14 @@
     <!-- Placed at the end of the document so the pages load faster -->
 	
 	<script src="/javascripts/moment.min.js"></script>
-	<script src="/javascripts/prettify.js"></script>
 
 	<script src="/javascripts/jquery.js"></script>
 	<script src="//code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
 	<script src="/javascripts/bootstrap.js"></script>
 
-	<script type="text/javascript" src="/javascripts/libs/modernizr-2.0.6.min.js"></script>
-	<script type="text/javascript" src="/javascript/ui/jquery.cookie.js"></script>
-	<script type="text/javascript" src="/javascripts/libs/jquery.ba-hashchange.min.js.txt"></script>
-
-	<script type="text/javascript" src="/javascript/jquery.xml2json.js"></script>
-	<script type="text/javascript" src="/javascript/ui/jquery.eComboBox.js"></script>
-
 	<script src="/javascripts/Placeholders.js"></script>
 	<script src="/javascripts/spin.min.js"></script>
 	<script src="/javascripts/jquery.nicescroll.js"></script>
-
-	<script language="javascript" type="text/javascript" src="/javascript/jit-yc.js"></script>
-	<script type="text/javascript" src="/javascript/lrbrowser.js"></script>
-	<script type="text/javascript" src="/javascript/paradata.js"></script>
-	<script type="text/javascript" src="/javascript/utils.js"></script>
-	<link type="text/css" href="/themes/Aristo/Aristo.css" rel="stylesheet" />
-	<!--<link type="text/css" href="themes/demos.css" rel="stylesheet" />-->
-	<link type="text/css" href="/stylesheets/Hypertree.css" rel="stylesheet" />
-	<link type="text/css" href="/stylesheets/prettify.css" rel="stylesheet" />
 
 	<script type="text/javascript">
 
@@ -234,226 +101,8 @@
 			temp.followers.push(r);
 		<%}%>*/
 
-		$("#modal").hide();
-		var initialGraphBuild = false;
 		$(document).ready(function(){
 			
 			$('input, textarea').placeholder();
-
-			//Handle what happens when the back button is clicked
-			$(".backButtonModal").click(function(e){
-
-				e.preventDefault();
-				e.stopPropagation();
-				
-				lastModalLocation = (directAccess === true && lastModalLocation == "visual") ? "home" : lastModalLocation;
-				$(".prettyprint").remove();
-				
-				if(lastModalLocation == "home"){
-					$("#modalFrame").remove();
-					$("#modal").modal("hide");
-
-					$("#visualBrowser").modal("hide");
-				}
-				
-				else if(lastModalLocation == "frame"){
-					$("#mBody").append(saveFrameState);
-					generateContentFrame(lastContentFrameSource, true);
-					lastModalLocation = "visual";
-				}
-
-				else{
-					$("#modalFrame").remove();
-					$("#modal").modal("hide");
-
-					$("#visualBrowser").modal("show");
-					lastModalLocation = "home";
-				}
-
-				
-			});
-
-			var handleDoSearch = function(e, str) {
-
-				e.preventDefault();
-				e.stopPropagation();
-				lastModalLocation = "home";
-				if(typeof str != "string"){
-					//Enter was pressed
-					if(e.which == 13){
-						/* Additional optional logic. Is keyword or url search? */
-						$("#visualBrowser").modal("show");
-
-						//There's no reason to perform a new search if it's the same as the last
-						str = $("#term").val();
-						if(lastSearchCache != str){
-							lastSearchCache = str;
-							startNewSearch(str);
-						}
-					}
-				}
-				else {
-					console.log(str);
-					$("#visualBrowser").modal("show");
-
-					//There's no reason to perform a new search if it's the same as the last
-					if(lastSearchCache != str){
-						lastSearchCache = str;
-						startNewSearch(str);
-					}
-				}
-			};
-
-
-			$(".followOrg").click(function(e){
-
-				//$("#term").val(allTerms[$(this).attr("name")]);
-				handleDoSearch(e, allTerms[$(this).attr("name")]);
-
-			});
-
-			$("#term").keyup(handleDoSearch);
-			$("#Search").click(handleDoSearch);
-
-			enableDrag();
-			enableModal();
-
-			$(".chatBox textarea").keyup(function(e){
-
-				//Enter was pressed
-				if(e.which == 13){
-
-					//add element to observable array, send a request via socketio, and remove current textarea value
-					var mockParadata = {
-						"activity": {
-							"actor": {
-								"objectType": "teacher",
-								"description": [
-								"You",
-								"high school",
-								"math"
-								]
-							},
-							"verb": {
-								"action": "commented",
-								"detail": $(this).val(),
-								"date": new Date()
-							},
-							"object": temp.currentObject().url
-						}
-					};
-
-					console.log(temp.currentObject());
-					temp.currentObject().timeline.push(mockParadata);
-
-					scrollbarFix();
-
-					//console.log($(".modal-timeline").getNiceScroll());
-					$(this).val("");
-				}
-				//console.log(e.which);
-			});
-
-			$(".resultModal").on("click", ".resultClick", function(e){
-
-				e.preventDefault();
-				e.stopPropagation();
-
-				$("#visualBrowser").modal("hide");
-				handleMainResourceModal($(this).attr("name"));
-				console.log("show click");
-			});
-
-			$("table").on("click", ".author-timeline", function(evt){
-
-				$(".author-timeline").not(this).popover('hide');
-				$(this).popover('toggle');
-
-				//Enable tooltips
-				$(".bottomBar i").tooltip();
-
-				//evt.stopPropagation();
-			});
-
-
-
-
-
-
-					//LInitial tab display
-			//$("#browser").load("/browser?ajax");
-			$('#defaultTab').tab("show");
-			var alreadyLoaded = ["#organizations"];
-
-
-			/*$('.collapse').collapse('hide');
-			$(".organizationAcc").click(function(){
-
-				console.log("CLICK!");
-				$(this).children(".collapse").collapse('toggle');
-			});*/
-
-
-			$(".dynLoad").click(function(e){
-				e.preventDefault();
-
-				var temp = $(this);
-				temp.tab("show");
-
-				//Check whether or not the tab has ever been clicked on
-				if(jQuery.inArray(temp.attr("href"), alreadyLoaded) == -1){
-
-					alreadyLoaded.push(temp.attr("href"));
-					var saveName = temp.attr("href").split("#")[1];
-					$("#" + saveName).load("/" + saveName + "?ajax");
-				}
-			});
-
-
-
-
-
 		});
-
-		var hidePopover = function(){
-
-			$(".author-timeline").popover('hide');
-		};
-
-		var handleOnclickUserBar = function(obj){
-			
-			var cacheObj = $(obj);
-			var name = cacheObj.attr("name");
-			var className = cacheObj.attr("class");
-
-			if(className == "icon-star")
-				self.followUser(name);
-				
-			else if(className == "icon-file"){
-				
-				
-			}
-			
-			//Substr gets the number portion of "paradataX"
-			var test = cacheObj.attr("name").substr(8, cacheObj.attr("name").length-8);
-			console.log(test, self.currentObject().timeline()[test]);
-			displayObjectData(self.currentObject().timeline()[test]);
-		};
-
 	</script>
-
-	<!--[if lt IE 7 ]>
-		<script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.2/CFInstall.min.js"></script>
-		<script>window.attachEvent("onload",function(){CFInstall.check({mode:"overlay"})})</script>
-	<![endif]-->
-
-<!--<script>
-jQuery(function(){
-        $("#Search").bind("click", function() {
-                try {
-                        var term = $("#term")[0].value;
-                        _gaq.push(['_trackEvent', 'LRBrowser', 'Go', term.toLowerCase()]);
-                } catch (e) {}
-        });
-});
-</script>-->
