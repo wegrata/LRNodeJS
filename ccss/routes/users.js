@@ -102,4 +102,4 @@ exports.signupHandler = function(req, res){
     });
 
 };
->>>>>>> 61a8feb9fba953f61c2c3e0268e20d4e0ed2c4d8
+

@@ -1,3 +1,8 @@
+  body{
+  
+	background-image: url('/images/back.png');
+  }
+  
   input, textarea, input:focus, textarea:focus{
   
 	outline: none;

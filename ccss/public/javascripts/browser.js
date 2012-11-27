@@ -193,11 +193,7 @@ var BROWSER = (function () {
             
             $.each( resources.documents, function(i, doc) {
             var link = doc.result_data.resource;
-            var a = $('<a/>').attr('href', link).text(link)
-                .attr('target', '_blank').click(function(e){
-					e.preventDefault();
-					handleMainResourceModal(link, true);
-			});
+            var a = $('<a/>').attr('href', '/timeline?query='+link).text(link);
             var p = $('<p/>');
             p.append(a);
             div.append(p);

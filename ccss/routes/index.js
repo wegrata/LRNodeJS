@@ -100,7 +100,7 @@ exports.standards = function( request, response, next ) {
     if (err) return next(err);
 
     var viewOptions = {
-        layout: true,
+        layout: false,
         locals: {
         categories: result.rows.map( function(n) {
             return { name: n.key, standards: n.value };
