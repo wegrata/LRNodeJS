@@ -206,10 +206,10 @@ exports.search = function(req, res) {
   else if(req.query.terms)
     terms = req.query.terms.toLowerCase().split(' ');
   if (req.body.page)
-    page = req.body.page * 100;
+    page = req.body.page;
   else if(req.query.page)
-    page = req.query.page * 100;
-  page = parseInt(page, 2);
+    page = req.query.page;
+  page = parseInt(page, 10) * 100;
   client.incr("session_id", function(err, data){
     var params = [data, terms.length];
     params = params.concat(terms);
