@@ -147,6 +147,7 @@
 	.timeline-container{
 	
 		height: 700px;
+		overflow:hidden;
 	}
 	
 	.modal-iframe, .modal-bookmark{
@@ -160,38 +161,38 @@
 		
 		float: right;
 		width: 85%;
-		height: 750px;
+		height: 100%;
 	}
 	
 	.modal-timeline{
 		
 		float: left;
-		width: 12%;
+		width: 15%;
 		overflow: scroll;
 		overflow-x: hidden;
-		height: 80%;
+		height: 100%;
 	}
 	
 	.chatBox, .chatTools{
 	
 		float: left; 
-		height: 100px; 
-		width: 12%;
+		width: 15%;
 		margin: 0;
 		padding: 10px 0 0 0;
+		height: 100px; 
 	}
+
 	
 	.chatTools{
 		padding-top: 15px;
 		height: 15px;
 		text-align: center;
-		height: 10%;
 	}
 	
 	.chatTools span{
 		
 		color: #aaa;
-		padding: 0 20px;
+		padding: 0 10%;
 	}
 	
 	.chatBox textarea{
@@ -234,7 +235,7 @@
 		text-align: center;
 		margin: auto auto;
 		padding-top: 4px;
-		width: 30%;
+		width: 100%;
 		display: block;
 	}
 	

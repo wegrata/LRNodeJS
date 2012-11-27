@@ -41,7 +41,7 @@
 			</div>
 		</div>
 	
-		<div id="first" class="walkthrough" style="margin-top:10%;" >
+		<div id="first" class="walkthrough" style="margin-top:15%;" >
 			<div class="row">
 				<div class="span9 learningRegistryImage">
 				
@@ -176,6 +176,19 @@
 					});
 
 				}
+			});
+			
+			var handlePerfectSize = function(){
+				var height = $(window).height() - $(".navbar-inverse").height() - $("footer").height() * 2.2;
+
+				console.log(height);
+				$("#mainSection").css("height", height + "px");	
+				$("#first").css("margin-top", $(window).height()*.15 + "px");					
+			};
+			
+			handlePerfectSize();
+			$(window).resize(function() {
+				handlePerfectSize();
 			});
 		});
 	</script>

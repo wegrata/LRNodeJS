@@ -69,6 +69,27 @@
 	<!--<link type="text/css" href="themes/demos.css" rel="stylesheet" />-->
 	<link type="text/css" href="/stylesheets/Hypertree.css" rel="stylesheet" />
 	<link type="text/css" href="/stylesheets/prettify.css" rel="stylesheet" />
+	<script type="text/javascript">
+
+		  //if user is new:
+		  $("[rel=tooltip]").tooltip();
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-26825770-1']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		var allOrganizations = "{{orgs}}".split(",");
+		var followed = "{{followed}}".split(",");
+		var allTerms = "{{terms}}".split(",");
+
+		//console.log({{orgs}});
+	</script>
 	<script src="/javascripts/application.js"></script>
 	<script>
 	
@@ -79,7 +100,6 @@
 		ko.applyBindings(temp);
 
 		//Last modal location should either be home, or visual
-		var lastModalLocation = "home";
 		for (var f in followed){
 			temp.followers.push({name:followed[f], content:[]});
 		}
@@ -110,71 +130,6 @@
 			
 			$('input, textarea').placeholder();
 
-			//Handle what happens when the back button is clicked
-			$(".backButtonModal").click(function(e){
-
-				e.preventDefault();
-				e.stopPropagation();
-				
-				lastModalLocation = (directAccess === true && lastModalLocation == "visual") ? "home" : lastModalLocation;
-				$(".prettyprint").remove();
-				
-				if(lastModalLocation == "home"){
-					$("#modalFrame").remove();
-					$("#modal").modal("hide");
-
-					$("#visualBrowser").modal("hide");
-				}
-				
-				else if(lastModalLocation == "frame"){
-					$("#mBody").append(saveFrameState);
-					generateContentFrame(lastContentFrameSource, true);
-					lastModalLocation = "visual";
-				}
-
-				else{
-					$("#modalFrame").remove();
-					$("#modal").modal("hide");
-
-					$("#visualBrowser").modal("show");
-					lastModalLocation = "home";
-				}
-
-				
-			});
-
-			var handleDoSearch = function(e, str) {
-
-				e.preventDefault();
-				e.stopPropagation();
-				lastModalLocation = "home";
-				if(typeof str != "string"){
-					//Enter was pressed
-					if(e.which == 13){
-						/* Additional optional logic. Is keyword or url search? */
-						$("#visualBrowser").modal("show");
-
-						//There's no reason to perform a new search if it's the same as the last
-						str = $("#term").val();
-						if(lastSearchCache != str){
-							lastSearchCache = str;
-							startNewSearch(str);
-						}
-					}
-				}
-				else {
-					console.log(str);
-					$("#visualBrowser").modal("show");
-
-					//There's no reason to perform a new search if it's the same as the last
-					if(lastSearchCache != str){
-						lastSearchCache = str;
-						startNewSearch(str);
-					}
-				}
-			};
-
-
 			$(".followOrg").click(function(e){
 
 				//$("#term").val(allTerms[$(this).attr("name")]);
@@ -182,10 +137,6 @@
 
 			});
 
-			$("#term").keyup(handleDoSearch);
-			$("#Search").click(handleDoSearch);
-
-			enableDrag();
 			enableModal();
 
 			$(".chatBox textarea").keyup(function(e){
@@ -206,7 +157,7 @@
 							},
 							"verb": {
 								"action": "commented",
-								"detail": $(this).val(),
+								"detail": $(this).val().trim(),
 								"date": new Date()
 							},
 							"object": temp.currentObject().url
@@ -244,45 +195,17 @@
 
 				//evt.stopPropagation();
 			});
-
-
-
-
-
-
-					//LInitial tab display
-			//$("#browser").load("/browser?ajax");
-			$('#defaultTab').tab("show");
-			var alreadyLoaded = ["#organizations"];
-
-
-			/*$('.collapse').collapse('hide');
-			$(".organizationAcc").click(function(){
-
-				console.log("CLICK!");
-				$(this).children(".collapse").collapse('toggle');
-			});*/
-
-
-			$(".dynLoad").click(function(e){
-				e.preventDefault();
-
-				var temp = $(this);
-				temp.tab("show");
-
-				//Check whether or not the tab has ever been clicked on
-				if(jQuery.inArray(temp.attr("href"), alreadyLoaded) == -1){
-
-					alreadyLoaded.push(temp.attr("href"));
-					var saveName = temp.attr("href").split("#")[1];
-					$("#" + saveName).load("/" + saveName + "?ajax");
-				}
+			
+			var handlePerfectSize = function(){
+				var height = $(window).height() - $(".navbar-inverse").height();
+				$(".timeline-container").css("height", height + "px");				
+				$(".modal-timeline").css("height", (height - 150) + "px");
+			};
+			
+			handlePerfectSize();
+			$(window).resize(function() {
+				handlePerfectSize();
 			});
-
-
-
-
-
 		});
 
 		var hidePopover = function(){

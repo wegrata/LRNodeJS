@@ -41,7 +41,7 @@ var reverseTransform = {
         var idIndex = 1;
         var id = urlObj.href.split("=")[idIndex];
 
-        //console.log(urlObj.href.split("="));
+        console.log(urlObj.href.split("="));
 
         return "http://3dr.adlnet.gov/api/rest/"+id+"/Format/dae?ID=00-00-00";
     }
@@ -82,25 +82,6 @@ var opts = {
 
 var self, numOfPreviewElements = 3, spinner = null;
 
-var enableDrag = function(){
-    $( ".draggable" ).draggable({
-        revert: "invalid",
-        cursor: "move",
-        containment: "document",
-        opacity: 0.8,
-        start: function(){
-                    $(this).addClass("lr_border").removeClass("lr_border_trans");
-                    if($(this).attr("name").indexOf("followers") != -1)
-                       $(this).parent().parent().css({overflow:"visible"});
-                },
-        stop: function(){
-                    $(this).removeClass("lr_border").addClass("lr_border_trans");
-                    if($(this).attr("name").indexOf("followers") != -1)
-                       $(this).parent().parent().css({overflow:"hidden"});
-                }
-    });
-};
-
 var generateContentFrame = function(src, alreadyAppended){
 	
 	if(alreadyAppended !== true){
@@ -134,6 +115,7 @@ var handleMainResourceModal = function(src, direct){
 	var tempUrl = getLocation(src);
 	
 	src = (urlTransform[tempUrl.hostname] !== undefined ) ? urlTransform[tempUrl.hostname](tempUrl) : src;
+	
 
 	var target = document.getElementById('spinnerDiv');
 	self.currentObject(new resourceObject("Item", src));
@@ -148,8 +130,12 @@ var handleMainResourceModal = function(src, direct){
 		self.currentObject().timeline.push(NEW ENTRIES);
 	*/
 	
-	if(reverseTransform[tempUrl.hostname] !== undefined)
-		src = reverseTransform[tempUrl.hostname](tempUrl);
+	if(reverseTransform[tempUrl.hostname] !== undefined){
+	
+		console.log("BEFORE TRANSFORM: ", src);
+		src = reverseTransform[tempUrl.hostname](getLocation(src));
+		console.log("REVERSE TRANSFORM: ", src);
+	}
 
 	console.log("This is the src we will be using to search: ", src);
 	$.ajax("https://node02.public.learningregistry.net/obtain?request_id="+src,{
@@ -160,6 +146,7 @@ var handleMainResourceModal = function(src, direct){
 		//For each document found in data
 		var jsonData;
 		currentObjectMetadata = [];
+		console.log(data);
 		for(var i = 0; i < data.documents[0].document.length; i++){
 
 			if(data.documents[0].document[i].resource_data_type == "paradata"){
@@ -175,8 +162,8 @@ var handleMainResourceModal = function(src, direct){
 				currentObjectMetadata.push(data.documents[0].document[i]);
 			}
 		}
-		console.log(self.currentObject().timeline());
-		console.log(data);
+		console.log("Timeline: ", self.currentObject().timeline());
+		console.log("Loaded Data: ", currentObjectMetadata);
 	});
 
 	if(spinner !== null){
@@ -515,8 +502,11 @@ var mainViewModel = function(resources){
 		}
 		
 		console.log("Final content char: ",content[content.length-1]);
-		dateStr = moment(date.getTime()).fromNow();
+		dateStr = moment(date.getTime()).format("M/D/YYYY"); //moment(date.getTime()).fromNow();
+		
+		//3DR paradata fixes. Remove period, and fix "a user". More fixes (for all orgs) to come.
 		content = (content[content.length-1] == ".")? content.substr(0, content.length-1) : content;
+		content = (content.indexOf("The a user") > -1)? "The anonymous user" + content.substr(10, content.length - 9): content;
 		
         //Handle each verb differently
         switch(verb){
