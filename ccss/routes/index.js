@@ -185,7 +185,7 @@ exports.visual = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
-  
+
     response.render('visual.html', viewOptions);
 };
 
@@ -200,25 +200,31 @@ exports.main = function(request, response){
 };
 exports.search = function(req, res) {
   var terms = "";
+  var page = 0;
   if (req.body.terms)
     terms = req.body.terms.toLowerCase().split(' ');
   else if(req.query.terms)
     terms = req.query.terms.toLowerCase().split(' ');
-  console.log(terms);
+  if (req.body.page)
+    page = req.body.page * 100;
+  else if(req.query.page)
+    page = req.query.page * 100;
+  page = parseInt(page, 2);
   client.incr("session_id", function(err, data){
     var params = [data, terms.length];
     params = params.concat(terms);
     params.push(function(err, result){
       client.expire(data, 360, redis.print);
-      client.zrevrange(data, 0, 100, function(err, data){
+      client.zrevrange(data, page, page + 100, function(err, items){
         var getDisplayData = function(e, d){
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify(underscore.map(d.rows, function(item){
+            delete item.doc._attachments;
             return item.doc;
           })));
         };
-        if(data.length > 0){
-          db.allDocs({include_docs: true}, data, getDisplayData);
+        if(items.length > 0){
+          db.allDocs({include_docs: true}, items, getDisplayData);
         }else{
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify([]));
@@ -234,7 +240,7 @@ exports.search = function(req, res) {
 exports.find = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
-  
+
   response.render('find.html', viewOptions);
 };
 
@@ -242,7 +248,7 @@ exports.landing = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
-  
+
     response.render('landing.html', viewOptions);
 };
 
@@ -273,7 +279,7 @@ exports.timeline = function(request,response) {
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
   viewOptions.locals.hide = {topMargin:true, footer: true};
-  
+
     response.render('timeline.html', viewOptions);
 };
 
