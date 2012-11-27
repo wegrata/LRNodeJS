@@ -1,0 +1,71 @@
+ <div class="container">	
+      <!-- Example row of columns -->
+      <div class="row">
+
+		<div class="span8 offset1">
+		  	<div class="row">
+
+				<div class="tab-pane accordion friends" id="organizations"  data-bind="foreach:allOrganizations">
+						<div class="accordion-group organizationAcc">
+
+							<div class="accordion-heading">
+							  <a class="accordion-toggle" data-parent="#organizations" data-toggle="collapse"  data-bind="html: $data, attr:{href:$root.getOrganizationAccordionId($index, '#')}" ></a>
+							</div>
+
+							<div data-bind="attr:{id:$root.getOrganizationAccordionId($index, '')}" class="accordion-body collapse">
+							  <div class="accordion-inner" style="height:100px;">
+
+								<div class="customH4">
+
+									<p>Possibly a preview of a few resources...</p><br/>
+									<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-star"></i> Follow Organization</a>
+									<a data-bind="attr:{name:$index(), href:'/visual?query='+allTerms[$index()]}" class="btn btn-small followOrg"><i class="icon-th-large"></i> View All Resources</a>
+
+								</div>
+							  </div>
+							</div>
+					   </div>
+				  </div>
+			</div>
+		</div>
+      </div>
+ </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+	<script src="https://login.persona.org/include.js"></script>
+
+	<script src="/javascripts/jquery.js"></script>
+	<script src="//code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+	<script src="/javascripts/bootstrap.js"></script>
+
+	<script type="text/javascript" src="/javascripts/libs/modernizr-2.0.6.min.js"></script>
+
+	<script src="/javascripts/Placeholders.js"></script>
+	<script src="/javascripts/application.js"></script>
+	<script>
+	
+	
+		var allOrganizations = "{{orgs}}".split(","), allTerms = "{{terms}}".split(","), temp = new mainViewModel([]);
+		
+		console.log(allTerms);
+		ko.applyBindings(temp);
+	</script>
+
+	<!--[if lt IE 7 ]>
+		<script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.2/CFInstall.min.js"></script>
+		<script>window.attachEvent("onload",function(){CFInstall.check({mode:"overlay"})})</script>
+	<![endif]-->
+
+<!--<script>
+jQuery(function(){
+        $("#Search").bind("click", function() {
+                try {
+                        var term = $("#term")[0].value;
+                        _gaq.push(['_trackEvent', 'LRBrowser', 'Go', term.toLowerCase()]);
+                } catch (e) {}
+        });
+});
+</script>-->
+
