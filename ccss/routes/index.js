@@ -23,6 +23,7 @@ var client = redis.createClient();
 var server       = couchdb.srv('localhost', 5984, false, true);
 var standardsDb  = server.db('standards');
 var usersDb      = server.db('users');
+var db           = server.db('lr-data');
 // views
 
 var nodesView      = standardsDb.ddoc('nodes').view('parent-grade');
@@ -203,17 +204,13 @@ exports.search = function(req, res) {
     params.push(function(err, result){
       client.expire(data, 360, redis.print);
       client.zrevrange(data, 0, 100, function(err, data){
-        var items = [];
         var getDisplayData = function(e, d){
-          items.push(d);
-          if(items.length === data.length){
-            res.end(JSON.stringify(items));
-          }
+          res.end(JSON.stringify(underscore.map(d.rows, function(item){
+            return item.doc;
+          })));
         };
         if(data.length > 0){
-          for(var i in data){
-            client.hgetall(data[i], getDisplayData);
-          }
+          db.allDocs({include_docs: true}, data, getDisplayData);
         }else{
           res.end(JSON.stringify([]));
         }
