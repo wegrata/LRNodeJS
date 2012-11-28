@@ -402,7 +402,17 @@ var mainViewModel = function(resources){
     self.bookmarks = ko.observableArray();
     self.followers = ko.observableArray(followingList);
     self.results = ko.observableArray();
+    self.resultsNotFound = ko.observable(false);
 
+	self.getReversedTimeline = function(){
+		
+		if(self.currentObject == undefined)
+			return [];
+			
+		
+		return jQuery.extend(true, [], self.currentObject().timeline()).reverse();
+	};
+	
 	self.getResults = function(){
 
 		return self.results.slice(0, totalSlice);

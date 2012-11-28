@@ -8,6 +8,29 @@
 	outline: none;
   }
   
+  .table-striped tbody tr:nth-child(odd) td, .table-striped tbody tr:nth-child(odd) th {
+background-color: #fff !important;
+}
+
+#timeline-table th{
+
+	background-color: #fefefe !important;
+	text-align: center;
+}
+
+.table tbody + tbody {
+border-top: 1px solid #dddddd !important;
+}
+
+#resultsNotFound{
+
+	margin-top: 100px;
+	text-align:center;
+	width:100%;
+	font-size:24px;
+	color:#999;
+}
+  
   .popover{
 	
 	word-wrap: break-word !important;

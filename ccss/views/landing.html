@@ -41,23 +41,30 @@
 			</div>
 		</div>
 	
-		<div id="first" class="walkthrough" style="margin-top:15%;" >
+		<div id="first" class="walkthrough">
 			<div class="row">
 				<div class="span9 learningRegistryImage">
 				
 					<img src="/images/customLogo.png" />
-					<form method="get" action="/find" id="searchinput" class="input-append">
+					<form method="get" action="/find" id="searchinput" class="input-append" style="margin-top: 50px;">
 						 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Search the Learning Registry for resources"/>
 						 <input class="btn btn-primary"id="Search" style="margin-top:0;" type="submit" value="Search" />
 					</form>
 					
-					<div>
+					<div style="margin-top:50px;">
+						<span>Browse By</span>
 						<a class="btn" id="defaultTab" href="/sites">Sites</a>
+						<span>or</span>
 						<a class="btn" href="/browser">Standards</a>
 					</div>
 				</div>
 
 				<div class="span3">
+					<form action="signup" method="POST">
+					  <input type="text" placeholder="Email"/><br/>
+					  <input type="text" placeholder="Password"/><br/>
+					  <button class="btn submit" type="button">Sign In</button>
+					</form>
 					<form action="signup" method="POST">
 					  <legend>No account? Sign up!</legend>
 					  <input type="text" placeholder="Email"/><br/>
@@ -119,7 +126,7 @@
 						<option value="Other">Other/International</option>
 					  </select>
 					  
-					  <button class="btn submit" type="button">Submit</button>
+					  <button class="btn submit btn-info" type="button">Start using the LR</button>
 					</form>
 				</div>
 			</div>  
@@ -181,7 +188,7 @@
 
 				console.log(height);
 				$("#mainSection").css("height", height + "px");	
-				$("#first").css("margin-top", $(window).height()*.15 + "px");					
+				$("#first").css("margin-top", $(window).height()*.10 + "px");					
 			};
 			
 			handlePerfectSize();
