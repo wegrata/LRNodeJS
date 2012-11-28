@@ -814,7 +814,7 @@ function buildDocList(node) {
 													topNode.data.datatype + ' <b>"' + topNode.name + '"</i></b>');
 	$("#doc_list_accordion").remove();
 	//$("#document_list").append('<div id="doc_list_accordion"/>');
-	temp.visualBrowserResults.removeAll();
+	temp.results.removeAll();
 	
 	for(var i = 0, tempURLs = []; i < node.data.doc_ids.length; i++) {
 		
@@ -823,7 +823,7 @@ function buildDocList(node) {
 		//if(docDictionary[node.data.doc_ids[i]].type != "paradata")
 		//console.log(docDictionary[node.data.doc_ids[i]].url);
 		//if($.inArray(docDictionary[node.data.doc_ids[i]].url, tempURLs) == -1){
-			temp.visualBrowserResults.push(docDictionary[node.data.doc_ids[i]]);
+			temp.results.push(docDictionary[node.data.doc_ids[i]]);
 			tempURLs.push(docDictionary[node.data.doc_ids[i]].url);
 		//}
 			
@@ -831,7 +831,7 @@ function buildDocList(node) {
 		//$("#doc_list_accordion").append(listing);
 	}
 	
-	console.log(temp.visualBrowserResults());
+	console.log(temp.results());
 	$(".paradataLoader").click(function() {
 		loadParadata($(this).attr('id'));
 	});
