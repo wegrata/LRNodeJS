@@ -402,6 +402,7 @@ var mainViewModel = function(resources){
     self.bookmarks = ko.observableArray();
     self.followers = ko.observableArray(followingList);
     self.results = ko.observableArray();
+    self.searchResults = ko.observableArray();
 	
 	self.getResults = function(){
 		

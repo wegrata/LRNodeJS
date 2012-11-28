@@ -1,0 +1,64 @@
+ <div class="container">	
+		<div class="row">
+			<div class="span8 activity">
+				<h4>Search Results</h4>
+				<table class="table table-striped">
+					<tbody data-bind="foreach:searchResults">
+						<tr style="border-top:none;">
+							<td style="border-top:none;">
+								<a data-bind="text:title, attr:{href:'/timeline?query='+url}"></a><br/>
+								<span data-bind="text:description.substr(0, 180)+'...'"></span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+ </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+	
+	<script src="/javascripts/moment.min.js"></script>
+
+	<script src="/javascripts/jquery.js"></script>
+	<script src="/javascripts/bootstrap.js"></script>
+
+	<script src="/javascripts/Placeholders.js"></script>
+	<script src="/javascripts/spin.min.js"></script>
+	<script src="/javascripts/jquery.nicescroll.js"></script>
+
+	<script type="text/javascript">
+
+		  //if user is new:
+		  $("[rel=tooltip]").tooltip();
+		var allOrganizations = "{{orgs}}".split(",");
+		var followed = "{{followed}}".split(",");
+		var allTerms = "{{terms}}".split(",");
+		//console.log({{orgs}});
+	</script>
+	<script src="/javascripts/application.js"></script>
+	<script>
+		var temp = new mainViewModel([]), activeModalName = null, lastSearchCache = "";
+
+		//Last modal location should either be home, or visual
+		var lastModalLocation = "home";
+		for (var f in followed){
+			temp.followers.push({name:followed[f], content:[]});
+		}
+		
+		ko.applyBindings(temp);
+
+		$(document).ready(function(){
+			
+			$('input, textarea').placeholder();
+			
+			$.get('/search?terms=' + '{{query}}', function(data){
+				
+				temp.searchResults(data);
+				console.log(data);
+			});
+		});
+	</script>
