@@ -55,9 +55,9 @@ var getLocation = function(href) {
 };
 
 var scrollbarFix = function(obj){
-	
+
 	obj = (obj == undefined)? $(".modal-timeline") : obj;
-	
+
 	obj.getNiceScroll().remove();
 	obj.niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
 };
@@ -83,9 +83,9 @@ var opts = {
 var self, numOfPreviewElements = 3, spinner = null;
 
 var generateContentFrame = function(src, alreadyAppended){
-	
+
 	if(alreadyAppended !== true){
-		
+
 		//This is definitely not a trivial workaround. However, this does disable adding to the browser's history
 		var frameCode = '<iframe id="modalFrame" style="visibility: hidden;" src="about:blank" frameborder="0"></iframe>';
 		$("#mBody").append(frameCode);
@@ -93,7 +93,7 @@ var generateContentFrame = function(src, alreadyAppended){
 
 	var frame = $('#modalFrame')[0];
 	frame.contentWindow.location.replace(src);
-	
+
 	if(alreadyAppended !== true){
 		$("#spinnerDiv").show();
 		$("#modalFrame").load(function(){
@@ -108,18 +108,18 @@ var generateContentFrame = function(src, alreadyAppended){
 
 var handleMainResourceModal = function(src, direct){
 
-	
+
 
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
 	src = (typeof src == "string")? src : $(this).attr("name");
 	var tempUrl = getLocation(src);
-	
+
 	src = (urlTransform[tempUrl.hostname] !== undefined ) ? urlTransform[tempUrl.hostname](tempUrl) : src;
-	
+
 
 	var target = document.getElementById('spinnerDiv');
 	self.currentObject(new resourceObject("Item", src));
-	
+
 	//Remove any residual JSON prettyprinted documents
 	$(".prettyprint").remove();
 	generateContentFrame(src);
@@ -129,9 +129,9 @@ var handleMainResourceModal = function(src, direct){
 
 		self.currentObject().timeline.push(NEW ENTRIES);
 	*/
-	
+
 	if(reverseTransform[tempUrl.hostname] !== undefined){
-	
+
 		console.log("BEFORE TRANSFORM: ", src);
 		src = reverseTransform[tempUrl.hostname](getLocation(src));
 		console.log("REVERSE TRANSFORM: ", src);
@@ -150,15 +150,15 @@ var handleMainResourceModal = function(src, direct){
 		for(var i = 0; i < data.documents[0].document.length; i++){
 
 			if(data.documents[0].document[i].resource_data_type == "paradata"){
-				
-				jsonData = (typeof data.documents[0].document[i].resource_data == "string") ? 
+
+				jsonData = (typeof data.documents[0].document[i].resource_data == "string") ?
 							$.parseJSON( data.documents[0].document[i].resource_data ) : data.documents[0].document[i].resource_data;
-							
+
 				self.currentObject().timeline.push(jsonData);
 			}
-			
+
 			else if(data.documents[0].document[i].resource_data_type == "metadata"){
-				
+
 				currentObjectMetadata.push(data.documents[0].document[i]);
 			}
 		}
@@ -173,7 +173,7 @@ var handleMainResourceModal = function(src, direct){
 		console.log("height: ", $("#timeline-table").height());
 		if($("#timeline-table").height() > 460)
 			$(".modal-timeline").getNiceScroll().show();
-		
+
 		scrollbarFix();
 
 		spinner.spin(target);
@@ -183,9 +183,9 @@ var handleMainResourceModal = function(src, direct){
 		$(".modal-timeline").niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
 		if($("#timeline-table").height() > 460)
 			$(".modal-timeline").getNiceScroll().show();
-		
+
 		scrollbarFix();
-		
+
 		spinner = new Spinner(opts).spin(target);
 	}
 };
@@ -219,7 +219,7 @@ var previewObject = function(name, content){
 
 var resourceObject = function(name, url, timeline){
 
-    
+
     this.url = (url !== undefined) ? url : null;
     this.title = getLocation(url).hostname;
 
@@ -335,13 +335,13 @@ var getProperArray = function(str){
 var generateAuthorSpan = function(str, author, content, i){
 
     //Check for any potential XSS attacks
-	
+
 	content = (content == undefined)? "" : content.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 	author = author.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 	str = str.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
-	
+
 	console.log("Debug span ", content + " " + author + " " + str);
-	
+
     var title = author + '<button type="button" onclick="hidePopover()" class="close closeTimeline" aria-hidden="true">&times;</button>';
 
     var bottomBar = '<div class="bottomBar">'+
@@ -361,33 +361,33 @@ var createJSON = function(obj, type){
 };
 
 var displayObjectData = function(pmdata){
-	
+
 		lastModalLocation = "frame";
 		$(".prettyprint").remove();
 
 		//Watch out for XSS attacks
 		console.log("metadata: ", pmdata);
 		var metadata = '<pre class="prettyprint">';
-		
+
 		if($.isArray(pmdata)){
 			for(var i = 0; i < pmdata.length; i++){
 				metadata += JSON.stringify(pmdata[i], null, 4);
 			}
-			
+
 			metadata = (pmdata.length == 0)? "<center class='prettyprint' style='margin-top: 20%;'>No metadata found</center>" : metadata;
 		}
-		
+
 		else {
-			
+
 			metadata += JSON.stringify(pmdata, null, 4);
 		}
-		
-		
+
+
 		if($("#modalFrame").length > 0){
 			saveFrameState = $("#mBody").html();
 			$("#modalFrame").remove();
 		}
-		
+
 		$(".modal-body").append(metadata + "</pre>");
 		prettyPrint();
 };
@@ -402,26 +402,26 @@ var mainViewModel = function(resources){
     self.bookmarks = ko.observableArray();
     self.followers = ko.observableArray(followingList);
     self.results = ko.observableArray();
-	
+
 	self.getResults = function(){
-		
+
 		return self.results.slice(0, totalSlice);
 	};
-	
+
 	self.updateSlice = function(){
-		
+
 		totalSlice += newLoad * loadIndex;
 		loadIndex++;
 		self.results.valueHasMutated();
 		console.log(totalSlice);
 		scrollbarFix($(".resultModal"));
 	};
-	
+
 	self.handleDataClick = function(e){
-		
+
 		displayObjectData(currentObjectMetadata);
 	};
-	
+
     self.getShorterArr = function(str, length, url){
 
         if(typeof str == "string"){
@@ -429,7 +429,7 @@ var mainViewModel = function(resources){
             var temp = getLocation(str);
 
             //Check to see if we should transform the url
-            if(urlTransform[temp.hostname] !== undefined && url == undefined && length == undefined)
+            if(urlTransform[temp.hostname] !== undefined && url === undefined && length === undefined)
                 str = urlTransform[temp.hostname](temp);
 
             else str = (str.length > length)? str.substr(0, length) + "..." : str;
@@ -438,7 +438,7 @@ var mainViewModel = function(resources){
         }
 
         else if(str !== undefined){
-			
+
             return (str.length > length)? str.splice(0, length) : str;
 		}
     };
@@ -467,48 +467,48 @@ var mainViewModel = function(resources){
 
 		/*
 		 * TO-DO: Finish coming up with a generalized solution for most paradata documents
-		 */		
-	
+		 */
+
 		var verb = e.activity.verb.action.toLowerCase();
 		var dateStr = (e.activity.verb.date === undefined) ? "" : e.activity.verb.date;
 		var content = (e.activity.content === undefined)? "hi" : e.activity.content;
 		var measure = (e.activity.verb.measure === undefined)? "hi" : e.activity.verb.measure;
-		
+
 		//These three don't exist for viewed verb
 		var detail = (e.activity.verb.detail === undefined)? "hi" : e.activity.verb.detail;
-		
-		var actor = (e.activity.actor === undefined)? "Unknown User" : (e.activity.actor.description == undefined && e.activity.actor.displayName !== undefined) ? 
+
+		var actor = (e.activity.actor === undefined)? "Unknown User" : (e.activity.actor.description == undefined && e.activity.actor.displayName !== undefined) ?
 					e.activity.actor.displayName : e.activity.actor.description[0];
-		
+
 		var date = new Date(dateStr);
-		
+
 		//Not a valid date object
 		if(isNaN(date.getTime())){
-			
+
 			if(self.currentObject().url.indexOf("3dr.adlnet.gov") > -1){
-				
+
 				//This gets the timestamp within "/Date(x)/"
 				date = new Date(parseInt(dateStr.substr(6, dateStr.length - 8)));
 			}
-			
+
 			else if(false){
-				
-				
+
+
 			}
-			
+
 			else
 				console.log("may not be working");
-				
-				
+
+
 		}
-		
+
 		console.log("Final content char: ",content[content.length-1]);
 		dateStr = moment(date.getTime()).format("M/D/YYYY"); //moment(date.getTime()).fromNow();
-		
+
 		//3DR paradata fixes. Remove period, and fix "a user". More fixes (for all orgs) to come.
 		content = (content[content.length-1] == ".")? content.substr(0, content.length-1) : content;
 		content = (content.indexOf("The a user") > -1)? "The anonymous user" + content.substr(10, content.length - 9): content;
-		
+
         //Handle each verb differently
         switch(verb){
 
@@ -520,19 +520,19 @@ var mainViewModel = function(resources){
 
             case "downloaded":
 				return content + " " + measure.value + " times " + generateAuthorSpan(dateStr, actor, content, i);
-			
+
 			//published = uploaded for 3DR
 			case "published":
 				return content + " " + generateAuthorSpan(dateStr, actor, content, i);
 
 			case "viewed":
 				return content + " is " + measure.value + generateAuthorSpan(dateStr, actor, undefined, i);
-				
+
 			case "matched":
 				return actor + " has a match " + generateAuthorSpan(dateStr, actor, content, i);
         }
-        
-        
+
+
         return "Unable to display paradata document.";
     };
 
@@ -549,7 +549,7 @@ var mainViewModel = function(resources){
             contentType: 'application/json',
             data: createJSON(e, "follow"),
             success: function(data){
-				
+
 				console.log("added");
                 self.allOrganizations.remove(e);
                 self.followers.push({name:data.subject, content:[]});
