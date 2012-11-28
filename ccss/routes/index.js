@@ -17,11 +17,15 @@ var couchdb = require('couchdb-api');
 var config  = require('config');
 var r       = require('request');
 var underscore = require('underscore');
+var redis = require("redis");
+var client = redis.createClient();
 // couchdb db
 var server       = couchdb.srv('localhost', 5984, false, true);
 var standardsDb  = server.db('standards');
 var usersDb      = server.db('users');
+var db           = server.db('lr-data');
 // views
+
 var nodesView      = standardsDb.ddoc('nodes').view('parent-grade');
 var categoriesView = standardsDb.ddoc('nodes').view('categories');
 var standardsView  = standardsDb.ddoc('nodes').view('standards');
@@ -232,4 +236,29 @@ exports.main = function(request, response){
 
   else
     response.render('main.html');
+};
+exports.search = function(req, res) {
+  var terms = req.body.terms.toLowerCase().split(' ');
+  client.incr("session_id", function(err, data){
+    var params = [data, terms.length];
+    params = params.concat(terms);
+    params.push(function(err, result){
+      client.expire(data, 360, redis.print);
+      client.zrevrange(data, 0, 100, function(err, data){
+        var getDisplayData = function(e, d){
+          res.end(JSON.stringify(underscore.map(d.rows, function(item){
+            return item.doc;
+          })));
+        };
+        if(data.length > 0){
+          db.allDocs({include_docs: true}, data, getDisplayData);
+        }else{
+          res.end(JSON.stringify([]));
+        }
+
+      });
+
+    });
+    client.zunionstore.apply(client, params);
+  });
 };
