@@ -22,7 +22,7 @@ var users = require('./routes/users');
 passport.serializeUser(users.serializeUser);
 passport.deserializeUser(users.deserializeUser);
 passport.use(new browserid({
-    audience: 'http://192.168.190.128'
+    audience: 'http://localhost:1337'
 }, users.validateUser));
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
@@ -73,16 +73,14 @@ app.get('/',routes.index);
 app.get('/standards/:category?', routes.standards);
 app.get('/browser', routes.browser);
 app.get('/visual', routes.visual);
-app.get('/timeline', routes.timeline);
 app.post('/nodes/', routes.nodes);
 app.get('/related', routes.related);
 app.get('/resources', routes.resources);
-app.get('/sites', routes.sites);
-app.get('/landing', routes.landing);
 app.get('/signup', users.signup);
 app.post('/signup', users.signupHandler);
 app.post('/auth', passport.authenticate('browserid', { failureRedirect: '/' }), users.auth);
 app.post('/logout', users.logout);
+app.post('/search', routes.search);
 app.get('/search', routes.search);
 app.post('/main', function(req, res){
     switch (req.body.action.toLowerCase()){
@@ -103,7 +101,7 @@ app.post('/main', function(req, res){
 
 app.configure('development', function(){
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-    app.listen(80);
+    app.listen(1337);
 });
 
 app.configure('production', function(){

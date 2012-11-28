@@ -23,6 +23,7 @@ var client = redis.createClient();
 var server       = couchdb.srv('localhost', 5984, false, true);
 var standardsDb  = server.db('standards');
 var usersDb      = server.db('users');
+var db           = server.db('lr-data');
 // views
 
 var nodesView      = standardsDb.ddoc('nodes').view('parent-grade');
@@ -181,50 +182,9 @@ exports.index = function(request,response) {
     }
 };
 exports.visual = function(request,response) {
-  var viewOptions = {locals:{}};
+  var viewOptions = {};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
-  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
-  
     response.render('visual.html', viewOptions);
-};
-
-exports.timeline = function(request,response) {
-  var viewOptions = {locals:{}};
-  viewOptions.layout = (request.query.ajax === undefined)? true : false;
-  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
-  viewOptions.locals.hide = {topMargin:true, footer: true};
-  
-    response.render('timeline.html', viewOptions);
-};
-
-exports.landing = function(request,response) {
-  var viewOptions = {locals:{}};
-  viewOptions.layout = (request.query.ajax === undefined)? true : false;
-  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
-  
-    response.render('landing.html', viewOptions);
-};
-
-exports.sites = function(request,response) {
-     var opts = {};
-    opts.locals = opts.locals || {};
-    if (request.user)
-      opts.locals.user = request.user;
-     //For testing purporses.. may have to make this a global array..
-     opts.locals = opts.locals || {};
-     opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
-           'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
-           'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
-     if(request.user){
-        opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
-          return !underscore.contains(request.user.following, org);
-        });
-        opts.locals.followed = underscore.uniq(request.user.following);
-     }
-     opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
-           'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
-           'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
-    response.render('sites.html', opts);
 };
 
 exports.main = function(request, response){
@@ -237,27 +197,28 @@ exports.main = function(request, response){
     response.render('main.html');
 };
 exports.search = function(req, res) {
-  console.log(req.query);
-  var terms = req.query.terms.toLowerCase().split(' ');
+  var terms = "";
+  if (req.body.terms)
+    terms = req.body.terms.toLowerCase().split(' ');
+  else if(req.query.terms)
+    terms = req.query.terms.toLowerCase().split(' ');
+  console.log(terms);
   client.incr("session_id", function(err, data){
-
     var params = [data, terms.length];
     params = params.concat(terms);
     params.push(function(err, result){
       client.expire(data, 360, redis.print);
       client.zrevrange(data, 0, 100, function(err, data){
-        var items = [];
         var getDisplayData = function(e, d){
-          items.push(d);
-          if(items.length === data.length){
-            res.end(JSON.stringify(items));
-          }
+          res.writeHead(200, {"Content-Type": "application/json"});
+          res.end(JSON.stringify(underscore.map(d.rows, function(item){
+            return item.doc;
+          })));
         };
         if(data.length > 0){
-          for(var i in data){
-            client.hgetall(data[i], getDisplayData);
-          }
+          db.allDocs({include_docs: true}, data, getDisplayData);
         }else{
+          res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify([]));
         }
 
