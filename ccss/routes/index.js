@@ -251,6 +251,7 @@ exports.search = function(req, res) {
       client.expire(data, 360, redis.print);
       client.zrevrange(data, 0, 100, function(err, data){
         var getDisplayData = function(e, d){
+          res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify(underscore.map(d.rows, function(item){
             return item.doc;
           })));
@@ -258,6 +259,7 @@ exports.search = function(req, res) {
         if(data.length > 0){
           db.allDocs({include_docs: true}, data, getDisplayData);
         }else{
+          res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify([]));
         }
 
