@@ -238,7 +238,12 @@ exports.main = function(request, response){
     response.render('main.html');
 };
 exports.search = function(req, res) {
-  var terms = req.body.terms.toLowerCase().split(' ');
+  var terms = "";
+  if (req.body.terms)
+    terms = req.body.terms.toLowerCase().split(' ');
+  else if(req.query.terms)
+    terms = req.query.terms.toLowerCase().split(' ');
+  console.log(terms);
   client.incr("session_id", function(err, data){
     var params = [data, terms.length];
     params = params.concat(terms);

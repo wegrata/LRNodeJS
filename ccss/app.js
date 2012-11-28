@@ -84,6 +84,7 @@ app.post('/signup', users.signupHandler);
 app.post('/auth', passport.authenticate('browserid', { failureRedirect: '/' }), users.auth);
 app.post('/logout', users.logout);
 app.post('/search', routes.search);
+app.get('/search', routes.search);
 app.post('/main', function(req, res){
     switch (req.body.action.toLowerCase()){
         case "follow":
