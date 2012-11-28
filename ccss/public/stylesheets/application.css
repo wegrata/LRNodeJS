@@ -1,6 +1,6 @@
-  body {
-	padding-top: 60px;
-	padding-bottom: 40px;
+  body{
+  
+	background-image: url('/images/back.png');
   }
   
   input, textarea, input:focus, textarea:focus{
@@ -41,10 +41,7 @@
 	cursor: pointer;
   }
   
-  .tab-content{
-  
 
-  }
   
   .draggable{
 	width: 90%;
@@ -64,6 +61,16 @@
 	.resources h4{
 	
 		text-align: center;
+	}
+	
+	.activity table{
+	
+		border-collapse: separate;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 5px;
+		text-overflow: ellipsis;
+		border: 1px solid #DDD;
 	}
 	
 	.dropbox{
@@ -142,6 +149,12 @@
 		margin-right: 0 !important;
 	}
 	
+	.timeline-container{
+	
+		height: 700px;
+		overflow:hidden;
+	}
+	
 	.modal-iframe, .modal-bookmark{
 	
 		margin: 0;
@@ -153,7 +166,7 @@
 		
 		float: right;
 		width: 85%;
-		height: 750px;
+		height: 100%;
 	}
 	
 	.modal-timeline{
@@ -162,17 +175,18 @@
 		width: 15%;
 		overflow: scroll;
 		overflow-x: hidden;
-		height: 590px;
+		height: 100%;
 	}
 	
 	.chatBox, .chatTools{
 	
 		float: left; 
-		height: 100px; 
 		width: 15%;
 		margin: 0;
 		padding: 10px 0 0 0;
+		height: 100px; 
 	}
+
 	
 	.chatTools{
 		padding-top: 15px;
@@ -183,7 +197,7 @@
 	.chatTools span{
 		
 		color: #aaa;
-		padding: 0 20px;
+		padding: 0 10%;
 	}
 	
 	.chatBox textarea{
@@ -226,7 +240,7 @@
 		text-align: center;
 		margin: auto auto;
 		padding-top: 4px;
-		width: 30%;
+		width: 100%;
 		display: block;
 	}
 	
@@ -299,25 +313,92 @@ select { width: 150px; }*/
 
 .infovizModal{
 
-	width: 72%;
 	margin: 0 auto;
 	height: 100%;
-	float: left;
+	float: right;
 	display: block;
+	width: 70%;
 }
 
 
 .resultModal{
 
-	width: 25%;
 	float: left;
-	height: 92%;
+	height: 640px;
+	margin-left: 0 !important;
+	width: 30%;
 	overflow: auto;
+	overflow-x: hidden;
+	word-break:break-all;
 }
 
 .resultClick{
-
+	
+	overflow: hidden;
+	text-overflow: ellipsis;
 	cursor: pointer;
+	
+}
+
+.navbar{
+
+	margin-bottom: 0;
+}
+
+.center{
+	float: none;
+	margin: 0 auto !important;
+	text-align: center;
+}
+
+.small{
+
+	min-height: 25px;
+}
+
+.small a{
+
+	padding-top: 2px !important;
+	padding-bottom: 5px !important;
+	background: none !important;
+}
+
+.navbar-inner, .backColor{
+
+	border-radius: 0px !important;
+	-webkit-border-radius: 0px !important;
+	-moz-border-radius: 0px !important;
+}
+
+.backColor{
+
+/* IE10 Consumer Preview */ 
+background-image: -ms-linear-gradient(top, #666666 0%, #444444 100%) !important;
+
+/* Mozilla Firefox */ 
+background-image: -moz-linear-gradient(top, #666666 0%, #444444 100%) !important;
+
+/* Opera */ 
+background-image: -o-linear-gradient(top, #666666 0%, #444444 100%) !important;
+
+/* Webkit (Safari/Chrome 10) */ 
+background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #666666), color-stop(1, #444444)) !important;
+
+/* Webkit (Chrome 11+) */ 
+background-image: -webkit-linear-gradient(top, #666666 0%, #444444 100%) !important;
+
+/* W3C Markup, IE10 Release Preview */ 
+background-image: linear-gradient(to bottom, #666666 0%, #444444 100%) !important;
+	border-color: #252525 !important;
+	filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ff222222', endColorstr='#ff111111', GradientType=0);
+
+background: none !important;
+background-color: #1B5AAF !important;
+
 }
 
 
+.navbar li{
+
+	display: inline;
+}

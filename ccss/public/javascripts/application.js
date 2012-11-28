@@ -16,7 +16,7 @@
         self.organizations needs only to contain an array of strings that can be used to search against a node
 */
 
-var currentObjectMetadata = [], lastContentFrameSource = "", saveFrameState = "", directAccess = false;
+var currentObjectMetadata = [], lastContentFrameSource = "", saveFrameState = "", directAccess = false, totalSlice = 6, loadIndex = 1, newLoad = 10;
 
 var urlTransform = {
 
@@ -41,7 +41,7 @@ var reverseTransform = {
         var idIndex = 1;
         var id = urlObj.href.split("=")[idIndex];
 
-        //console.log(urlObj.href.split("="));
+        console.log(urlObj.href.split("="));
 
         return "http://3dr.adlnet.gov/api/rest/"+id+"/Format/dae?ID=00-00-00";
     }
@@ -54,12 +54,12 @@ var getLocation = function(href) {
     return l;
 };
 
-var scrollbarFix = function(){
-
-	//Scroll bar fix...
-	$(".modal-timeline").getNiceScroll().hide();
-	$(".modal-timeline").getNiceScroll().show();
-	$(".modal-timeline").getNiceScroll()[0].noticeCursor();
+var scrollbarFix = function(obj){
+	
+	obj = (obj == undefined)? $(".modal-timeline") : obj;
+	
+	obj.getNiceScroll().remove();
+	obj.niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
 };
 
 var opts = {
@@ -81,25 +81,6 @@ var opts = {
 };
 
 var self, numOfPreviewElements = 3, spinner = null;
-
-var enableDrag = function(){
-    $( ".draggable" ).draggable({
-        revert: "invalid",
-        cursor: "move",
-        containment: "document",
-        opacity: 0.8,
-        start: function(){
-                    $(this).addClass("lr_border").removeClass("lr_border_trans");
-                    if($(this).attr("name").indexOf("followers") != -1)
-                       $(this).parent().parent().css({overflow:"visible"});
-                },
-        stop: function(){
-                    $(this).removeClass("lr_border").addClass("lr_border_trans");
-                    if($(this).attr("name").indexOf("followers") != -1)
-                       $(this).parent().parent().css({overflow:"hidden"});
-                }
-    });
-};
 
 var generateContentFrame = function(src, alreadyAppended){
 	
@@ -127,13 +108,14 @@ var generateContentFrame = function(src, alreadyAppended){
 
 var handleMainResourceModal = function(src, direct){
 
-	//if we're not accessing directly, back should lead to visual browser
-	directAccess = direct;
-	lastModalLocation = (direct !== true)?  "visual" : "home";
+	
 
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
 	src = (typeof src == "string")? src : $(this).attr("name");
-	lastContentFrameSource = src;
+	var tempUrl = getLocation(src);
+	
+	src = (urlTransform[tempUrl.hostname] !== undefined ) ? urlTransform[tempUrl.hostname](tempUrl) : src;
+	
 
 	var target = document.getElementById('spinnerDiv');
 	self.currentObject(new resourceObject("Item", src));
@@ -142,16 +124,18 @@ var handleMainResourceModal = function(src, direct){
 	$(".prettyprint").remove();
 	generateContentFrame(src);
 
-	$("#modal").modal();
-
 	/*
 		While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
 
 		self.currentObject().timeline.push(NEW ENTRIES);
 	*/
-	var tempUrl = getLocation(src);
-	if(reverseTransform[tempUrl.hostname] !== undefined)
-		src = reverseTransform[tempUrl.hostname](tempUrl);
+	
+	if(reverseTransform[tempUrl.hostname] !== undefined){
+	
+		console.log("BEFORE TRANSFORM: ", src);
+		src = reverseTransform[tempUrl.hostname](getLocation(src));
+		console.log("REVERSE TRANSFORM: ", src);
+	}
 
 	console.log("This is the src we will be using to search: ", src);
 	$.ajax("https://node02.public.learningregistry.net/obtain?request_id="+src,{
@@ -162,6 +146,7 @@ var handleMainResourceModal = function(src, direct){
 		//For each document found in data
 		var jsonData;
 		currentObjectMetadata = [];
+		console.log(data);
 		for(var i = 0; i < data.documents[0].document.length; i++){
 
 			if(data.documents[0].document[i].resource_data_type == "paradata"){
@@ -177,8 +162,8 @@ var handleMainResourceModal = function(src, direct){
 				currentObjectMetadata.push(data.documents[0].document[i]);
 			}
 		}
-		console.log(self.currentObject().timeline());
-		console.log(data);
+		console.log("Timeline: ", self.currentObject().timeline());
+		console.log("Loaded Data: ", currentObjectMetadata);
 	});
 
 	if(spinner !== null){
@@ -186,7 +171,7 @@ var handleMainResourceModal = function(src, direct){
 		//Checks to see if there are enough rows in the timeline to warrant showing the scroll bars
 		//Should be checked whenever an element is added to or removed from the timeline
 		console.log("height: ", $("#timeline-table").height());
-		if($("#timeline-table").height() > 640)
+		if($("#timeline-table").height() > 460)
 			$(".modal-timeline").getNiceScroll().show();
 		
 		scrollbarFix();
@@ -196,7 +181,7 @@ var handleMainResourceModal = function(src, direct){
 	else {
 
 		$(".modal-timeline").niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
-		if($("#timeline-table").height() > 640)
+		if($("#timeline-table").height() > 460)
 			$(".modal-timeline").getNiceScroll().show();
 		
 		scrollbarFix();
@@ -234,8 +219,9 @@ var previewObject = function(name, content){
 
 var resourceObject = function(name, url, timeline){
 
-    this.title = name;
+    
     this.url = (url !== undefined) ? url : null;
+    this.title = getLocation(url).hostname;
 
     //The timeline should be an observable array of paradata objects
     this.timeline = (timeline !== undefined) ? ko.observableArray(timeline) : ko.observableArray();
@@ -415,8 +401,22 @@ var mainViewModel = function(resources){
     self.data = ko.observableArray(resources);
     self.bookmarks = ko.observableArray();
     self.followers = ko.observableArray(followingList);
-    self.visualBrowserResults = ko.observableArray();
+    self.results = ko.observableArray();
+    self.searchResults = ko.observableArray();
 	
+	self.getResults = function(){
+		
+		return self.results.slice(0, totalSlice);
+	};
+	
+	self.updateSlice = function(){
+		
+		totalSlice += newLoad * loadIndex;
+		loadIndex++;
+		self.results.valueHasMutated();
+		console.log(totalSlice);
+		scrollbarFix($(".resultModal"));
+	};
 	
 	self.handleDataClick = function(e){
 		
@@ -504,8 +504,11 @@ var mainViewModel = function(resources){
 		}
 		
 		console.log("Final content char: ",content[content.length-1]);
-		dateStr = moment(date.getTime()).fromNow();
+		dateStr = moment(date.getTime()).format("M/D/YYYY"); //moment(date.getTime()).fromNow();
+		
+		//3DR paradata fixes. Remove period, and fix "a user". More fixes (for all orgs) to come.
 		content = (content[content.length-1] == ".")? content.substr(0, content.length-1) : content;
+		content = (content.indexOf("The a user") > -1)? "The anonymous user" + content.substr(10, content.length - 9): content;
 		
         //Handle each verb differently
         switch(verb){
