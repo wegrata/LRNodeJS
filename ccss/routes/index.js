@@ -182,8 +182,10 @@ exports.index = function(request,response) {
     }
 };
 exports.visual = function(request,response) {
-  var viewOptions = {};
+  var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
+  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  
     response.render('visual.html', viewOptions);
 };
 
@@ -228,3 +230,50 @@ exports.search = function(req, res) {
     client.zunionstore.apply(client, params);
   });
 };
+
+exports.find = function(request,response) {
+  var viewOptions = {locals:{}};
+  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  
+  response.render('find.html', viewOptions);
+};
+
+exports.landing = function(request,response) {
+  var viewOptions = {locals:{}};
+  viewOptions.layout = (request.query.ajax === undefined)? true : false;
+  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  
+    response.render('landing.html', viewOptions);
+};
+
+exports.sites = function(request,response) {
+     var opts = {};
+    opts.locals = opts.locals || {};
+    if (request.user)
+      opts.locals.user = request.user;
+     //For testing purporses.. may have to make this a global array..
+     opts.locals = opts.locals || {};
+     opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
+           'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
+           'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
+     if(request.user){
+        opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
+          return !underscore.contains(request.user.following, org);
+        });
+        opts.locals.followed = underscore.uniq(request.user.following);
+     }
+     opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
+           'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
+           'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
+    response.render('sites.html', opts);
+};
+
+exports.timeline = function(request,response) {
+  var viewOptions = {locals:{}};
+  viewOptions.layout = (request.query.ajax === undefined)? true : false;
+  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  viewOptions.locals.hide = {topMargin:true, footer: true};
+  
+    response.render('timeline.html', viewOptions);
+};
+
