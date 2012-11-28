@@ -1,7 +1,13 @@
  <div class="container">	
 		<div class="row">
 			<div class="span12 activity">
-				<h4>Search Results</h4>
+				<div>
+					<span style="font-size: 18px;line-height: 20px;font-weight:bold;">Search Results</span>
+					<form method="get" action="/find" id="searchinput" class="input-append" style="float:right;">
+						 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Start New Serch (current: {{query}})"/>
+						 <input class="btn btn-primary"id="Search" style="margin-top:0;" type="submit" value="Search" />
+					</form>
+				</div>
 				<!-- ko if: getResults().length > 0 -->
 					<table class="table table-striped">
 						<tbody data-bind="foreach:getResults()">
