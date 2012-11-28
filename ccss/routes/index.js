@@ -237,8 +237,10 @@ exports.main = function(request, response){
     response.render('main.html');
 };
 exports.search = function(req, res) {
-  var terms = req.body.terms.toLowerCase().split(' ');
+  console.log(req.query);
+  var terms = req.query.terms.toLowerCase().split(' ');
   client.incr("session_id", function(err, data){
+
     var params = [data, terms.length];
     params = params.concat(terms);
     params.push(function(err, result){
