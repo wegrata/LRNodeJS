@@ -431,6 +431,11 @@ var mainViewModel = function(resources){
 
 		displayObjectData(currentObjectMetadata);
 	};
+	
+	self.getShorterStr = function(obj){
+		
+		return (obj.title.length>55)? obj.title.substr(0, 55) + '...' : obj.title;
+	};
 
     self.getShorterArr = function(str, length, url){
 
@@ -543,7 +548,7 @@ var mainViewModel = function(resources){
         }
 
 
-        return "Unable to display paradata document.";
+        return "Unable to parse paradata document.";
     };
 
     self.followOrganization = function(e){

@@ -248,6 +248,7 @@ exports.landing = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  viewOptions.locals.landing = true;
 
     response.render('landing.html', viewOptions);
 };
