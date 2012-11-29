@@ -16,7 +16,7 @@
         self.organizations needs only to contain an array of strings that can be used to search against a node
 */
 
-var currentObjectMetadata = [], lastContentFrameSource = "", saveFrameState = "", directAccess = false, totalSlice = 6, loadIndex = 1, newLoad = 10;
+var currentObjectMetadata = [], lastContentFrameSource = "", saveFrameState = "", directAccess = false, totalSlice = 6, loadIndex = 1, newLoad = 10, blackList = ["www.engineeringpathway.com"];
 
 var urlTransform = {
 
@@ -403,7 +403,17 @@ var mainViewModel = function(resources){
     self.followers = ko.observableArray(followingList);
     self.results = ko.observableArray();
     self.resultsNotFound = ko.observable(false);
-
+	
+	
+	self.notOnBlackList = function(url){
+		
+		var link = getLocation(url);
+		//console.log("blacklist? " + link.hostname + " " , $.inArray(link.hostname, blackList));
+		
+		//We don't want to show resources in the blackList
+		return $.inArray(link.hostname, blackList) == -1;
+	};
+	
 	self.getReversedTimeline = function(){
 		
 		if(self.currentObject == undefined)
