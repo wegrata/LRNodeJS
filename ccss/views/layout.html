@@ -53,7 +53,9 @@
 					<form action="/auth" method="post" style="display:none;">
 					  <input type="text" name="assertion"/>
 					</form>
-					<img src="https://browserid.org/i/sign_in_red.png" id="browserid"/>
+					{{^landing}}
+					  <img src="https://browserid.org/i/sign_in_red.png" id="browserid"/>
+					{{/landing}}
 				  {{/user}}
 				</div>
 			</div>
