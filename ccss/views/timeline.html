@@ -1,9 +1,11 @@
 <div class="timeline-container">
 	<div class="modal-timeline">
 		<table id="timeline-table" class="table table-striped">
-			<tbody data-bind="foreach: currentObject().timeline">
+			<th><a class="btn btn-info">Bookmark Resource</a></th>
 			
+			<tbody data-bind="foreach: getReversedTimeline()">
 			
+				
 				<tr><td data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF', 'border-top': $index()==0 ? 'none' : '1px #DDD solid'}">
 								   
 						<div data-bind="html: $root.generateParadataText($data, $index()), attr:{id: 'paradata' + $index() }"></div>
@@ -12,7 +14,9 @@
 			</tbody>
 		</table>
 
-		<span data-bind="if: checkTimelineLength(currentObject().timeline) == 0">&nbsp;&nbsp;Be the first to interact!</span>
+		<div style="text-align: center;">
+			<span data-bind="if: checkTimelineLength(currentObject().timeline) == 0">Be the first to interact (below)</span>
+		</div>
 	</div>
 	
 	<div class="modal-iframe">

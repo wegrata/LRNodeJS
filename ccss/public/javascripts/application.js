@@ -402,7 +402,17 @@ var mainViewModel = function(resources){
     self.bookmarks = ko.observableArray();
     self.followers = ko.observableArray(followingList);
     self.results = ko.observableArray();
+    self.resultsNotFound = ko.observable(false);
 
+	self.getReversedTimeline = function(){
+		
+		if(self.currentObject == undefined)
+			return [];
+			
+		
+		return jQuery.extend(true, [], self.currentObject().timeline()).reverse();
+	};
+	
 	self.getResults = function(){
 
 		return self.results.slice(0, totalSlice);
@@ -420,6 +430,11 @@ var mainViewModel = function(resources){
 	self.handleDataClick = function(e){
 
 		displayObjectData(currentObjectMetadata);
+	};
+	
+	self.getShorterStr = function(obj){
+		
+		return (obj.title.length>55)? obj.title.substr(0, 55) + '...' : obj.title;
 	};
 
     self.getShorterArr = function(str, length, url){
@@ -533,7 +548,7 @@ var mainViewModel = function(resources){
         }
 
 
-        return "Unable to display paradata document.";
+        return "Unable to parse paradata document.";
     };
 
     self.followOrganization = function(e){
