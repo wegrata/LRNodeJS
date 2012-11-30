@@ -42,7 +42,7 @@ Martin Conte Mac Donell <Reflejo@gmail.com>
           big: true
         },
         {
-          name: 'OpenID',
+          name: 'Persona',
           username_txt: 'url',
           finalBig: true,
           big: true
@@ -144,6 +144,7 @@ Martin Conte Mac Donell <Reflejo@gmail.com>
   
       $('#' + INPUTID).focus();
       inputarea.css("visibility", "hidden");
+      inputarea.css("display", "none");
       inputarea.css("height", "0");
     };
   

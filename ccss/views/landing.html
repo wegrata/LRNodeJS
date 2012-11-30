@@ -22,8 +22,6 @@
 						<form id="signin" action="signup" method="POST" style="margin-bottom: 0;">
 							<legend>Sign In Using</legend>
 						</form>
-						
-						<img src="https://browserid.org/i/sign_in_red.png" id="browserid"/>
 					</div>
 				</div>
 
@@ -57,6 +55,18 @@
 			
 			$('#signin').openid();
 			$('input, textarea').placeholder();
+			
+			$("#btn_3").click(function(){
+			  navigator.id.getVerifiedEmail(function(assertion) {
+				if (assertion) {
+				  console.log('got here');
+				  $("#assertation").val(assertion);
+				  $("#authForm").submit();
+				} else {
+				  location.reload();
+				}
+			  });
+			});
 			
 			var handlePerfectSize = function(){
 				var height = $(window).height() - $(".navbar-inverse").height() - $("footer").height() * 2.2;
