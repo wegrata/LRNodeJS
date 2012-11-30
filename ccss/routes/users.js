@@ -103,3 +103,12 @@ exports.signupHandler = function(req, res){
 
 };
 
+exports.bookmark = function(currentUser, resource, callback){
+    var currentUserDoc = usersDb.doc(currentUser._id);
+    currentUserDoc.get(function(err, doc){
+        doc.bookmarks.push(resource);
+        currentUserDoc.body = doc;
+        currentUserDoc.save(callback);
+    });
+};
+

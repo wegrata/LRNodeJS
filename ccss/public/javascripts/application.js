@@ -617,7 +617,7 @@ var mainViewModel = function(resources){
     self.followOrganization = function(e){
 
         //return;
-
+		
         /* Add jQuery/socket.io call here */
         $.ajax({
             type: "POST",

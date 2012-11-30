@@ -107,6 +107,40 @@
 
 			enableModal();
 			
+			$("#bookmark").click(function(){
+				
+				if("{{user}}".length < 1){
+					alert("You must be logged in to bookmark resources.");
+					return;
+				}
+				
+				//add element to observable array, send a request via socketio, and remove current textarea value
+				var paradata = genParadataDoc("{{user.jobTitle}}", "{{user._id}}", "bookmarked");
+
+				temp.currentObject().timeline.push(paradata);
+				scrollbarFix();
+				
+				
+				$.ajax({
+					type: "POST",
+					url: "/main",
+					dataType: "json",
+					jsonp: false,
+					contentType: 'application/json',
+					data: createJSON(paradata, "bookmark"),
+					success: function(data){
+
+						console.log("added");
+						console.log("Response data: ", data);
+					},
+					error: function(error){
+						console.error(error);
+					}
+				});
+				
+				
+			});
+			
 			$(".icon-flag").click(function(){
 								
 				if("{{user}}".length < 1){

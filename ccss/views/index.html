@@ -16,22 +16,10 @@
 			</div>
 		</div>
 		<div class="row" style="margin-top:50px;">
-			<div class="span8 activity">
-				<h4>Recent Activity</h4>
-				<table class="table table-striped">
-					<tbody>
-						<tr style="border-top:none;">
-							<td style="border-top:none;">Activity feed under construction</td>
-						</tr>
-						<tr>
-							<td>... </td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-
-			<div class="span3 dropbox">
-				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarks</span>
+			<div class="span12 activity">
+			
+				<h4 data-bind="visible: bookmarks().length > 0">Bookmarks</h4>
+				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarked resources will appear here</span>
 
 				<!-- ko foreach: bookmarks -->
 					<div class="draggable lr_border_trans pull-left">

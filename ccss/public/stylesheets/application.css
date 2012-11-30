@@ -57,6 +57,11 @@ ul li{
 
 	display: none;
 }
+
+.crumb span{
+
+	display: inline;
+}
   
   .title{
   
