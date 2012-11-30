@@ -47,6 +47,28 @@ var reverseTransform = {
     }
 };
 
+var genParadataDoc = function(jobTitle, id, action, detail){
+				
+				return {
+						"activity": {
+							"actor": {
+								"objectType": jobTitle,
+								"description": [
+									"You"
+								],
+								"id": id
+							},
+							"verb": {
+								"action": action,
+								"detail": detail != undefined ? detail : "",
+								"date": new Date()
+							},
+							"object": temp.currentObject().url
+						}
+					};
+	
+};
+
 //This may need to be refactored for memory efficiency. Not sure how createElement handles memory.
 var getLocation = function(href) {
     var l = document.createElement("a");
@@ -436,6 +458,25 @@ var mainViewModel = function(resources){
 		console.log(totalSlice);
 		scrollbarFix($(".resultModal"));
 	};
+	
+	self.loadNewPage = function(){
+		
+		console.log("testing");
+		$.get('/search?page='+loadIndex+'&terms=' + query, function(data){
+			$('#spinnerDiv').remove();
+			console.log(data);
+
+			if(data.length == 0)
+				$("#loadMore").hide();
+
+			handlePerfectSize();
+			for(var i = 1; i < data.length; i++)
+				self.results.push(data[i]);
+		});
+		
+		loadIndex++;
+		scrollbarFix($(".resultModal"));
+	};
 
 	self.handleDataClick = function(e){
 
@@ -542,6 +583,9 @@ var mainViewModel = function(resources){
 
             case "commented":
                 return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " commented on this resource.", i);
+                
+            case "flagged":
+                return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " flagged this resource.", i);
 
             case "downloaded":
 				return content + " " + measure.value + " times " + generateAuthorSpan(dateStr, actor, content, i);

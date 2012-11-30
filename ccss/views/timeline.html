@@ -106,35 +106,57 @@
 			$('input, textarea').placeholder();
 
 			enableModal();
-
+			
+			$(".icon-flag").click(function(){
+								
+				if("{{user}}".length < 1){
+					alert("You must be logged in to flag resources.");
+					return;
+				}
+				
+				//add element to observable array, send a request via socketio, and remove current textarea value
+				var paradata = genParadataDoc("{{user.jobTitle}}", "{{user._id}}","flagged");
+				temp.currentObject().timeline.push(paradata);
+				scrollbarFix();
+				
+			});
+			
 			$(".chatBox textarea").keyup(function(e){
-
+				
 				//Enter was pressed
 				if(e.which == 13){
+					
+					if("{{user}}".length < 1){
+						alert("You must be logged in to comment.");
+						return;
+					}
 
 					//add element to observable array, send a request via socketio, and remove current textarea value
-					var mockParadata = {
-						"activity": {
-							"actor": {
-								"objectType": "teacher",
-								"description": [
-								"You",
-								"high school",
-								"math"
-								]
-							},
-							"verb": {
-								"action": "commented",
-								"detail": $(this).val().trim(),
-								"date": new Date()
-							},
-							"object": temp.currentObject().url
-						}
-					};
+					var paradata = genParadataDoc("{{user.jobTitle}}", "{{user._id}}","commented", $(this).val().trim());
 
-					temp.currentObject().timeline.push(mockParadata);
+					temp.currentObject().timeline.push(paradata);
 					scrollbarFix();
+					
+					
+					$.ajax({
+						type: "POST",
+						url: "/main",
+						dataType: "json",
+						jsonp: false,
+						contentType: 'application/json',
+						data: createJSON({action:"comment", data: paradata, internalActor:"{{user.email}}}"}),
+						success: function(data){
 
+							console.log("added");
+							self.allOrganizations.remove(e);
+							self.followers.push({name:data.subject, content:[]});
+							console.log("Response data: ", data);
+						},
+						error: function(error){
+							console.error(error);
+						}
+					});
+					
 					$(this).val("");
 				}
 			});
