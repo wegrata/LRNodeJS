@@ -156,11 +156,11 @@ exports.index = function(request,response) {
 
 	 if (request.user)
        opts.locals.user = request.user;
-      
+
      else
 		response.redirect('/landing');
-		
-     
+
+
      //For testing purporses.. may have to make this a global array..
      opts.locals = opts.locals || {};
      opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
@@ -305,15 +305,25 @@ exports.screenshot = function(req, res){
   var doc_id = req.params.docid;
   var doc = db.doc(doc_id);
   doc.attachment('screenshot.jpeg').get(true, function(err, s){
-    s.pipe(res, {end: true});
+    if(s){
+      s.pipe(res, {end: true});
+    }else{
+      res.writeHead(404, {});
+      res.end("<html><body><h1>Not Found</h1></body></html>");
+    }
   });
 };
 exports.data = function(req, res){
   var doc_id = req.params.docid;
   var doc = db.doc(doc_id);
   doc.get(function(err, s){
-    res.writeHead(200, {"Content-Type":"application/json"});
-    delete s._attachments;
-    res.end(JSON.stringify(s));
+    if (s){
+      res.writeHead(200, {"Content-Type":"application/json"});
+      delete s._attachments;
+      res.end(JSON.stringify(s));
+    }else{
+      res.writeHead(404, {});
+      res.end("<html><body><h1>Not Found</h1></body></html>");
+    }
   });
-}
+};
