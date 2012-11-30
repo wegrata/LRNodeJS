@@ -205,6 +205,7 @@ exports.main = function(request, response){
 exports.search = function(req, res) {
   var terms = "";
   var page = 0;
+  var pageSize = 20;
   if (req.body.terms)
     terms = req.body.terms.toLowerCase().split(' ');
   else if(req.query.terms)
@@ -213,13 +214,13 @@ exports.search = function(req, res) {
     page = req.body.page;
   else if(req.query.page)
     page = req.query.page;
-  page = parseInt(page, 10) * 100;
+  page = parseInt(page, 10) * pageSize;
   client.incr("session_id", function(err, data){
     var params = [data, terms.length];
     params = params.concat(terms);
     params.push(function(err, result){
       client.expire(data, 360, redis.print);
-      client.zrevrange(data, page, page + 100, function(err, items){
+      client.zrevrange(data, page, page + pageSize, function(err, items){
         var getDisplayData = function(e, d){
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify(underscore.map(d.rows, function(item){
