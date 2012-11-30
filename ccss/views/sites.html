@@ -2,17 +2,16 @@
       <!-- Example row of columns -->
       <div class="row">
 
-		<div class="span8 offset1">
-		  	<div class="row">
-				<table class="table table-striped resultsTable">
+		<div class="span12">
+		
+		  	<div class="row activity">
+		  	<span style="font-size: 24px;line-height: 24px;font-weight:bold;">Browse resources by contributing organizations</span>
+				<table style="margin-top:20px;" class="table table-striped resultsTable">
 					<tbody id="organizations" data-bind="foreach:allOrganizations">
-						<tr>
-							<td> 
-								<span data-bind="text:$data"></span>
-								<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-star"></i> Follow Organization</a>
-								<a data-bind="attr:{name:$index(), href:'/visual?query='+allTerms[$index()]}" class="btn btn-small followOrg"><i class="icon-th-large"></i> View All Resources</a>
-
-							
+						<tr style="border-top: none;">
+							<td style="border-top: none; padding:10px;"> 
+								<a style="font-size:16px;" data-bind="attr:{href:'/visual?query='+allTerms[$index()], name:$index()}, html:$data"></a>
+								<!--<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-star"></i> Follow Organization</a>		-->				
 							</td>
 						</tr>
 					</tbody>
