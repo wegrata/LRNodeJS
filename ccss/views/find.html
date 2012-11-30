@@ -14,8 +14,12 @@
 							<tr style="border-top:none;">
 								<td style="border-top:none;padding-top:15px;padding-bottom:15px;" class="imageCell">
 									<a data-bind="attr:{href:'/timeline?query='+url}">
-										<img height="180" width="180" data-bind="if: hasScreenshot, attr:{src:'/screenshot/'+_id}" class="img-polaroid" />
-										<img height="180" width="180" data-bind="if: !hasScreenshot" src="/images/qmark.png" class="img-polaroid" />
+										<!-- ko if: hasScreenshot -->
+										<img height="180" width="180" data-bind="attr:{src:'/screenshot/' + _id}" class="img-polaroid" />
+										<!-- /ko -->
+										<!-- ko if: !hasScreenshot -->
+										<img height="180" width="180" src="/images/qmark.png" class="img-polaroid" />
+										<!-- /ko -->
 									</a>
 								</td>
 								<td style="border-top:none;padding-top:15px;padding-bottom:15px;">
