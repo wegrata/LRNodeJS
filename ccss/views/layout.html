@@ -42,7 +42,7 @@
 				  <li><a href="#">About</a></li>
 				  <li><a href="#">Developers</a></li>
 				</ul>
-				
+
 				<div style="float:right;">
 				  {{#user}}
 					<form action="/logout" method="post">
@@ -50,10 +50,12 @@
 					</form>
 				  {{/user}}
 				  {{^user}}
-					<form action="/auth" method="post" style="display:none;">
-					  <input type="text" name="assertion"/>
+					<form action="/auth" method="post" style="display:none;" id="authForm">
+					  <input type="text" name="assertion" id="assertation"/>
 					</form>
-					<img src="https://browserid.org/i/sign_in_red.png" id="browserid"/>
+					{{^landing}}
+					  <img src="https://browserid.org/i/sign_in_red.png" id="browserid"/>
+					{{/landing}}
 				  {{/user}}
 				</div>
 			</div>
@@ -86,8 +88,9 @@
     $("#browserid").click(function(){
       navigator.id.getVerifiedEmail(function(assertion) {
         if (assertion) {
-          $("input").val(assertion);
-          $("form").submit();
+          console.log('got here');
+          $("#assertation").val(assertion);
+          $("#authForm").submit();
         } else {
           location.reload();
         }

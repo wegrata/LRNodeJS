@@ -219,7 +219,7 @@ exports.search = function(req, res) {
         var getDisplayData = function(e, d){
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify(underscore.map(d.rows, function(item){
-            delete item.doc._attachments;
+            item.doc.hasScreenshot = item.doc._attachments !== undefined;
             return item.doc;
           })));
         };
@@ -248,6 +248,7 @@ exports.landing = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  viewOptions.locals.landing = true;
 
     response.render('landing.html', viewOptions);
 };
@@ -283,3 +284,10 @@ exports.timeline = function(request,response) {
     response.render('timeline.html', viewOptions);
 };
 
+exports.screenshot = function(req, res){
+  var doc_id = req.params.docid;
+  var doc = db.doc(doc_id);
+  doc.attachment('screenshot.jpeg').get(true, function(err, s){
+    s.pipe(res, {end: true});
+  });
+};
