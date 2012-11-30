@@ -86,6 +86,7 @@ app.get('/landing', routes.landing);
 app.get('/sites', routes.sites);
 app.get('/timeline', routes.timeline);
 app.get('/find', routes.find);
+app.get('/screenshot/:docid', routes.screenshot);
 app.post('/main', function(req, res){
     switch (req.body.action.toLowerCase()){
         case "follow":

@@ -284,3 +284,10 @@ exports.timeline = function(request,response) {
     response.render('timeline.html', viewOptions);
 };
 
+exports.screenshot = function(req, res){
+  var doc_id = req.params.docid;
+  var doc = db.doc(doc_id);
+  doc.attachment('screenshot.jpeg').get(true, function(err, s){
+    s.pipe(res, {end: true});
+  });
+};

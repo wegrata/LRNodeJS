@@ -89,7 +89,7 @@
       navigator.id.getVerifiedEmail(function(assertion) {
         if (assertion) {
           console.log('got here');
-          $("input").val(assertion);
+          $("#assertation").val(assertion);
           $("#authForm").submit();
         } else {
           location.reload();
