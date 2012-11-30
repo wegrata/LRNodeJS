@@ -150,6 +150,10 @@ exports.resources = function (request, response, next) {
 exports.index = function(request,response) {
     var opts = {};
     opts.locals = opts.locals || {};
+    
+    console.log(request.user);
+    
+    
     if (request.user)
       opts.locals.user = request.user;
      //For testing purporses.. may have to make this a global array..
