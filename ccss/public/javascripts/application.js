@@ -233,6 +233,15 @@ var enableModal = function(name){
     });
 };
 
+var notOnBlackList = function(url){
+		
+		var link = getLocation(url);
+		//console.log("blacklist? " + link.hostname + " " , $.inArray(link.hostname, blackList));
+		
+		//We don't want to show resources in the blackList
+		return $.inArray(link.hostname, blackList) == -1;
+};
+
 var previewObject = function(name, content){
     this.name = name;
     this.content = ko.observableArray(content);
