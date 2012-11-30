@@ -4,10 +4,22 @@
 
 		<div class="span8 offset1">
 		  	<div class="row">
+				<table class="table table-striped resultsTable">
+					<tbody id="organizations" data-bind="foreach:allOrganizations">
+						<tr>
+							<td> 
+								<span data-bind="text:$data"></span>
+								<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-star"></i> Follow Organization</a>
+								<a data-bind="attr:{name:$index(), href:'/visual?query='+allTerms[$index()]}" class="btn btn-small followOrg"><i class="icon-th-large"></i> View All Resources</a>
 
-				<div class="tab-pane accordion friends" id="organizations"  data-bind="foreach:allOrganizations">
+							
+							</td>
+						</tr>
+					</tbody>
+				</table>
 
-							<div data-bind="attr:{id:$root.getOrganizationAccordionId($index, '')}" class="accordion-body collapse">
+
+						<!--	<div data-bind="attr:{id:$root.getOrganizationAccordionId($index, '')}" class="accordion-body collapse">
 
 								<div class="customH4">
 
@@ -16,8 +28,7 @@
 
 								</div>
 							</div>
-					   </div>
-				  </div>
+					   </div>-->
 			</div>
 		</div>
       </div>
