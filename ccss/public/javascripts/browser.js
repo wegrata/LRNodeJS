@@ -223,14 +223,14 @@ var BROWSER = (function () {
 				event.preventDefault();
 				$(this).parents(".resources").append(div);
 				
-				var thisObj;
+				var thisObj = {}, md5 = "";
 				$(".getTitle").each( function(i, doc) {
 				
 					console.log(i);
 					thisObj = $(this);
+					md5 = hex_md5(thisObj.attr('name'));
 					console.log(thisObj.attr('name'));
 					//http://12.109.40.31/screenshot/'+md5+'
-					return;
 					
 					$.getJSON('/data/' + md5,function(data){
 						console.log("resource number: ", i);

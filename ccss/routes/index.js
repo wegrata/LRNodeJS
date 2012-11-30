@@ -311,12 +311,10 @@ exports.screenshot = function(req, res){
 exports.data = function(req, res){
   var doc_id = req.params.docid;
   var doc = db.doc(doc_id);
-  
-  console.log(doc);
-  res.end();
-  return;
-  
+
   doc.get(function(err, s){
+    
+	s = (! s) ? {error:true} : s;
     res.writeHead(200, {"Content-Type":"application/json"});
     delete s._attachments;
     res.end(JSON.stringify(s));
