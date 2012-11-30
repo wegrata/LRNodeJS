@@ -113,6 +113,7 @@ app.post('/main', function(req, res){
                     console.error(err);
                     res.end();
                 }else{
+					req.user.bookmarks = (req.user.bookmarks === undefined) ? [] : req.user.bookmarks;
                     req.user.bookmarks.push(req.body.subject);
                     res.end(JSON.stringify({user: response, subject: req.body.subject}));
                 }

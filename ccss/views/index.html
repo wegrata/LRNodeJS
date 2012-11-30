@@ -22,9 +22,9 @@
 				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarked resources will appear here</span>
 
 				<!-- ko foreach: bookmarks -->
-					<div class="draggable lr_border_trans pull-left">
-						<span style="white-space: nowrap;" data-bind="text: $data, attr:{name:$data}"></span><br/>
-
+					<div class="lr_border_trans span3">
+						<span style="white-space: nowrap;" data-bind="text:'hi', attr:{name:url}"></span><br/>
+						<img height="180" width="180" data-bind="{attr:{src: '/screenshot/' + hash}}" />
 					</div>
 				<!-- /ko -->
 			</div>
@@ -45,6 +45,7 @@
 	<script src="/javascripts/Placeholders.js"></script>
 	<script src="/javascripts/spin.min.js"></script>
 	<script src="/javascripts/jquery.nicescroll.js"></script>
+	<script type="text/javascript" src="/javascripts/hexmd5.js"></script>
 
 	<script type="text/javascript">
 
@@ -64,7 +65,7 @@
 		var allOrganizations = "{{orgs}}".split(",");
 		var followed = "{{followed}}".split(",");
 		var allTerms = "{{terms}}".split(",");
-
+		
 		//console.log({{orgs}});
 	</script>
 	<script src="/javascripts/application.js"></script>
@@ -77,6 +78,25 @@
 			temp.followers.push({name:followed[f], content:[]});
 		}
 		
+		var tempArray = [];
+		
+		//Get bookmarks from Couch
+		{{#user.bookmarks}}
+		tempArray.push({url:"{{activity.object}}", hash:hex_md5("{{activity.object}}")});
+		{{/user.bookmarks}}
+		console.log(tempArray);
+		$.each(tempArray, function(i, value) {
+			$.getJSON('/data/' + tempArray[i].hash,function(data){
+				
+				console.log("bookmark: ", tempArray[i]," data: ", data);
+				tempArray[i].title = data.title;
+				tempArray[i].description = data.description;
+			});
+		});
+		
+		temp.bookmarks(tempArray);
+		console.log(temp.bookmarks());
+		//temp.bookmarks({{}});
 		ko.applyBindings(temp);
 		/*$.getJSON('/resources',function(data){
 
