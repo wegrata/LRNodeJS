@@ -1,17 +1,21 @@
  <div class="container">	
 		<div class="row">
-			<div class="span8 activity">
+			<div class="span12 activity">
 				<h4>Search Results</h4>
-				<table class="table table-striped">
-					<tbody data-bind="foreach:searchResults">
-						<tr style="border-top:none;">
-							<td style="border-top:none;">
-								<a data-bind="text:title, attr:{href:'/timeline?query='+url}"></a><br/>
-								<span data-bind="text:description.substr(0, 180)+'...'"></span>
-							</td>
-						</tr>
-					</tbody>
-				</table>
+				<!-- ko if: getResults().length > 0 -->
+					<table class="table table-striped">
+						<tbody data-bind="foreach:getResults()">
+							<tr style="border-top:none;">
+								<td style="border-top:none;">
+									<a data-bind="text:title, attr:{href:'/timeline?query='+url}"></a><br/>
+									<span data-bind="text:description.substr(0, 180)+'...'"></span>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<a data-bind="click:updateSlice" class="btn">Load More</a>
+				<!-- /ko -->
+				<div id="spinnerDiv" style="margin-top:100px;"></div>
 			</div>
 		</div>
 
@@ -52,12 +56,12 @@
 		ko.applyBindings(temp);
 
 		$(document).ready(function(){
-			
+			spinner = new Spinner(opts).spin($('#spinnerDiv')[0]);
 			$('input, textarea').placeholder();
 			
 			$.get('/search?terms=' + '{{query}}', function(data){
-				
-				temp.searchResults(data);
+				$('#spinnerDiv').remove();
+				temp.results(data);
 				console.log(data);
 			});
 		});
