@@ -16,7 +16,7 @@
         self.organizations needs only to contain an array of strings that can be used to search against a node
 */
 
-var currentObjectMetadata = [], lastContentFrameSource = "", saveFrameState = "", directAccess = false, totalSlice = 6, loadIndex = 1, newLoad = 10;
+var currentObjectMetadata = [], lastContentFrameSource = "", saveFrameState = "", directAccess = false, totalSlice = 6, loadIndex = 1, newLoad = 10, blackList = ["www.engineeringpathway.com"];
 
 var urlTransform = {
 
@@ -45,6 +45,28 @@ var reverseTransform = {
 
         return "http://3dr.adlnet.gov/api/rest/"+id+"/Format/dae?ID=00-00-00";
     }
+};
+
+var genParadataDoc = function(jobTitle, id, action, detail){
+				
+				return {
+						"activity": {
+							"actor": {
+								"objectType": jobTitle,
+								"description": [
+									"You"
+								],
+								"id": id
+							},
+							"verb": {
+								"action": action,
+								"detail": detail != undefined ? detail : "",
+								"date": new Date()
+							},
+							"object": temp.currentObject().url
+						}
+					};
+	
 };
 
 //This may need to be refactored for memory efficiency. Not sure how createElement handles memory.
@@ -403,7 +425,17 @@ var mainViewModel = function(resources){
     self.followers = ko.observableArray(followingList);
     self.results = ko.observableArray();
     self.resultsNotFound = ko.observable(false);
-
+	
+	
+	self.notOnBlackList = function(url){
+		
+		var link = getLocation(url);
+		//console.log("blacklist? " + link.hostname + " " , $.inArray(link.hostname, blackList));
+		
+		//We don't want to show resources in the blackList
+		return $.inArray(link.hostname, blackList) == -1;
+	};
+	
 	self.getReversedTimeline = function(){
 		
 		if(self.currentObject == undefined)
@@ -424,6 +456,25 @@ var mainViewModel = function(resources){
 		loadIndex++;
 		self.results.valueHasMutated();
 		console.log(totalSlice);
+		scrollbarFix($(".resultModal"));
+	};
+	
+	self.loadNewPage = function(){
+		
+		console.log("testing");
+		$.get('/search?page='+loadIndex+'&terms=' + query, function(data){
+			$('#spinnerDiv').remove();
+			console.log(data);
+
+			if(data.length == 0)
+				$("#loadMore").hide();
+
+			handlePerfectSize();
+			for(var i = 1; i < data.length; i++)
+				self.results.push(data[i]);
+		});
+		
+		loadIndex++;
 		scrollbarFix($(".resultModal"));
 	};
 
@@ -532,6 +583,9 @@ var mainViewModel = function(resources){
 
             case "commented":
                 return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " commented on this resource.", i);
+                
+            case "flagged":
+                return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " flagged this resource.", i);
 
             case "downloaded":
 				return content + " " + measure.value + " times " + generateAuthorSpan(dateStr, actor, content, i);

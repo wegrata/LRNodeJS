@@ -150,6 +150,10 @@ exports.resources = function (request, response, next) {
 exports.index = function(request,response) {
     var opts = {};
     opts.locals = opts.locals || {};
+
+    console.log(request.user);
+
+
     if (request.user)
       opts.locals.user = request.user;
      //For testing purporses.. may have to make this a global array..
@@ -201,7 +205,6 @@ exports.main = function(request, response){
 exports.search = function(req, res) {
   var terms = "";
   var page = 0;
-  var pageSize = 20;
   if (req.body.terms)
     terms = req.body.terms.toLowerCase().split(' ');
   else if(req.query.terms)
@@ -210,17 +213,16 @@ exports.search = function(req, res) {
     page = req.body.page;
   else if(req.query.page)
     page = req.query.page;
-  page = parseInt(page, 10) * pageSize;
+  page = parseInt(page, 10) * 100;
   client.incr("session_id", function(err, data){
     var params = [data, terms.length];
     params = params.concat(terms);
     params.push(function(err, result){
       client.expire(data, 360, redis.print);
-      client.zrevrange(data, page, page + pageSize, function(err, items){
+      client.zrevrange(data, page, page + 100, function(err, items){
         var getDisplayData = function(e, d){
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify(underscore.map(d.rows, function(item){
-            item.doc.hasScreenshot = item.doc._attachments !== undefined;
             delete item.doc._attachments;
             return item.doc;
           })));
@@ -296,9 +298,9 @@ exports.screenshot = function(req, res){
 exports.data = function(req, res){
   var doc_id = req.params.docid;
   var doc = db.doc(doc_id);
-  doc.get(function(err, doc){
-    delete doc._attachments;
-    res.writeHead(200, {"Content-Type": "application/json"});
-    res.end(JSON.stringify(doc));
+  doc.get(function(err, s){
+    res.writeHead(200, {"Content-Type":"application/json"});
+    delete s._attachments;
+    res.end(JSON.stringify(s));
   });
-};
+}

@@ -4,7 +4,7 @@
 				<div class="span9 learningRegistryImage">
 				
 					<img src="/images/customLogo.png" />
-					<form method="get" action="/find" id="searchinput" class="input-append" style="margin-top: 50px;">
+					<form method="get" action="/find" id="searchinput" class="input-append" style="margin-top: 60px;">
 						 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Search the Learning Registry for resources"/>
 						 <input class="btn btn-primary"id="Search" style="margin-top:0;" type="submit" value="Search" />
 					</form>
@@ -17,12 +17,12 @@
 					</div>
 				</div>
 
-				<div class="span3">
-					<form id="signin" action="signup" method="POST" style="margin-bottom: 0;">
-						<legend>Sign In Using</legend>
-					</form>
-					
-					<img src="https://browserid.org/i/sign_in_red.png" id="browserid"/>
+				<div class="span3 ">
+					<div class="">
+						<form id="signin" action="signup" method="POST" style="margin-bottom: 0;">
+							<legend>Sign In Using</legend>
+						</form>
+					</div>
 				</div>
 
 			</div>  
@@ -55,6 +55,18 @@
 			
 			$('#signin').openid();
 			$('input, textarea').placeholder();
+			
+			$("#btn_3").click(function(){
+			  navigator.id.getVerifiedEmail(function(assertion) {
+				if (assertion) {
+				  console.log('got here');
+				  $("#assertation").val(assertion);
+				  $("#authForm").submit();
+				} else {
+				  location.reload();
+				}
+			  });
+			});
 			
 			var handlePerfectSize = function(){
 				var height = $(window).height() - $(".navbar-inverse").height() - $("footer").height() * 2.2;
