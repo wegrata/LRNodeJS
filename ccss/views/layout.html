@@ -38,7 +38,12 @@
           <div class="nav-collapse collapse ">
 			<div class="span12 center">
 				<ul class="nav">
-				  <li class="active"><a href="#">Home</a></li>
+					{{#user}}
+					<li class="active"><a href="/">Home</a></li>
+					{{/user}}
+					{{^user}}
+					<li class="active"><a href="/landing">Home</a></li>
+					{{/user}}
 				  <li><a href="#">About</a></li>
 				  <li><a href="#">Developers</a></li>
 				</ul>
