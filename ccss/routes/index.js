@@ -221,6 +221,7 @@ exports.search = function(req, res) {
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify(underscore.map(d.rows, function(item){
             item.doc.hasScreenshot = item.doc._attachments !== undefined;
+            delete item.doc._attachments;
             return item.doc;
           })));
         };
@@ -290,5 +291,14 @@ exports.screenshot = function(req, res){
   var doc = db.doc(doc_id);
   doc.attachment('screenshot.jpeg').get(true, function(err, s){
     s.pipe(res, {end: true});
+  });
+};
+exports.data = function(req, res){
+  var doc_id = req.params.docid;
+  var doc = db.doc(doc_id);
+  doc.get(function(err, doc){
+    delete doc._attachments;
+    res.writeHead(200, {"Content-Type": "application/json"});
+    res.end(JSON.stringify(doc));
   });
 };
