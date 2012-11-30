@@ -219,7 +219,7 @@ exports.search = function(req, res) {
         var getDisplayData = function(e, d){
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify(underscore.map(d.rows, function(item){
-            delete item.doc._attachments;
+            item.doc.hasScreenshot = item.doc._attachments !== undefined;
             return item.doc;
           })));
         };
