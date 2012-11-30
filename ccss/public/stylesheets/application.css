@@ -53,12 +53,7 @@ ul li{
 	list-style-type: none;
 }
 
-.crumb{
-
-	display: none;
-}
-
-.crumb span{
+.crumb *{
 
 	display: inline;
 }

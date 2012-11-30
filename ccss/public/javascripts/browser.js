@@ -203,15 +203,20 @@ var BROWSER = (function () {
 				url = doc.result_data.resource;
 				
 				if(notOnBlackList(url)){
-					  
 					md5 = hex_md5(url);
-					line1 = '<tr style="border-top:none;"><td style="border-top:none;padding-top:15px;padding-bottom:15px;" class="imageCell">';
-					line2 = '<a href="/timeline?query='+url+'"><img height="180" width="180" src="http://12.109.40.31/screenshot/'+md5+'" class="img-polaroid" />';
-					line3 = '</a></td><td style="border-top:none;padding-top:15px;padding-bottom:15px;"><a href="/timeline?query='+url+'" class="title">'+url+'</a><br/>';
-					line4 = '<a href="/timeline?query='+url+'" class="fine">'+url+'</a><br/><span class="fine">Short description</span></td></tr>';
-					appendUsing += line1 + line2 +line3 +line4;
-				}
-				
+					
+					$.getJSON('/data/' + md5,function(data){
+						
+						data.description = (data.description == undefined) ? "" : data.description;
+						data.title = (data.title == undefined) ? url : data.title;
+						
+						line1 = '<tr style="border-top:none;"><td style="border-top:none;padding-top:15px;padding-bottom:15px;" class="imageCell">';
+						line2 = '<a href="/timeline?query='+url+'"><img height="180" width="180" src="http://12.109.40.31/screenshot/'+md5+'" class="img-polaroid" />';
+						line3 = '</a></td><td style="border-top:none;padding-top:15px;padding-bottom:15px;"><a href="/timeline?query='+url+'" class="title">'+data.title+'</a><br/>';
+						line4 = '<a href="/timeline?query='+url+'" class="fine">'+url+'</a><br/><span class="fine">'+data.description+'</span></td></tr>';
+						appendUsing += line1 + line2 +line3 +line4;
+					});
+				}	
             });
             
             appendUsing += '</tbody></table>';
@@ -294,7 +299,7 @@ var BROWSER = (function () {
             if (!state.standard) {
             $screen.load(categoryUrl, function () {
                 CRUMBS.clear($('#crumbs'));
-                CRUMBS.push($('#crumbs'), createCategoryLink(state.category));
+               // CRUMBS.push($('#crumbs'), createCategoryLink(state.category));
             });
             return;
             }
@@ -306,8 +311,8 @@ var BROWSER = (function () {
             
             // clear, then add the crumbs to the trail
             CRUMBS.clear($('#crumbs'));
-            CRUMBS.push($('#crumbs'), createCategoryLink(state.category));
-            CRUMBS.push($('#crumbs'), createStandardLink(state.category, state.standard));
+            //CRUMBS.push($('#crumbs'), createCategoryLink(state.category));
+           // CRUMBS.push($('#crumbs'), createStandardLink(state.category, state.standard));
             CRUMBS.push($('#crumbs'), createGradeLink(state.category, state.standard, state.grade));
             
             // either load screen, no nodes open
