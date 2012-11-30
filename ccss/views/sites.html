@@ -6,23 +6,15 @@
 		  	<div class="row">
 
 				<div class="tab-pane accordion friends" id="organizations"  data-bind="foreach:allOrganizations">
-						<div class="accordion-group organizationAcc">
-
-							<div class="accordion-heading">
-							  <a class="accordion-toggle" data-parent="#organizations" data-toggle="collapse"  data-bind="html: $data, attr:{href:$root.getOrganizationAccordionId($index, '#')}" ></a>
-							</div>
 
 							<div data-bind="attr:{id:$root.getOrganizationAccordionId($index, '')}" class="accordion-body collapse">
-							  <div class="accordion-inner" style="height:100px;">
 
 								<div class="customH4">
 
-									<p>Possibly a preview of a few resources...</p><br/>
 									<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-star"></i> Follow Organization</a>
 									<a data-bind="attr:{name:$index(), href:'/visual?query='+allTerms[$index()]}" class="btn btn-small followOrg"><i class="icon-th-large"></i> View All Resources</a>
 
 								</div>
-							  </div>
 							</div>
 					   </div>
 				  </div>
