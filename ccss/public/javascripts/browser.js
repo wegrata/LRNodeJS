@@ -223,7 +223,7 @@ var BROWSER = (function () {
 				event.preventDefault();
 				$(this).parents(".resources").append(div);
 				
-				var thisObj = [{}],  md5 = [];
+				var thisObj = [{}],  md5 = [], image = [];
 				$(".getTitle").each( function(i, doc) {
 				
 					console.log(i);
@@ -232,7 +232,7 @@ var BROWSER = (function () {
 					md5[i] = hex_md5($(this).attr('name'));
 
 					//http://12.109.40.31/screenshot/'+md5+'
-					var image = "";
+					
 					$.getJSON('/data/' + md5[i],function(data){
 											
 						
@@ -244,10 +244,10 @@ var BROWSER = (function () {
 						data.title = (data.title == undefined) ? thisObj[i].attr("name") : data.title;
 						data.title = (data.title.length > 80) ? data.title.substr(0, 80) + "..." : data.title;
 						
-						image = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + md5;
+						image[i] = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + md5[i];
 						
 						thisObj[i].html(data.title);
-						$('.'+md5[i]).attr("src", image);
+						$('.'+md5[i]).attr("src", image[i]);
 						$('#'+md5[i]).html(data.description);
 					});
 				});
