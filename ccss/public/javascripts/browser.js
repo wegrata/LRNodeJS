@@ -206,9 +206,9 @@ var BROWSER = (function () {
 					md5 = hex_md5(url);
 					
 					line1 = '<tr style="border-top:none;"><td style="border-top:none;padding-top:15px;padding-bottom:15px;" class="imageCell">';
-					line2 = '<a href="/timeline?query='+url+'"><img height="180" width="180" class="img-polaroid" />';
+					line2 = '<a href="/timeline?query='+url+'"><img height="180" width="180" src="/images/qmark.png" name="'+url+'" class="img-polaroid '+md5+'" />';
 					line3 = '</a></td><td style="border-top:none;padding-top:15px;padding-bottom:15px;"><a name="'+url+'" href="/timeline?query='+url+'" class="title getTitle">'+url+'</a><br/>';
-					line4 = '<a href="/timeline?query='+url+'" class="fine">'+url+'</a><br/><span class="fine getDescription"></span></td></tr>';
+					line4 = '<a href="/timeline?query='+url+'" class="fine">'+url+'</a><br/><span id="'+md5+'" class="fine getDescription"></span></td></tr>';
 					appendUsing += line1 + line2 +line3 +line4;
 				}	
             });
@@ -223,21 +223,32 @@ var BROWSER = (function () {
 				event.preventDefault();
 				$(this).parents(".resources").append(div);
 				
-				var thisObj = {}, md5 = "";
+				var thisObj = [{}],  md5 = [];
 				$(".getTitle").each( function(i, doc) {
 				
 					console.log(i);
-					thisObj = $(this);
-					md5 = hex_md5(thisObj.attr('name'));
-					console.log(thisObj.attr('name'));
-					//http://12.109.40.31/screenshot/'+md5+'
 					
-					$.getJSON('/data/' + md5,function(data){
-						console.log("resource number: ", i);
-						data.description = (data.description == undefined) ? "" : data.description;
-						data.title = (data.title == undefined) ? url : data.title;
-						
+					thisObj[i] = $(this);
+					md5[i] = hex_md5($(this).attr('name'));
 
+					//http://12.109.40.31/screenshot/'+md5+'
+					var image = "";
+					$.getJSON('/data/' + md5[i],function(data){
+											
+						
+						console.log("resource number: ", i);
+						
+						data.description = (data.description == undefined) ? "" : data.description;
+						data.description = (data.description.length > 280) ? data.description.substr(0, 280) + "..." : data.description;
+						
+						data.title = (data.title == undefined) ? thisObj[i].attr("name") : data.title;
+						data.title = (data.title.length > 80) ? data.title.substr(0, 80) + "..." : data.title;
+						
+						image = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + md5;
+						
+						thisObj[i].html(data.title);
+						$('.'+md5[i]).attr("src", image);
+						$('#'+md5[i]).html(data.description);
 					});
 				});
 				
