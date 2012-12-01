@@ -10,7 +10,7 @@
 				</div>
 				<!-- ko if: getResults().length > 0 -->
 					<table class="table table-striped resultsTable">
-						<tbody data-bind="foreach:getResults()">
+						<tbody data-bind="foreach:results">
 							<tr style="border-top:none;">
 								<td style="border-top:none;padding-top:15px;padding-bottom:15px;" class="imageCell">
 									<a data-bind="attr:{href:'/timeline?query='+url}">
@@ -30,7 +30,7 @@
 							</tr>
 						</tbody>
 					</table>
-					<a data-bind="click:updateSlice" class="btn">Load More</a>
+					<a data-bind="click:loadNewPage" id="loadMore" class="btn">Load More</a>
 				<!-- /ko -->
 
 				<div id="spinnerDiv"></div>
@@ -62,7 +62,23 @@
 		var allOrganizations = "{{orgs}}".split(",");
 		var followed = "{{followed}}".split(",");
 		var allTerms = "{{terms}}".split(",");
+		var query = "{{query}}";
 		//console.log({{orgs}});
+
+		var handlePerfectSize = function(){
+
+			if($(document).height() > $(window).height()){
+				$("#mainSection").css("height", "auto");
+				return;
+			}
+
+			var height = $(window).height() - $(".navbar-inverse").height() - $("footer").height() * 2.2;
+
+			console.log(height);
+			$("#mainSection").css("height", height + "px");
+			$("#resultsNotFound").add("#spinnerDiv").css("margin-top", $(window).height()*.3 + "px");
+
+		};
 	</script>
 	<script src="/javascripts/application.js"></script>
 	<script>
@@ -82,7 +98,7 @@
 			spinner = new Spinner(opts).spin($('#spinnerDiv')[0]);
 			$('input, textarea').placeholder();
 
-			$.get('/search?terms=' + '{{query}}', function(data){
+			$.get('/search?page=0&terms=' + '{{query}}', function(data){
 				$('#spinnerDiv').remove();
 				temp.results(data);
 				console.log(data);

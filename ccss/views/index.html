@@ -1,21 +1,30 @@
  <div class="container">	
 		<div class="row learningRegistryImage">
-			<form method="get" action="/visual" id="searchinput" class="input-append" style="margin-left:auto; margin-right:auto;">>
-				 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Search the Learning Registry for resources"/>
-				 <input class="btn btn-primary"id="Search" style="margin-top:0;" type="submit" value="Search" />
-
-			</form>
+			<div class="span9 learningRegistryImage">
+	
+				<form method="get" action="/find" id="searchinput" class="input-append" style="margin-top: 10px;">
+					 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Search the Learning Registry for resources"/>
+					 <input class="btn btn-primary"id="Search" style="margin-top:0;" type="submit" value="Search" />
+				</form>
+				
+				<div style="margin-top:20px;">
+					<span>Browse By</span>
+					<a class="btn" id="defaultTab" href="/browser">Standards</a>
+					<span>or</span>
+					<a class="btn" href="/sites">Sites</a>
+				</div>
+			</div>
 		</div>
-		<div class="row">
+		<div class="row" style="margin-top:50px;">
 			<div class="span8 activity">
 				<h4>Recent Activity</h4>
 				<table class="table table-striped">
 					<tbody>
 						<tr style="border-top:none;">
-							<td style="border-top:none;"> Hi</td>
+							<td style="border-top:none;">Activity feed under construction</td>
 						</tr>
 						<tr>
-							<td> Hey</td>
+							<td>... </td>
 						</tr>
 					</tbody>
 				</table>

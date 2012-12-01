@@ -150,6 +150,10 @@ exports.resources = function (request, response, next) {
 exports.index = function(request,response) {
     var opts = {};
     opts.locals = opts.locals || {};
+
+    console.log(request.user);
+
+
     if (request.user)
       opts.locals.user = request.user;
      //For testing purporses.. may have to make this a global array..
@@ -221,6 +225,7 @@ exports.search = function(req, res) {
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify(underscore.map(d.rows, function(item){
             item.doc.hasScreenshot = item.doc._attachments !== undefined;
+            delete item.doc._attachments;
             return item.doc;
           })));
         };
@@ -292,3 +297,12 @@ exports.screenshot = function(req, res){
     s.pipe(res, {end: true});
   });
 };
+exports.data = function(req, res){
+  var doc_id = req.params.docid;
+  var doc = db.doc(doc_id);
+  doc.get(function(err, s){
+    res.writeHead(200, {"Content-Type":"application/json"});
+    delete s._attachments;
+    res.end(JSON.stringify(s));
+  });
+}

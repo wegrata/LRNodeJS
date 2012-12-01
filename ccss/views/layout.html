@@ -38,14 +38,21 @@
           <div class="nav-collapse collapse ">
 			<div class="span12 center">
 				<ul class="nav">
-				  <li class="active"><a href="#">Home</a></li>
+					{{#user}}
+					<li class="active"><a href="/">Home</a></li>
+					{{/user}}
+					{{^user}}
+					<li class="active"><a href="/landing">Home</a></li>
+					{{/user}}
 				  <li><a href="#">About</a></li>
 				  <li><a href="#">Developers</a></li>
 				</ul>
 
-				<div style="float:right;">
+				<div style="float:right; height: 27px">
 				  {{#user}}
+				    
 					<form action="/logout" method="post">
+						<span style="padding-right: 10px;">{{user.email}}</span>
 						<input type="submit" value="logout" />
 					</form>
 				  {{/user}}
@@ -85,6 +92,7 @@
 	 </div>
 	{{/hide.footer}}
   <script>
+	console.log("{{user.email}}");
     $("#browserid").click(function(){
       navigator.id.getVerifiedEmail(function(assertion) {
         if (assertion) {

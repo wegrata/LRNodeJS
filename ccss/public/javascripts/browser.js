@@ -191,13 +191,31 @@ var BROWSER = (function () {
             var div = $('<div/>');
             //$('<h2 />').text('Resources').appendTo(div);
             
+            var appendUsing = '<table class="table table-striped resultsTable"><tbody>';
+            var md5 = "";
+            var url = "";
+            var line1 = "";
+            var line2 = "";
+            var line3 = "";
+            var line4 = "";
             $.each( resources.documents, function(i, doc) {
-            var link = doc.result_data.resource;
-            var a = $('<a/>').attr('href', '/timeline?query='+link).text(link);
-            var p = $('<p/>');
-            p.append(a);
-            div.append(p);
+				
+				url = doc.result_data.resource;
+				
+				if(notOnBlackList(url)){
+					  
+					md5 = hex_md5(url);
+					line1 = '<tr style="border-top:none;"><td style="border-top:none;padding-top:15px;padding-bottom:15px;" class="imageCell">';
+					line2 = '<a href="/timeline?query='+url+'"><img height="180" width="180" src="http://12.109.40.31/screenshot/'+md5+'" class="img-polaroid" />';
+					line3 = '</a></td><td style="border-top:none;padding-top:15px;padding-bottom:15px;"><a href="/timeline?query='+url+'" class="title">'+url+'</a><br/>';
+					line4 = '<a href="/timeline?query='+url+'" class="fine">'+url+'</a><br/><span class="fine">Short description</span></td></tr>';
+					appendUsing += line1 + line2 +line3 +line4;
+				}
+				
             });
+            
+            appendUsing += '</tbody></table>';
+            div.html(appendUsing);
             
             var $newResourceLink = $('<a/>')
             .attr('href', '#').text( count + ' ' + pluralText );
@@ -205,7 +223,7 @@ var BROWSER = (function () {
             $newResourceLink.click( function (event) {
 				event.preventDefault();
 				$(this).parents(".resources").append(div);
-				//$("#standardsBrowser").modal("show");
+				console.log("RESOURCE CLICK");
 				//return false;
             });
             
