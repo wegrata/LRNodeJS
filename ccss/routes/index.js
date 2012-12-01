@@ -156,11 +156,11 @@ exports.index = function(request,response) {
 
 	 if (request.user)
        opts.locals.user = request.user;
-
+      
      else
 		response.redirect('/landing');
-
-
+		
+     
      //For testing purporses.. may have to make this a global array..
      opts.locals = opts.locals || {};
      opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
@@ -323,7 +323,7 @@ exports.data = function(req, res){
       res.end(JSON.stringify(s));
     }else{
       res.writeHead(404, {});
-      res.end("<html><body><h1>Not Found</h1></body></html>");
+      res.end(JSON.stringify({error:true}));
     }
   });
-};
+}
