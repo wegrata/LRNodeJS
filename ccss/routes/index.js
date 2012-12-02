@@ -153,39 +153,41 @@ exports.index = function(request,response) {
 
 
 
-   if (request.user)
-       opts.locals.user = request.user;      
+    function userLoggedIn(){
+       
+       //For testing purporses.. may have to make this a global array..
+       opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
+             'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
+             'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
+       if(request.user){
+          opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
+            return !underscore.contains(request.user.following, org);
+          });
+          opts.locals.followed = underscore.uniq(request.user.following);
+       }
+       opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
+             'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
+             'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
+      if ((request.user && request.user.jobTitle) || false){
+        params = {
+            include_docs: true,
+            key: request.user.jobTitle
+        };
+        jobTitleView.query(params, function(err, result){
+            opts.locals.sameOccupation = result.rows.map( function(n) {
+                        return n.value;
+                    });
+            response.render('index.html', opts);
+        });
+      }
+      response.render('index.html', opts);
+  }
+   if (request.user){
+       opts.locals.user = request.user;
+       userLoggedIn();
+   }
    else
        response.redirect('/landing');
-    
-     
-     //For testing purporses.. may have to make this a global array..
-     opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
-           'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
-           'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
-     if(request.user){
-        opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
-          return !underscore.contains(request.user.following, org);
-        });
-        opts.locals.followed = underscore.uniq(request.user.following);
-     }
-     opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
-           'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
-           'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
-    if (request.user && request.user.jobTitle || false){
-      params = {
-          include_docs: true,
-          key: request.user.jobTitle
-      };
-      jobTitleView.query(params, function(err, result){
-          opts.locals.sameOccupation = result.rows.map( function(n) {
-                      return n.value;
-                  });
-          response.render('index.html', opts);
-      });
-    } else{
-      response.render('index.html', opts);  
-    }
 };
 exports.visual = function(request,response) {
   var viewOptions = {locals:{}};
