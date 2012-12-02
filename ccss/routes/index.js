@@ -151,7 +151,6 @@ exports.index = function(request,response) {
     var opts = {};
     opts.locals = opts.locals || {};
 
-    console.log(request.user);
 
 
 	 if (request.user)
