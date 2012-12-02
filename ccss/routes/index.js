@@ -154,8 +154,13 @@ exports.index = function(request,response) {
     console.log(request.user);
 
 
-    if (request.user)
-      opts.locals.user = request.user;
+	 if (request.user)
+       opts.locals.user = request.user;
+      
+     else
+		response.redirect('/landing');
+		
+     
      //For testing purporses.. may have to make this a global array..
      opts.locals = opts.locals || {};
      opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
@@ -244,10 +249,13 @@ exports.search = function(req, res) {
 };
 
 exports.find = function(request,response) {
-  var viewOptions = {locals:{}};
-  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  var opts = {};
+    opts.locals = opts.locals || {};
+  if (request.user)
+      opts.locals.user = request.user;
+  opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
 
-  response.render('find.html', viewOptions);
+  response.render('find.html', opts);
 };
 
 exports.landing = function(request,response) {
@@ -282,27 +290,40 @@ exports.sites = function(request,response) {
 };
 
 exports.timeline = function(request,response) {
-  var viewOptions = {locals:{}};
-  viewOptions.layout = (request.query.ajax === undefined)? true : false;
-  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
-  viewOptions.locals.hide = {topMargin:true, footer: true};
+  var opts = {};
+    opts.locals = opts.locals || {};
+  if (request.user)
+      opts.locals.user = request.user;
+  opts.layout = (request.query.ajax === undefined)? true : false;
+  opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  opts.locals.hide = {topMargin:true, footer: true};
 
-    response.render('timeline.html', viewOptions);
+    response.render('timeline.html', opts);
 };
 
 exports.screenshot = function(req, res){
   var doc_id = req.params.docid;
   var doc = db.doc(doc_id);
   doc.attachment('screenshot.jpeg').get(true, function(err, s){
-    s.pipe(res, {end: true});
+    if(s){
+      s.pipe(res, {end: true});
+    }else{
+      res.writeHead(404, {});
+      res.end("<html><body><h1>Not Found</h1></body></html>");
+    }
   });
 };
 exports.data = function(req, res){
   var doc_id = req.params.docid;
   var doc = db.doc(doc_id);
   doc.get(function(err, s){
-    res.writeHead(200, {"Content-Type":"application/json"});
-    delete s._attachments;
-    res.end(JSON.stringify(s));
+    if (s){
+      res.writeHead(200, {"Content-Type":"application/json"});
+      delete s._attachments;
+      res.end(JSON.stringify(s));
+    }else{
+      res.writeHead(404, {});
+      res.end(JSON.stringify({error:true}));
+    }
   });
 }

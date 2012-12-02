@@ -49,23 +49,23 @@ var reverseTransform = {
 
 var genParadataDoc = function(jobTitle, id, action, detail){
 				
-				return {
-						"activity": {
-							"actor": {
-								"objectType": jobTitle,
-								"description": [
-									"You"
-								],
-								"id": id
-							},
-							"verb": {
-								"action": action,
-								"detail": detail != undefined ? detail : "",
-								"date": new Date()
-							},
-							"object": temp.currentObject().url
-						}
-					};
+	return {
+			"activity": {
+				"actor": {
+					"objectType": jobTitle,
+					"description": [
+						"You"
+					],
+					"id": id
+				},
+				"verb": {
+					"action": action,
+					"detail": detail != undefined ? detail : "",
+					"date": new Date()
+				},
+				"object": temp.currentObject().url
+			}
+		};
 	
 };
 
@@ -617,7 +617,7 @@ var mainViewModel = function(resources){
     self.followOrganization = function(e){
 
         //return;
-
+		
         /* Add jQuery/socket.io call here */
         $.ajax({
             type: "POST",

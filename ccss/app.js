@@ -89,6 +89,8 @@ app.get('/find', routes.find);
 app.get('/screenshot/:docid', routes.screenshot);
 app.get('/data/:docid', routes.data);
 app.post('/main', function(req, res){
+	console.log("user, ", req.user);
+
     switch (req.body.action.toLowerCase()){
         case "follow":
             users.follow(req.user, req.body.subject, function(err, response){
@@ -97,6 +99,22 @@ app.post('/main', function(req, res){
                     res.end();
                 }else{
                     req.user.following.push(req.body.subject);
+                    res.end(JSON.stringify({user: response, subject: req.body.subject}));
+                }
+            });
+            break;
+            
+       case "bookmark":
+       
+       console.log(req.body);
+       
+            users.bookmark(req.user, req.body.subject, function(err, response){
+                if(err) {
+                    console.error(err);
+                    res.end();
+                }else{
+					req.user.bookmarks = (req.user.bookmarks === undefined) ? [] : req.user.bookmarks;
+                    req.user.bookmarks.push(req.body.subject);
                     res.end(JSON.stringify({user: response, subject: req.body.subject}));
                 }
             });

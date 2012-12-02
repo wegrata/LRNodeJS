@@ -16,27 +16,26 @@
 			</div>
 		</div>
 		<div class="row" style="margin-top:50px;">
-			<div class="span8 activity">
-				<h4>Recent Activity</h4>
-				<table class="table table-striped">
-					<tbody>
-						<tr style="border-top:none;">
-							<td style="border-top:none;">Activity feed under construction</td>
-						</tr>
-						<tr>
-							<td>... </td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-
-			<div class="span3 dropbox">
-				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarks</span>
+			<div class="span12 activity">
+			
+				<h4 data-bind="visible: bookmarks().length > 0">Bookmarks</h4>
+				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarked resources will appear here</span>
 
 				<!-- ko foreach: bookmarks -->
-					<div class="draggable lr_border_trans pull-left">
-						<span style="white-space: nowrap;" data-bind="text: $data, attr:{name:$data}"></span><br/>
-
+					<div class="screenDiv">
+					<table>
+						<tr>
+							<td width="90">
+								<a data-bind="attr: {href:'/timeline?query='+url}"><img class="img-polaroid screenshot" data-bind="{attr:{src: image}}" /></a>
+							</td>
+							<td>
+								<a class="spanHeader" data-bind="text:title, attr:{name:url ,href:'/timeline?query='+url}"></a>
+								<div class="spanDesc" data-bind="text:description"></div>
+							</td>
+						</tr>
+					</table>
+					
+						
 					</div>
 				<!-- /ko -->
 			</div>
@@ -57,6 +56,7 @@
 	<script src="/javascripts/Placeholders.js"></script>
 	<script src="/javascripts/spin.min.js"></script>
 	<script src="/javascripts/jquery.nicescroll.js"></script>
+	<script type="text/javascript" src="/javascripts/hexmd5.js"></script>
 
 	<script type="text/javascript">
 
@@ -76,7 +76,7 @@
 		var allOrganizations = "{{orgs}}".split(",");
 		var followed = "{{followed}}".split(",");
 		var allTerms = "{{terms}}".split(",");
-
+		
 		//console.log({{orgs}});
 	</script>
 	<script src="/javascripts/application.js"></script>
@@ -89,7 +89,36 @@
 			temp.followers.push({name:followed[f], content:[]});
 		}
 		
-		ko.applyBindings(temp);
+		var tempArray = [];
+		
+		
+		//Get bookmarks from Couch
+		{{#user.bookmarks}}
+		temp.bookmarks.push({url:"{{activity.object}}", hash:hex_md5("{{activity.object}}"), title:"r", description:"", image:""});
+		{{/user.bookmarks}}
+		
+		var g = 0;
+
+		$.each(temp.bookmarks(), function(i, value) {
+			$.getJSON('/data/' + temp.bookmarks()[i].hash,function(data){
+				
+				temp.bookmarks()[i].title = (data.title != undefined) ? data.title : temp.bookmarks()[i].url;
+				temp.bookmarks()[i].title = (temp.bookmarks()[i].title.length > 40) ? temp.bookmarks()[i].title.substr(0, 40) + "..." : temp.bookmarks()[i].title;
+				
+				temp.bookmarks()[i].description = (data.description != undefined) ? data.description : "";
+				temp.bookmarks()[i].description = (temp.bookmarks()[i].description.length > 100) ? temp.bookmarks()[i].description.substr(0, 100) + "..." : temp.bookmarks()[i].description;
+				
+				temp.bookmarks()[i].image = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + temp.bookmarks()[i].hash;
+				g++;
+				
+				if(g == temp.bookmarks().length)
+					ko.applyBindings(temp);
+			});
+		});
+		
+		console.log(temp.bookmarks());
+		//temp.bookmarks({{}});
+
 		/*$.getJSON('/resources',function(data){
 
 			console.log(data);

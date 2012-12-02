@@ -70,8 +70,8 @@
 			
 			var handlePerfectSize = function(){
 				var height = $(window).height() - $(".navbar-inverse").height() - $("footer").height() * 2.2;
-
-				//console.log(height);
+				height = (height < 380) ? 380 : height;
+				console.log(height);
 				$("#mainSection").css("height", height + "px");	
 				$("#first").css("margin-top", $(window).height()*.10 + "px");					
 			};
