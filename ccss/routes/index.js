@@ -186,7 +186,7 @@ exports.index = function(request,response) {
         response.render('index.html', opts);
       });
     }else{
-      response.render('index.html', opts);
+      //response.render('index.html', opts);
     }
 };
 exports.visual = function(request,response) {
