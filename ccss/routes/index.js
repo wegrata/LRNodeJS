@@ -153,15 +153,13 @@ exports.index = function(request,response) {
 
 
 
-	 if (request.user)
-       opts.locals.user = request.user;
-      
-     else
-		response.redirect('/landing');
-		
+   if (request.user)
+       opts.locals.user = request.user;      
+   else
+       response.redirect('/landing');
+    
      
      //For testing purporses.. may have to make this a global array..
-     opts.locals = opts.locals || {};
      opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
            'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
            'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
@@ -174,7 +172,7 @@ exports.index = function(request,response) {
      opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
            'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
            'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
-    if (request.user && request.user.jobTitle){
+    if (request.user && request.user.jobTitle || false){
       params = {
           include_docs: true,
           key: request.user.jobTitle
@@ -183,10 +181,10 @@ exports.index = function(request,response) {
           opts.locals.sameOccupation = result.rows.map( function(n) {
                       return n.value;
                   });
-        response.render('index.html', opts);
+          response.render('index.html', opts);
       });
-    }else{
-      //response.render('index.html', opts);
+    } else{
+      response.render('index.html', opts);  
     }
 };
 exports.visual = function(request,response) {
