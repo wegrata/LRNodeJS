@@ -98,10 +98,8 @@
 		{{/user.bookmarks}}
 		
 		var g = 0;
-
-		$.each(temp.bookmarks(), function(i, value) {
-			$.getJSON('/data/' + temp.bookmarks()[i].hash,function(data){
-				
+		var applyFunction = function(i) { 
+			return function(data){
 				temp.bookmarks()[i].title = (data.title != undefined) ? data.title : temp.bookmarks()[i].url;
 				temp.bookmarks()[i].title = (temp.bookmarks()[i].title.length > 40) ? temp.bookmarks()[i].title.substr(0, 40) + "..." : temp.bookmarks()[i].title;
 				
@@ -112,7 +110,16 @@
 				g++;
 				
 				if(g == temp.bookmarks().length)
-					ko.applyBindings(temp);
+					ko.applyBindings(temp);			
+			}
+		};
+		$.each(temp.bookmarks(), function(i, value) {
+			var apply = applyFunction(i);
+			$.getJSON('/data/' + temp.bookmarks()[i].hash,function(data){
+				apply(data);
+				
+			}).error(function(){
+				apply({error: true});
 			});
 		});
 		
