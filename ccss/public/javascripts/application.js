@@ -29,7 +29,7 @@ var urlTransform = {
         var id = temp.split("/")[idIndex];
         //console.log(urlObj.pathname);
 
-        return "http://3dr.adlnet.gov/Public/Model.aspx?ContentObjectID=" + id;
+        return (id == undefined) ? urlObj.href : "http://3dr.adlnet.gov/Public/Model.aspx?ContentObjectID=" + id;
     }
 };
 

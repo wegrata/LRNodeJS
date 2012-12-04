@@ -25,7 +25,7 @@
 								<td style="border-top:none;padding-top:15px;padding-bottom:15px;">
 									<a data-bind="text:$root.getShorterStr($data), attr:{href:'/timeline?query='+url, title:title}" class="title"></a><br/>
 									<a data-bind="text:url, attr:{href:'/timeline?query='+url}" class="fine"></a><br/>
-									<span data-bind="text:description.substr(0, 280)+'...'" class="fine"></span>
+									<span data-bind="text:(description.length==0)? '':description.substr(0, 280)+'...'" class="fine"></span>
 								</td>
 							</tr>
 						</tbody>

@@ -250,7 +250,7 @@
 			//Substr gets the number portion of "paradataX"
 			var test = cacheObj.attr("name").substr(8, cacheObj.attr("name").length-8);
 			console.log(test, self.currentObject().timeline()[test]);
-			displayObjectData(self.currentObject().timeline()[test]);
+			displayObjectData(self.getReversedTimeline()[test]);
 		};
 	</script>
 

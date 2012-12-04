@@ -22,7 +22,7 @@
 				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarked resources will appear here</span>
 
 				<!-- ko foreach: bookmarks -->
-					<div class="screenDiv">
+					<div data-bind="visible: $root.bookmarks().length > 0" class="screenDiv">
 					<table>
 						<tr>
 							<td width="90">
@@ -123,6 +123,8 @@
 			});
 		});
 		
+		if(temp.bookmarks().length == 0)
+			ko.applyBindings(temp);	
 		console.log(temp.bookmarks());
 		//temp.bookmarks({{}});
 

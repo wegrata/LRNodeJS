@@ -56,6 +56,8 @@
 			$('#signin').openid();
 			$('input, textarea').placeholder();
 			
+			$("#openid_btns a").off("click");
+
 			$("#btn_3").click(function(){
 			  navigator.id.getVerifiedEmail(function(assertion) {
 				if (assertion) {
