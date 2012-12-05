@@ -542,7 +542,8 @@ background-color: #1B5AAF !important;
 #openid_inputarea {
   clear: both;
   display: none;
-  background: url(../img/balloon.png) no-repeat;
+  visibility: hidden;
+  overflow: hidden;
   width: 0;
   height: 0;
   color: white;
