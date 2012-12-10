@@ -440,14 +440,9 @@ var displayObjectData = function(pmdata){
 			metadata += JSON.stringify(pmdata, null, 4);
 		}
 
-
-		if($("#modalFrame").length > 0){
-			saveFrameState = $("#mBody").html();
-			$("#modalFrame").remove();
-		}
-
-		$(".modal-body").append(metadata + "</pre>");
+		$("#modal-data-view").html(metadata + "</pre>");
 		prettyPrint();
+		$("#metadata").modal('show'); 
 };
 
 var getDate = function(dateStr){

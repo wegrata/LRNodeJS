@@ -252,6 +252,11 @@ ul li{
 		border: none;
 	}
 	
+	#modal-data-view{
+		
+		height: 94%;
+	}
+	
 	.bottomBar{
 	
 		width: 100%;
