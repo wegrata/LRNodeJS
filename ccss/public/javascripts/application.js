@@ -47,6 +47,26 @@ var reverseTransform = {
     }
 };
 
+var paradataStoreRequest = function(paradata){
+	
+	$.ajax({
+		type: "POST",
+		url: "/main",
+		dataType: "json",
+		jsonp: false,
+		contentType: 'application/json',
+		data: createJSON(paradata, "paradata"),
+		success: function(data){
+
+			console.log("added");
+			console.log("Response data: ", data);
+		},
+		error: function(error){
+			console.error(error);
+		}
+	});
+};
+
 var genParadataDoc = function(jobTitle, id, action, detail, date){
 				
 	return {
@@ -601,7 +621,7 @@ var mainViewModel = function(resources){
                 return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " commented on this resource.", i);
                 
             case "flagged":
-                return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " flagged this resource.", i);
+                return detail + " <span style='color: #b94a48;' >This resource has been flagged.</span> " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " flagged this resource.", i);
 
             case "downloaded":
 				return content + " " + measure.value + " times " + generateAuthorSpan(dateStr, actor, content, i);

@@ -97,13 +97,13 @@
 		console.log(allTerms);
 		ko.applyBindings(temp);
 		
-		{{#user.comments}}
+		{{#user.paradata}}
 			if("{{query}}" == "{{activity.object}}"){
 				
 				temp.currentObject().timeline.push(genParadataDoc("{{activity.actor.objectType}}","{{activity.actor.id}}",
 																  "{{activity.verb.action}}", "{{activity.verb.detail}}","{{activity.verb.date}}"));
 			}
-		{{/user.comments}}
+		{{/user.paradata}}
 
 		//Last modal location should either be home, or visual
 		for (var f in followed){
@@ -162,6 +162,8 @@
 				//add element to observable array, send a request via socketio, and remove current textarea value
 				var paradata = genParadataDoc("{{user.jobTitle}}", "{{user._id}}","flagged");
 				temp.currentObject().timeline.push(paradata);
+				paradataStoreRequest(paradata);
+				
 				scrollbarFix();
 				
 			});
@@ -182,26 +184,8 @@
 					temp.currentObject().timeline.push(paradata);
 					scrollbarFix();
 					
-					
-					$.ajax({
-						type: "POST",
-						url: "/main",
-						dataType: "json",
-						jsonp: false,
-						contentType: 'application/json',
-						data: createJSON(paradata, "comment"),
-						success: function(data){
+					paradataStoreRequest(paradata);
 
-							console.log("added");
-							self.allOrganizations.remove(e);
-							self.followers.push({name:data.subject, content:[]});
-							console.log("Response data: ", data);
-						},
-						error: function(error){
-							console.error(error);
-						}
-					});
-					
 					$(this).val("");
 				}
 			});

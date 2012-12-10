@@ -120,17 +120,17 @@ app.post('/main', function(req, res){
             });
             break;
             
-       case "comment":
+       case "paradata":
        
        console.log(req.body);
        //return;
-            users.comment(req.user, req.body.subject, function(err, response){
+            users.paradata(req.user, req.body.subject, function(err, response){
                 if(err) {
                     console.error(err);
                     res.end();
                 }else{
-					req.user.comments = (req.user.comments === undefined) ? [] : req.user.comments;
-                    req.user.comments.push(req.body.subject);
+					req.user.paradata = (req.user.paradata === undefined) ? [] : req.user.paradata;
+                    req.user.paradata.push(req.body.subject);
                     res.end(JSON.stringify({user: response, subject: req.body.subject}));
                 }
             });

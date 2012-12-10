@@ -114,12 +114,12 @@ exports.bookmark = function(currentUser, resource, callback){
     });
 };
 
-exports.comment = function(currentUser, resource, callback){
+exports.paradata = function(currentUser, resource, callback){
     var currentUserDoc = usersDb.doc(currentUser._id);
     currentUserDoc.get(function(err, doc){
 		
-		doc.comments = (doc.comments === undefined) ? [] : doc.comments;
-        doc.comments.push(resource);
+		doc.paradata = (doc.paradata === undefined) ? [] : doc.paradata;
+        doc.paradata.push(resource);
         currentUserDoc.body = doc;
         currentUserDoc.save(callback);
     });
