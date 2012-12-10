@@ -22,7 +22,7 @@ var users = require('./routes/users');
 passport.serializeUser(users.serializeUser);
 passport.deserializeUser(users.deserializeUser);
 passport.use(new browserid({
-    audience: 'http://12.109.40.31'
+    audience: 'http://192.168.190.128'
 }, users.validateUser));
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
@@ -119,6 +119,24 @@ app.post('/main', function(req, res){
                 }
             });
             break;
+            
+       case "comment":
+       
+       console.log(req.body);
+       //return;
+            users.comment(req.user, req.body.subject, function(err, response){
+                if(err) {
+                    console.error(err);
+                    res.end();
+                }else{
+					req.user.comments = (req.user.comments === undefined) ? [] : req.user.comments;
+                    req.user.comments.push(req.body.subject);
+                    res.end(JSON.stringify({user: response, subject: req.body.subject}));
+                }
+            });
+            break;
+            
+        
     }
 });
 // start

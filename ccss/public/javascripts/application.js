@@ -47,7 +47,7 @@ var reverseTransform = {
     }
 };
 
-var genParadataDoc = function(jobTitle, id, action, detail){
+var genParadataDoc = function(jobTitle, id, action, detail, date){
 				
 	return {
 			"activity": {
@@ -61,7 +61,7 @@ var genParadataDoc = function(jobTitle, id, action, detail){
 				"verb": {
 					"action": action,
 					"detail": detail != undefined ? detail : "",
-					"date": new Date()
+					"date": date != undefined ? date : new Date()
 				},
 				"object": temp.currentObject().url
 			}
@@ -128,6 +128,11 @@ var generateContentFrame = function(src, alreadyAppended){
 	}
 };
 
+var sortTimeline = function(l, r){
+	
+	return getDate(l.activity.verb.date) - getDate(r.activity.verb.date);
+};
+
 var handleMainResourceModal = function(src, direct){
 
 
@@ -186,6 +191,8 @@ var handleMainResourceModal = function(src, direct){
 		}
 		console.log("Timeline: ", self.currentObject().timeline());
 		console.log("Loaded Data: ", currentObjectMetadata);
+		
+		temp.currentObject().timeline.sort(sortTimeline);
 	});
 
 	if(spinner !== null){
@@ -371,7 +378,7 @@ var generateAuthorSpan = function(str, author, content, i){
 	author = author.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 	str = str.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 
-	console.log("Debug span ", content + " " + author + " " + str);
+	//console.log("Debug span ", content + " " + author + " " + str);
 
     var title = author + '<button type="button" onclick="hidePopover()" class="close closeTimeline" aria-hidden="true">&times;</button>';
 
@@ -421,6 +428,26 @@ var displayObjectData = function(pmdata){
 
 		$(".modal-body").append(metadata + "</pre>");
 		prettyPrint();
+};
+
+var getDate = function(dateStr){
+	
+	var date = new Date(dateStr);
+
+	//Not a valid date object
+	if(isNaN(date.getTime())){
+
+		if(self.currentObject().url.indexOf("3dr.adlnet.gov") > -1){
+
+			//This gets the timestamp within "/Date(x)/"
+			date = new Date(parseInt(dateStr.substr(6, dateStr.length - 8)));
+		}
+		
+		else
+			console.log("may not be working");
+	}
+	
+	return date;
 };
 
 /* The main View Model used by Knockout.js */
@@ -555,29 +582,9 @@ var mainViewModel = function(resources){
 		var actor = (e.activity.actor === undefined)? "Unknown User" : (e.activity.actor.description == undefined && e.activity.actor.displayName !== undefined) ?
 					e.activity.actor.displayName : e.activity.actor.description[0];
 
-		var date = new Date(dateStr);
+		var date = getDate(dateStr);
 
-		//Not a valid date object
-		if(isNaN(date.getTime())){
-
-			if(self.currentObject().url.indexOf("3dr.adlnet.gov") > -1){
-
-				//This gets the timestamp within "/Date(x)/"
-				date = new Date(parseInt(dateStr.substr(6, dateStr.length - 8)));
-			}
-
-			else if(false){
-
-
-			}
-
-			else
-				console.log("may not be working");
-
-
-		}
-
-		console.log("Final content char: ",content[content.length-1]);
+		//console.log("Final content char: ",content[content.length-1]);
 		dateStr = moment(date.getTime()).format("M/D/YYYY"); //moment(date.getTime()).fromNow();
 
 		//3DR paradata fixes. Remove period, and fix "a user". More fixes (for all orgs) to come.

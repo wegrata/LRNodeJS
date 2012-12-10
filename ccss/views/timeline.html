@@ -90,9 +90,20 @@
 	
 		var allOrganizations = "{{orgs}}".split(","), allTerms = "{{terms}}".split(","), temp = new mainViewModel([]);
 		//console.log("{{query}}");
+		
+		console.log("Comments: ", "{{user.comments[0]}}");
+		
 		handleMainResourceModal("{{query}}");
 		console.log(allTerms);
 		ko.applyBindings(temp);
+		
+		{{#user.comments}}
+			if("{{query}}" == "{{activity.object}}"){
+				
+				temp.currentObject().timeline.push(genParadataDoc("{{activity.actor.objectType}}","{{activity.actor.id}}",
+																  "{{activity.verb.action}}", "{{activity.verb.detail}}","{{activity.verb.date}}"));
+			}
+		{{/user.comments}}
 
 		//Last modal location should either be home, or visual
 		for (var f in followed){
@@ -178,7 +189,7 @@
 						dataType: "json",
 						jsonp: false,
 						contentType: 'application/json',
-						data: createJSON({action:"comment", data: paradata, internalActor:"{{user.email}}}"}),
+						data: createJSON(paradata, "comment"),
 						success: function(data){
 
 							console.log("added");
