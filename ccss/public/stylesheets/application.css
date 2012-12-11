@@ -252,6 +252,13 @@ ul li{
 		border: none;
 	}
 	
+	.activity img{
+	
+		height: 71px;
+		width: 86px;
+	
+	}
+	
 	#modal-data-view{
 		
 		height: 94%;

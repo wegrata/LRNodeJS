@@ -8,7 +8,7 @@
 		  	<span style="font-size: 24px;line-height: 24px;font-weight:bold;">Browse resources by contributing organizations</span>
 				<table style="margin-top:20px;" class="table table-striped resultsTable">
 					<tbody id="organizations" data-bind="foreach:allOrganizations">
-						<tr style="border-top: none;">
+						<tr style="border-top: none;" data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF'}">
 							<td style="border-top: none; padding:10px;"> 
 								<a style="font-size:16px;" data-bind="attr:{href:'/visual?query='+allTerms[$index()], name:$index()}, html:$data"></a>
 								<!--<a data-bind="click: $root.followOrganization" class="btn btn-small"><i class="icon-star"></i> Follow Organization</a>		-->				
