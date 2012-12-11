@@ -476,7 +476,7 @@ var mainViewModel = function(resources){
     self.followers = ko.observableArray(followingList);
     self.results = ko.observableArray();
     self.resultsNotFound = ko.observable(false);
-	
+	self.saveResultsDisplay = ko.observableArray();
 	
 	self.notOnBlackList = function(url){
 		
@@ -497,8 +497,22 @@ var mainViewModel = function(resources){
 	};
 	
 	self.getResults = function(){
-
-		return self.results.slice(0, totalSlice);
+		
+			var tempArr = [];
+			
+			
+			for(var i = 0; i < self.results().length; i++){
+				
+				
+				if(self.notOnBlackList(self.results()[i].url) === true){
+					console.log(self.results()[i].url);
+					tempArr.push(self.results()[i]);
+				}
+			}
+			
+			console.log("hi: .." ,tempArr);
+			//self.results.removeAll();
+			return tempArr;
 	};
 
 	self.updateSlice = function(){

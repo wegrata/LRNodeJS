@@ -10,7 +10,7 @@
 				</div>
 				<!-- ko if: getResults().length > 0 -->
 					<table class="table table-striped resultsTable">
-						<tbody data-bind="foreach:results">
+						<tbody data-bind="foreach:getResults()">
 							<tr style="border-top:none;" data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF'}">
 								<td style="border-top:none;padding-top:15px;padding-bottom:15px;" class="imageCell">
 									<a data-bind="attr:{href:'/timeline?query='+url}">
