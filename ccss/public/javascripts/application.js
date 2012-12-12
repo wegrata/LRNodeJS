@@ -447,12 +447,13 @@ var mainViewModel = function(resources){
 		$("#loadMore").hide();
 		
 		$.get('/search?page='+(loadIndex-1)+'&terms=' + query, function(data){
-			
+
 			$('#spinnerDiv').hide();
 			$("#loadMore").show();
 			$('#spinnerDiv').css("margin-top", "50px");
+			var startIndex = (loadIndex == 2) ? 0 : 1;
 			
-			if(data.length == 0 && loadIndex == 1)
+			if(data.length == 0 && loadIndex == 2)
 				temp.resultsNotFound(true);
 			
 			else if(data.length == 0){
@@ -461,7 +462,7 @@ var mainViewModel = function(resources){
 				$("#endOfResults").show();
 			}
 
-			for(var i = 1; i < data.length; i++)
+			for(var i = startIndex; i < data.length; i++)
 				self.results.push(data[i]);
 				
 			self.results.remove(function(item){
