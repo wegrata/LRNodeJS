@@ -8,9 +8,9 @@
 						 <input class="btn btn-primary"id="Search" style="margin-top:0;" type="submit" value="Search" />
 					</form>
 				</div>
-				<!-- ko if: getResults().length > 0 -->
+				<!-- ko if: results().length > 0 -->
 					<table class="table table-striped resultsTable">
-						<tbody data-bind="foreach:getResults()">
+						<tbody data-bind="foreach:results">
 							<tr style="border-top:none;" data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF'}">
 								<td style="border-top:none;padding-top:15px;padding-bottom:15px;" class="imageCell">
 									<a data-bind="attr:{href:'/timeline?query='+url}">
@@ -34,8 +34,11 @@
 				<!-- /ko -->
 
 				<div id="spinnerDiv"></div>
-				<div id="resultsNotFound" data-bind="visible:resultsNotFound">
+				<div id="resultsNotFound" class="resultsPrompt" data-bind="visible:resultsNotFound">
 					<span>Results Not Found</span>
+				</div>
+				<div id="endOfResults" class="resultsPrompt">
+					<span>End of Results</span>
 				</div>
 			</div>
 		</div>
@@ -83,9 +86,6 @@
 	<script src="/javascripts/application.js"></script>
 	<script>
 		var temp = new mainViewModel([]), activeModalName = null, lastSearchCache = "";
-
-		//Last modal location should either be home, or visual
-		var lastModalLocation = "home";
 		for (var f in followed){
 			temp.followers.push({name:followed[f], content:[]});
 		}
@@ -95,37 +95,16 @@
 		ko.applyBindings(temp);
 
 		$(document).ready(function(){
+			
+			$("#endOfResults").hide();
 			spinner = new Spinner(opts).spin($('#spinnerDiv')[0]);
 			$('input, textarea').placeholder();
 
-			$.get('/search?page=0&terms=' + '{{query}}', function(data){
-				$('#spinnerDiv').remove();
-				temp.results(data);
-				console.log(data);
-
-				if(data.length == 0)
-					temp.resultsNotFound(true);
-
-				handlePerfectSize();
-			});
-
-			var handlePerfectSize = function(){
-
-				if($(document).height() > $(window).height()){
-					$("#mainSection").css("height", "auto");
-					return;
-				}
-
-				var height = $(window).height() - $(".navbar-inverse").height() - $("footer").height() * 2.2;
-
-				console.log(height);
-				$("#mainSection").css("height", height + "px");
-				$("#resultsNotFound").add("#spinnerDiv").css("margin-top", $(window).height()*.3 + "px");
-
-			};
+			self.loadNewPage();
 
 			handlePerfectSize();
 			$(window).resize(function() {
+				
 				handlePerfectSize();
 			});
 		});
