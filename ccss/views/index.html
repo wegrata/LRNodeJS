@@ -91,10 +91,17 @@
 		
 		var tempArray = [];
 		
+		/*
+		[
+		{{#user.bookmarks}}
+		{url:"{{activity.object}}", hash:hex_md5("{{activity.object}}"), title:"r", description:"", image:""},
+		{{/user.bookmarks}}
+		]
+		*/
 		
 		//Get bookmarks from Couch
 		{{#user.bookmarks}}
-		temp.bookmarks.push({url:"{{activity.object}}", hash:hex_md5("{{activity.object}}"), title:"r", description:"", image:""});
+			temp.bookmarks.push({url:"{{activity.object}}", hash:hex_md5("{{activity.object}}"), title:"r", description:"", image:""});
 		{{/user.bookmarks}}
 		
 		var g = 0;

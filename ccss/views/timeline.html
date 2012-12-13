@@ -1,8 +1,9 @@
 <div class="timeline-container">
 	<div class="modal-timeline">
 		<table id="timeline-table" class="table table-striped">
-			<th><a class="btn btn-info" id="bookmark">Bookmark Resource</a></th>
 			
+			<th data-bind="visible: $.inArray(temp.currentObject().url, tempBookmarksArray) == -1" ><a class="btn btn-info" id="bookmark">Bookmark Resource</a></th>
+			<th data-bind="visible:  $.inArray(temp.currentObject().url, tempBookmarksArray) > -1" ><a class="btn btn-info disabled">Bookmark Resource</a></th>
 			<tbody data-bind="foreach: getReversedTimeline()">
 			
 				
@@ -98,6 +99,11 @@
 	<script src="/javascripts/application.js"></script>
 	<script>
 	
+		var tempBookmarksArray = [];
+		{{#user.bookmarks}}
+			tempBookmarksArray.push("{{activity.object}}");
+		{{/user.bookmarks}}
+	
 		$("#metadata").modal('hide'); 
 		var allOrganizations = "{{orgs}}".split(","), allTerms = "{{terms}}".split(","), temp = new mainViewModel([]);
 		//console.log("{{query}}");
@@ -154,6 +160,8 @@
 
 						console.log("added");
 						console.log("Response data: ", data);
+						$("#bookmark").addClass("disabled");
+						$("#bookmark").off();
 					},
 					error: function(error){
 						console.error(error);
