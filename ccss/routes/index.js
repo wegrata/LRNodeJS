@@ -36,9 +36,13 @@ var getDisplayData = function(res){
     console.log(d);
   res.writeHead(200, {"Content-Type": "application/json"});
   res.end(JSON.stringify(underscore.map(d.rows, function(item){
-    item.doc.hasScreenshot = item.doc._attachments !== undefined;
-    delete item.doc._attachments;
-    return item.doc;
+    if(!item.error){
+      item.doc.hasScreenshot = item.doc._attachments !== undefined;
+      delete item.doc._attachments;
+      return item.doc;
+    }else{
+      return null;
+    }
   })));
 };
 };
