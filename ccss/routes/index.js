@@ -30,6 +30,18 @@ var nodesView      = standardsDb.ddoc('nodes').view('parent-grade');
 var categoriesView = standardsDb.ddoc('nodes').view('categories');
 var standardsView  = standardsDb.ddoc('nodes').view('standards');
 var jobTitleView  = usersDb.ddoc("users").view("jobTitle");
+var getDisplayData = function(res){
+  return function(e, d){
+    console.error(e);
+    console.log(d);
+  res.writeHead(200, {"Content-Type": "application/json"});
+  res.end(JSON.stringify(underscore.map(d.rows, function(item){
+    item.doc.hasScreenshot = item.doc._attachments !== undefined;
+    delete item.doc._attachments;
+    return item.doc;
+  })));
+};
+};
 // route to display nodes hierarchically
 //   set body.category + body.standard for standard's child nodes
 //   OR body.parent for child nodes of parent
@@ -151,7 +163,6 @@ exports.index = function(request,response) {
   var opts = {};
   opts.locals = opts.locals || {};
 
-  console.log(request.user);
 
 
   function userLoggedIn(){
@@ -233,16 +244,9 @@ exports.search = function(req, res) {
     params.push(function(err, result){
       client.expire(data, 360, redis.print);
       client.zrevrange(data, page, page + pageSize, function(err, items){
-        var getDisplayData = function(e, d){
-          res.writeHead(200, {"Content-Type": "application/json"});
-          res.end(JSON.stringify(underscore.map(d.rows, function(item){
-            item.doc.hasScreenshot = item.doc._attachments !== undefined;
-            delete item.doc._attachments;
-            return item.doc;
-          })));
-        };
         if(items.length > 0){
-          db.allDocs({include_docs: true}, items, getDisplayData);
+          var dis = getDisplayData(res);
+          db.allDocs({include_docs: true}, items, dis);
         }else{
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify([]));
@@ -279,22 +283,22 @@ exports.sites = function(request,response) {
  opts.locals = opts.locals || {};
  if (request.user)
   opts.locals.user = request.user;
-     //For testing purporses.. may have to make this a global array..
-     opts.locals = opts.locals || {};
-     opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
-     'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
-     'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
-     if(request.user){
-      opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
-        return !underscore.contains(request.user.following, org);
-      });
-      opts.locals.followed = underscore.uniq(request.user.following);
-    }
-    opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
-    'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
-    'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
-    response.render('sites.html', opts);
-  };
+  //For testing purporses.. may have to make this a global array..
+  opts.locals = opts.locals || {};
+  opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
+  'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
+  'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
+  if(request.user){
+  opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
+    return !underscore.contains(request.user.following, org);
+  });
+  opts.locals.followed = underscore.uniq(request.user.following);
+  }
+  opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
+  'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
+  'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
+  response.render('sites.html', opts);
+};
 
   exports.timeline = function(request,response) {
     var opts = {};
@@ -335,6 +339,9 @@ exports.sites = function(request,response) {
         }
       });
     }else{
-      var keys = req.query.keys;
+      var keys = JSON.parse(req.query.keys);
+      console.log(keys);
+      var dis = getDisplayData(res);
+      db.allDocs({include_docs: true}, keys, dis);
     }
-  }
+  };

@@ -22,7 +22,7 @@ var users = require('./routes/users');
 passport.serializeUser(users.serializeUser);
 passport.deserializeUser(users.deserializeUser);
 passport.use(new browserid({
-    audience: 'http://localhost:1337'
+    audience: 'http://192.168.190.128'
 }, users.validateUser));
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
@@ -86,8 +86,10 @@ app.get('/landing', routes.landing);
 app.get('/sites', routes.sites);
 app.get('/timeline', routes.timeline);
 app.get('/find', routes.find);
+app.get('/user', routes.user);
 app.get('/screenshot/:docid', routes.screenshot);
 app.get('/data/:docid', routes.data);
+app.get('/data', routes.data);
 app.post('/main', function(req, res){
 	console.log("user, ", req.user);
 
@@ -103,11 +105,11 @@ app.post('/main', function(req, res){
                 }
             });
             break;
-            
+
        case "bookmark":
-       
+
        console.log(req.body);
-       
+
             users.bookmark(req.user, req.body.subject, function(err, response){
                 if(err) {
                     console.error(err);
@@ -119,6 +121,24 @@ app.post('/main', function(req, res){
                 }
             });
             break;
+
+       case "paradata":
+
+       console.log(req.body);
+       //return;
+            users.paradata(req.user, req.body.subject, function(err, response){
+                if(err) {
+                    console.error(err);
+                    res.end();
+                }else{
+					req.user.paradata = (req.user.paradata === undefined) ? [] : req.user.paradata;
+                    req.user.paradata.push(req.body.subject);
+                    res.end(JSON.stringify({user: response, subject: req.body.subject}));
+                }
+            });
+            break;
+
+
     }
 });
 // start
@@ -132,5 +152,5 @@ app.configure('production', function(){
     app.use(express.errorHandler());
     app.listen(80);
 });
-
+app.listen(80);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

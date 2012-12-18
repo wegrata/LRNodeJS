@@ -114,3 +114,14 @@ exports.bookmark = function(currentUser, resource, callback){
     });
 };
 
+exports.paradata = function(currentUser, resource, callback){
+    var currentUserDoc = usersDb.doc(currentUser._id);
+    currentUserDoc.get(function(err, doc){
+		
+		doc.paradata = (doc.paradata === undefined) ? [] : doc.paradata;
+        doc.paradata.push(resource);
+        currentUserDoc.body = doc;
+        currentUserDoc.save(callback);
+    });
+};
+

@@ -29,7 +29,7 @@ var urlTransform = {
         var id = temp.split("/")[idIndex];
         //console.log(urlObj.pathname);
 
-        return "http://3dr.adlnet.gov/Public/Model.aspx?ContentObjectID=" + id;
+        return (id == undefined) ? urlObj.href : "http://3dr.adlnet.gov/Public/Model.aspx?ContentObjectID=" + id;
     }
 };
 
@@ -47,7 +47,27 @@ var reverseTransform = {
     }
 };
 
-var genParadataDoc = function(jobTitle, id, action, detail){
+var paradataStoreRequest = function(paradata){
+	
+	$.ajax({
+		type: "POST",
+		url: "/main",
+		dataType: "json",
+		jsonp: false,
+		contentType: 'application/json',
+		data: createJSON(paradata, "paradata"),
+		success: function(data){
+
+			console.log("added");
+			console.log("Response data: ", data);
+		},
+		error: function(error){
+			console.error(error);
+		}
+	});
+};
+
+var genParadataDoc = function(jobTitle, id, action, detail, date){
 				
 	return {
 			"activity": {
@@ -61,7 +81,7 @@ var genParadataDoc = function(jobTitle, id, action, detail){
 				"verb": {
 					"action": action,
 					"detail": detail != undefined ? detail : "",
-					"date": new Date()
+					"date": date != undefined ? date : new Date()
 				},
 				"object": temp.currentObject().url
 			}
@@ -102,7 +122,7 @@ var opts = {
   left: 'auto' // Left position relative to parent in px
 };
 
-var self, numOfPreviewElements = 3, spinner = null;
+var self, spinner = null;
 
 var generateContentFrame = function(src, alreadyAppended){
 
@@ -126,6 +146,11 @@ var generateContentFrame = function(src, alreadyAppended){
 			});
 		});
 	}
+};
+
+var sortTimeline = function(l, r){
+	
+	return getDate(l.activity.verb.date) - getDate(r.activity.verb.date);
 };
 
 var handleMainResourceModal = function(src, direct){
@@ -186,6 +211,8 @@ var handleMainResourceModal = function(src, direct){
 		}
 		console.log("Timeline: ", self.currentObject().timeline());
 		console.log("Loaded Data: ", currentObjectMetadata);
+		
+		temp.currentObject().timeline.sort(sortTimeline);
 	});
 
 	if(spinner !== null){
@@ -235,11 +262,10 @@ var enableModal = function(name){
 
 var notOnBlackList = function(url){
 		
-		var link = getLocation(url);
-		//console.log("blacklist? " + link.hostname + " " , $.inArray(link.hostname, blackList));
-		
-		//We don't want to show resources in the blackList
-		return $.inArray(link.hostname, blackList) == -1;
+	var link = getLocation(url);
+	
+	//We don't want to show resources in the blackList
+	return $.inArray(link.hostname, blackList) == -1;
 };
 
 var previewObject = function(name, content){
@@ -250,20 +276,11 @@ var previewObject = function(name, content){
 
 var resourceObject = function(name, url, timeline){
 
-
     this.url = (url !== undefined) ? url : null;
     this.title = getLocation(url).hostname;
 
     //The timeline should be an observable array of paradata objects
     this.timeline = (timeline !== undefined) ? ko.observableArray(timeline) : ko.observableArray();
-
-    /*if(obj.img !== undefined)
-        this.img = obj.img;
-
-    if(obj.publisher !== undefined)
-        this.publisher = obj.publisher;*/
-
-    //todo
 };
 
 var user = function(obj){
@@ -275,63 +292,6 @@ var user = function(obj){
 };
 
 var followingList = [];
-
-/*
-
-    These arrays and objects are made to portray actual data and will not be included in any final releases
-
-    Begin dummy data:
-
-*/
-var siteList = [ "http://solarsystem.nasa.gov/images/Moon.jpg", "http://en.wikipedia.org/wiki/Space_Shuttle", "http://www.tooter4kids.com/classroom/math4kids.htm" ];
-
-//Timelines are not automatically loaded. tempTimeLine will be used to emulate the loading of timelines
-var mockParadata = {
-    "activity": {
-        "actor": {
-            "objectType": "teacher",
-            "description": [
-            "Optional Username",
-            "high school",
-            "english"
-            ]
-        },
-        "verb": {
-            "action": "rated",
-            "measure": {
-                "sampleSize": 1,
-                "scaleMin": 0,
-                "scaleMax": 3,
-                "value": 2
-            },
-            "date": "2012-09-27"
-        },
-        "object": siteList[1]
-    }
-};
-
-var tempTimeline = [];
-for(var i = 0; i < 8; i++){
-
-    mockParadata.activity.actor.description[0] = "User " + (i + 1);
-    tempTimeline[i] = jQuery.extend(true, {}, mockParadata);
-}
-
-//"Preview resources" makes it esay to group resources by publisher
-var previewResources = [
-
-    new previewObject("NASA", [new resourceObject("Moon Image", siteList[0]), new resourceObject("Shuttle Launch", siteList[1], tempTimeline)]),
-    new previewObject("PBS", [new resourceObject("Lizard Flash Game"), new resourceObject("ABC Learning")]),
-    new previewObject("Learning Corp", [new resourceObject("Math4Kids", siteList[2])]),
-    new previewObject("Extra Object", [new resourceObject("For Testing")]),
-    new previewObject("Extra Object 2", [new resourceObject("For Testing"), new resourceObject("Testing 2")])
-];
-
-/*
-
-    End dummy data
-
-*/
 
 //Swaps an element with an element that's not currently being displayed, if it exists
 var swapResourceElement = function(arr, removeIndex, swapIndex){
@@ -371,7 +331,7 @@ var generateAuthorSpan = function(str, author, content, i){
 	author = author.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 	str = str.replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 
-	console.log("Debug span ", content + " " + author + " " + str);
+	//console.log("Debug span ", content + " " + author + " " + str);
 
     var title = author + '<button type="button" onclick="hidePopover()" class="close closeTimeline" aria-hidden="true">&times;</button>';
 
@@ -393,7 +353,6 @@ var createJSON = function(obj, type){
 
 var displayObjectData = function(pmdata){
 
-		lastModalLocation = "frame";
 		$(".prettyprint").remove();
 
 		//Watch out for XSS attacks
@@ -413,28 +372,42 @@ var displayObjectData = function(pmdata){
 			metadata += JSON.stringify(pmdata, null, 4);
 		}
 
-
-		if($("#modalFrame").length > 0){
-			saveFrameState = $("#mBody").html();
-			$("#modalFrame").remove();
-		}
-
-		$(".modal-body").append(metadata + "</pre>");
+		$("#modal-data-view").html(metadata + "</pre>");
 		prettyPrint();
+		$("#metadata").modal('show'); 
+};
+
+var getDate = function(dateStr){
+	
+	var date = new Date(dateStr);
+
+	//Not a valid date object
+	if(isNaN(date.getTime())){
+
+		if(self.currentObject().url.indexOf("3dr.adlnet.gov") > -1){
+
+			//This gets the timestamp within "/Date(x)/"
+			date = new Date(parseInt(dateStr.substr(6, dateStr.length - 8)));
+		}
+		
+		else
+			console.log("may not be working");
+	}
+	
+	return date;
 };
 
 /* The main View Model used by Knockout.js */
 var mainViewModel = function(resources){
 
     self = this;
-    self.numOfPreviewElements = numOfPreviewElements;
 
     self.data = ko.observableArray(resources);
     self.bookmarks = ko.observableArray();
     self.followers = ko.observableArray(followingList);
     self.results = ko.observableArray();
     self.resultsNotFound = ko.observable(false);
-	
+	self.saveResultsDisplay = ko.observableArray();
 	
 	self.notOnBlackList = function(url){
 		
@@ -455,8 +428,8 @@ var mainViewModel = function(resources){
 	};
 	
 	self.getResults = function(){
-
-		return self.results.slice(0, totalSlice);
+		
+			return self.results.slice(0, totalSlice);
 	};
 
 	self.updateSlice = function(){
@@ -470,17 +443,34 @@ var mainViewModel = function(resources){
 	
 	self.loadNewPage = function(){
 		
-		console.log("testing");
-		$.get('/search?page='+loadIndex+'&terms=' + query, function(data){
-			$('#spinnerDiv').remove();
-			console.log(data);
+		$('#spinnerDiv').show();
+		$("#loadMore").hide();
+		
+		$.get('/search?page='+(loadIndex-1)+'&terms=' + query, function(data){
 
-			if(data.length == 0)
+			$('#spinnerDiv').hide();
+			$("#loadMore").show();
+			$('#spinnerDiv').css("margin-top", "50px");
+			var startIndex = (loadIndex == 2) ? 0 : 1;
+			
+			if(data.length == 0 && loadIndex == 2)
+				temp.resultsNotFound(true);
+			
+			else if(data.length == 0){
+				
 				$("#loadMore").hide();
+				$("#endOfResults").show();
+			}
 
-			handlePerfectSize();
-			for(var i = 1; i < data.length; i++)
+			for(var i = startIndex; i < data.length; i++)
 				self.results.push(data[i]);
+				
+			self.results.remove(function(item){
+				
+				return !self.notOnBlackList(item.url);
+			});
+			
+			handlePerfectSize();
 		});
 		
 		loadIndex++;
@@ -555,29 +545,9 @@ var mainViewModel = function(resources){
 		var actor = (e.activity.actor === undefined)? "Unknown User" : (e.activity.actor.description == undefined && e.activity.actor.displayName !== undefined) ?
 					e.activity.actor.displayName : e.activity.actor.description[0];
 
-		var date = new Date(dateStr);
+		var date = getDate(dateStr);
 
-		//Not a valid date object
-		if(isNaN(date.getTime())){
-
-			if(self.currentObject().url.indexOf("3dr.adlnet.gov") > -1){
-
-				//This gets the timestamp within "/Date(x)/"
-				date = new Date(parseInt(dateStr.substr(6, dateStr.length - 8)));
-			}
-
-			else if(false){
-
-
-			}
-
-			else
-				console.log("may not be working");
-
-
-		}
-
-		console.log("Final content char: ",content[content.length-1]);
+		//console.log("Final content char: ",content[content.length-1]);
 		dateStr = moment(date.getTime()).format("M/D/YYYY"); //moment(date.getTime()).fromNow();
 
 		//3DR paradata fixes. Remove period, and fix "a user". More fixes (for all orgs) to come.
@@ -594,7 +564,7 @@ var mainViewModel = function(resources){
                 return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " commented on this resource.", i);
                 
             case "flagged":
-                return detail + " " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " flagged this resource.", i);
+                return detail + " <span style='color: #b94a48;' >This resource has been flagged.</span> " + generateAuthorSpan(actor + ", " + dateStr, actor, actor + " flagged this resource.", i);
 
             case "downloaded":
 				return content + " " + measure.value + " times " + generateAuthorSpan(dateStr, actor, content, i);
@@ -637,19 +607,6 @@ var mainViewModel = function(resources){
                 console.error(error);
             }
         });
-        //$.post('/main',createJSON(e, "follow"), success, "json").error(error);
-
-
-        //self.getResourcesByFollowers();
-
-        //removeIndex = $.inArray(e, self.data());
-        //swapResourceElement(self.data, removeIndex, numOfPreviewElements);
-
-        //Notify listeners since we manually changed the value
-        //self.data.valueHasMutated();
-
-        //enableDrag();
-        //enableModal();
     };
 
     self.followUser = function(name){

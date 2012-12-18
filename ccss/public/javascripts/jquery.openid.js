@@ -146,6 +146,7 @@ Martin Conte Mac Donell <Reflejo@gmail.com>
       inputarea.css("visibility", "hidden");
       inputarea.css("display", "none");
       inputarea.css("height", "0");
+      inputarea.css("overflow", "hidden");
     };
   
     var submit = function(){
