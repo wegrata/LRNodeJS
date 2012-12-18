@@ -12,7 +12,7 @@
 // License for the specific language governing permissions and limitations under
 // the License.
 var https = require('https'),
-    qs = require('qs');
+qs = require('qs');
 var couchdb = require('couchdb-api');
 var config  = require('config');
 var r       = require('request');
@@ -36,56 +36,56 @@ var jobTitleView  = usersDb.ddoc("users").view("jobTitle");
 //   cookies.grade-filter determines grade of nodes to load
 //     defaults to K/Kindergarten
 exports.nodes = function( request, response, next ) {
-    var category = request.body.category           || null;
-    var standard = request.body.standard           || null;
-    var parent   = request.body.parent             || null;
-    var grade    = request.cookies['grade-filter'] || 'K';
+  var category = request.body.category           || null;
+  var standard = request.body.standard           || null;
+  var parent   = request.body.parent             || null;
+  var grade    = request.cookies['grade-filter'] || 'K';
 
-    if ((!category && !standard && !parent) ||
+  if ((!category && !standard && !parent) ||
     (category && !standard) ||
     (!category && standard)) {
     return next(new Error('Must provide cateogry + standard or parent'));
-    }
+}
 
-    if (category) category = unescape(category);
-    if (standard) standard = unescape(standard);
-    if (parent)   parent   = unescape(parent);
+if (category) category = unescape(category);
+if (standard) standard = unescape(standard);
+if (parent)   parent   = unescape(parent);
 
-    var nodesParams = {
-    include_docs: true
-    };
+var nodesParams = {
+  include_docs: true
+};
 
-    var nodesFinished = function(err, result) {
-    if (err) return next(err);
+var nodesFinished = function(err, result) {
+  if (err) return next(err);
 
-    var docs = result.rows.map( function(n) { return n.value; } );
+  var docs = result.rows.map( function(n) { return n.value; } );
 
-    var viewOptions = {};
-    viewOptions.layout = false;
-    viewOptions.locals = {};
-    viewOptions.locals.nodes = docs;
+  var viewOptions = {};
+  viewOptions.layout = false;
+  viewOptions.locals = {};
+  viewOptions.locals.nodes = docs;
 
-    response.render('nodes.html', viewOptions);
-    };
+  response.render('nodes.html', viewOptions);
+};
 
-    var standardsParams;
+var standardsParams;
 
-    if (standard) {
-    standardsParams = {
-        include_docs: true,
-        startkey: [ category, standard ],
-        endkey: [ category, standard ]
-    };
+if (standard) {
+  standardsParams = {
+    include_docs: true,
+    startkey: [ category, standard ],
+    endkey: [ category, standard ]
+  };
 
-    standardsView.query(standardsParams, function (err, result) {
-        nodesParams.startkey = nodesParams.endkey = [ result.rows[0].value, grade ];
-        nodesView.query(nodesParams, nodesFinished);
-    });
-    }
-    else {
-    nodesParams.startkey = nodesParams.endkey = [ parent, grade ];
+  standardsView.query(standardsParams, function (err, result) {
+    nodesParams.startkey = nodesParams.endkey = [ result.rows[0].value, grade ];
     nodesView.query(nodesParams, nodesFinished);
-    }
+  });
+}
+else {
+  nodesParams.startkey = nodesParams.endkey = [ parent, grade ];
+  nodesView.query(nodesParams, nodesFinished);
+}
 };
 
 // route for displaying categorized standards
@@ -96,44 +96,44 @@ exports.standards = function( request, response, next ) {
     var query = { group: true };
 
     if (category !== null) {
-    query.startkey = category;
-    query.endkey = category;
+      query.startkey = category;
+      query.endkey = category;
     }
 
     categoriesView.query(query, function(err, result) {
-    if (err) return next(err);
+      if (err) return next(err);
 
-    var viewOptions = {
+      var viewOptions = {
         layout: false,
         locals: {
-        categories: result.rows.map( function(n) {
+          categories: result.rows.map( function(n) {
             return { name: n.key, standards: n.value };
-        })
+          })
         }
-    };
+      };
 
-    response.render('standards.html', viewOptions);
+      response.render('standards.html', viewOptions);
     });
-};
+  };
 
 // main route for browser UI
 exports.browser = function( request, response, next ) {
-    var query = { group: true };
+  var query = { group: true };
 
-    categoriesView.query(query, function(err, result) {
+  categoriesView.query(query, function(err, result) {
     if (err) return next(err);
 
     var viewOptions = {
-        locals: {
+      locals: {
         categories: result.rows.map( function(n) {
-            return { name: n.key, standards: n.value };
+          return { name: n.key, standards: n.value };
         })
-        }
+      }
     };
 
-  viewOptions.layout = (request.query.ajax === undefined)? true : false;
+    viewOptions.layout = (request.query.ajax === undefined)? true : false;
     response.render('browser.html', viewOptions);
-    });
+  });
 };
 
 exports.resources = function (request, response, next) {
@@ -148,54 +148,54 @@ exports.resources = function (request, response, next) {
 };
 
 exports.index = function(request,response) {
-    var opts = {};
-    opts.locals = opts.locals || {};
+  var opts = {};
+  opts.locals = opts.locals || {};
 
-    console.log(request.user);
+  console.log(request.user);
 
 
-    function userLoggedIn(){
-       
+  function userLoggedIn(){
+
        //For testing purporses.. may have to make this a global array..
        opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
-             'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
-             'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
+       'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
+       'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
        if(request.user){
-          opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
-            return !underscore.contains(request.user.following, org);
-          });
-          opts.locals.followed = underscore.uniq(request.user.following);
-       }
-       opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
-             'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
-             'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
+        opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
+          return !underscore.contains(request.user.following, org);
+        });
+        opts.locals.followed = underscore.uniq(request.user.following);
+      }
+      opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
+      'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
+      'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
       if ((request.user && request.user.jobTitle) || false){
         params = {
-            include_docs: true,
-            key: request.user.jobTitle
+          include_docs: true,
+          key: request.user.jobTitle
         };
         jobTitleView.query(params, function(err, result){
-            opts.locals.sameOccupation = result.rows.map( function(n) {
-                        return n.value;
-                    });
-            response.render('index.html', opts);
+          opts.locals.sameOccupation = result.rows.map( function(n) {
+            return n.value;
+          });
+          response.render('index.html', opts);
         });
       }
       response.render('index.html', opts);
-  }
-   if (request.user){
-       opts.locals.user = request.user;
-       userLoggedIn();
+    }
+    if (request.user){
+     opts.locals.user = request.user;
+     userLoggedIn();
    }
    else
-       response.redirect('/landing');
-};
-exports.visual = function(request,response) {
+     response.redirect('/landing');
+ };
+ exports.visual = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
 
-    response.render('visual.html', viewOptions);
+  response.render('visual.html', viewOptions);
 };
 
 exports.main = function(request, response){
@@ -212,16 +212,15 @@ exports.search = function(req, res) {
     var terms = [];
     terms = termsString.toLowerCase().split(' ');
     terms.push(termsString.toLowerCase());
+    return terms;
   }
   var terms = [];
   var page = 0;
   var pageSize = 20;
   if (req.body.terms){
-    terms = req.body.terms.toLowerCase().split(' ');
-    terms.push(req.body.terms);
+    terms = getTerms(req.body.terms);
   }else if(req.query.terms){
-    terms = req.query.terms.toLowerCase().split(' ');
-    terms.push(req.query.terms);
+    terms = getTerms(req.query.terms);
   }
   if (req.body.page)
     page = req.body.page;
@@ -258,9 +257,9 @@ exports.search = function(req, res) {
 
 exports.find = function(request,response) {
   var opts = {};
-    opts.locals = opts.locals || {};
+  opts.locals = opts.locals || {};
   if (request.user)
-      opts.locals.user = request.user;
+    opts.locals.user = request.user;
   opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
 
   response.render('find.html', opts);
@@ -272,66 +271,70 @@ exports.landing = function(request,response) {
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
   viewOptions.locals.landing = true;
 
-    response.render('landing.html', viewOptions);
+  response.render('landing.html', viewOptions);
 };
 
 exports.sites = function(request,response) {
-     var opts = {};
-    opts.locals = opts.locals || {};
-    if (request.user)
-      opts.locals.user = request.user;
+ var opts = {};
+ opts.locals = opts.locals || {};
+ if (request.user)
+  opts.locals.user = request.user;
      //For testing purporses.. may have to make this a global array..
      opts.locals = opts.locals || {};
      opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
-           'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
-           'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
+     'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
+     'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
      if(request.user){
-        opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
-          return !underscore.contains(request.user.following, org);
-        });
-        opts.locals.followed = underscore.uniq(request.user.following);
-     }
-     opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
-           'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
-           'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
+      opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
+        return !underscore.contains(request.user.following, org);
+      });
+      opts.locals.followed = underscore.uniq(request.user.following);
+    }
+    opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
+    'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
+    'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
     response.render('sites.html', opts);
-};
+  };
 
-exports.timeline = function(request,response) {
-  var opts = {};
+  exports.timeline = function(request,response) {
+    var opts = {};
     opts.locals = opts.locals || {};
-  if (request.user)
+    if (request.user)
       opts.locals.user = request.user;
-  opts.layout = (request.query.ajax === undefined)? true : false;
-  opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
-  opts.locals.hide = {topMargin:true, footer: true};
+    opts.layout = (request.query.ajax === undefined)? true : false;
+    opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
+    opts.locals.hide = {topMargin:true, footer: true};
 
     response.render('timeline.html', opts);
-};
+  };
 
-exports.screenshot = function(req, res){
-  var doc_id = req.params.docid;
-  var doc = db.doc(doc_id);
-  doc.attachment('screenshot.jpeg').get(true, function(err, s){
-    if(s){
-      s.pipe(res, {end: true});
+  exports.screenshot = function(req, res){
+    var doc_id = req.params.docid;
+    var doc = db.doc(doc_id);
+    doc.attachment('screenshot.jpeg').get(true, function(err, s){
+      if(s){
+        s.pipe(res, {end: true});
+      }else{
+        res.writeHead(404, {});
+        res.end("<html><body><h1>Not Found</h1></body></html>");
+      }
+    });
+  };
+  exports.data = function(req, res){
+    if(!req.query.keys){
+      var doc_id = req.params.docid;
+      var doc = db.doc(doc_id);
+      doc.get(function(err, s){
+        if (s){
+          res.writeHead(200, {"Content-Type":"application/json"});
+          delete s._attachments;
+          res.end(JSON.stringify(s));
+        }else{
+          res.writeHead(404, {});
+          res.end(JSON.stringify({error:true}));
+        }
+      });
     }else{
-      res.writeHead(404, {});
-      res.end("<html><body><h1>Not Found</h1></body></html>");
+      var keys = req.query.keys;
     }
-  });
-};
-exports.data = function(req, res){
-  var doc_id = req.params.docid;
-  var doc = db.doc(doc_id);
-  doc.get(function(err, s){
-    if (s){
-      res.writeHead(200, {"Content-Type":"application/json"});
-      delete s._attachments;
-      res.end(JSON.stringify(s));
-    }else{
-      res.writeHead(404, {});
-      res.end(JSON.stringify({error:true}));
-    }
-  });
-}
+  }
