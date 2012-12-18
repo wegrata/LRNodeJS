@@ -90,6 +90,11 @@ app.get('/user', routes.user);
 app.get('/screenshot/:docid', routes.screenshot);
 app.get('/data/:docid', routes.data);
 app.get('/data', routes.data);
+app.get('/frame', function(req,res){
+
+        res.writeHead(204, {});
+        res.end();
+	});
 app.post('/main', function(req, res){
 	console.log("user, ", req.user);
 

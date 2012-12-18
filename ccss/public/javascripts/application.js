@@ -397,6 +397,62 @@ var getDate = function(dateStr){
 	return date;
 };
 
+var addFullDescriptions = function(){
+			
+			if(self.results().length == 0)
+				return;
+			
+			var temp = self.results.slice(0, totalSlice);			
+			var keys = [];
+			
+			for(var i = 0; i < temp.length; i++){
+				
+				if(temp[i].md5 === undefined){
+					
+					keys[i] = hex_md5(temp[i].url);
+					self.results()[i].md5 = keys[i];
+				}
+				
+				else 
+					keys[i] = temp[i].md5;
+			}
+			
+			keys = encodeURIComponent(JSON.stringify(keys));
+			
+			
+			console.log("KEYS! ", keys);
+
+			//http://12.109.40.31/screenshot/'+md5+'
+			
+			$.getJSON('/data/?keys=' + keys, function(data){
+									
+				
+				console.log("Incoming data: ", data);
+				
+				for(var i = 0; i < temp.length; i++){
+					
+					if(data[i]){
+						
+						console.log("Results: ", self.results()[i].title);
+						temp[i].description = (data[i].description == undefined) ? "" : data[i].description;
+						temp[i].description = (data[i].description.length > 280) ? data[i].description.substr(0, 280) + "..." : data[i].description;
+
+						temp[i].title = (data[i].title == undefined) ? "" : data[i].title;
+						temp[i].title = (data[i].title.length > 80) ? data[i].title.substr(0, 80) + "..." : data[i].title;
+						
+						console.log("Results: ", self.results()[i].title);
+						//image[i] = (data[i].error === true) ? "/images/qmark.png" : "/screenshot/" + md5[i];
+					}
+					
+				}
+				self.results.removeAll();
+				self.results(temp);
+				
+			});
+		
+	
+};
+
 /* The main View Model used by Knockout.js */
 var mainViewModel = function(resources){
 
@@ -428,7 +484,7 @@ var mainViewModel = function(resources){
 	};
 	
 	self.getResults = function(){
-		
+			
 			return self.results.slice(0, totalSlice);
 	};
 
@@ -439,6 +495,7 @@ var mainViewModel = function(resources){
 		self.results.valueHasMutated();
 		console.log(totalSlice);
 		scrollbarFix($(".resultModal"));
+		addFullDescriptions();
 	};
 	
 	self.loadNewPage = function(){

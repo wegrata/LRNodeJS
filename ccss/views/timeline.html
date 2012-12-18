@@ -131,6 +131,35 @@
 		var initialGraphBuild = false;
 		$(document).ready(function(){
 			
+			///////////////////////////////////////////
+			//An attempt to stop frame redirect      //
+			///////////////////////////////////////////
+			var prevent_bust = 0;
+			
+			window.onbeforeunload = function() { 
+
+				prevent_bust++;
+				if(tInterval != "done")
+					return "";
+			};  
+			
+			var tInterval = setInterval(function() {  
+				
+			  console.log(prevent_bust);
+			  if (prevent_bust > 0) {  
+				prevent_bust -= 2  
+				window.top.location = '/frame'  
+			  }  
+			}, 1);
+			
+			setTimeout(function(){
+				
+				
+				clearInterval(tInterval);
+				tInterval = "done";
+			}, 5000);
+			/////////////////////////////////////////////
+			
 			$('input, textarea').placeholder();
 
 			enableModal();

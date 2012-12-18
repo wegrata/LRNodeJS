@@ -823,6 +823,8 @@ function buildDocList(node) {
 		//if(docDictionary[node.data.doc_ids[i]].type != "paradata")
 		//console.log(docDictionary[node.data.doc_ids[i]].url);
 		//if($.inArray(docDictionary[node.data.doc_ids[i]].url, tempURLs) == -1){
+			docDictionary[node.data.doc_ids[i]].title = "";
+			docDictionary[node.data.doc_ids[i]].description = "";
 			temp.results.push(docDictionary[node.data.doc_ids[i]]);
 			tempURLs.push(docDictionary[node.data.doc_ids[i]].url);
 		//}
@@ -830,6 +832,8 @@ function buildDocList(node) {
 		//var listing = buildListing(node.data.doc_ids[doc_id]);
 		//$("#doc_list_accordion").append(listing);
 	}
+	
+	addFullDescriptions();
 	
 	console.log(temp.results());
 	$(".paradataLoader").click(function() {

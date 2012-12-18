@@ -10,6 +10,8 @@
 				<tbody data-bind="foreach: getResults()">
 					<tr data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF'}">
 						<td style="padding-top: 15px; padding-bottom: 15px;">
+							<span data-bind="text:title" >...</span><br/>
+							<span data-bind="text:description" >...</span><br/>
 							<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a><br/>
 							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a>
 						</td>
@@ -51,15 +53,11 @@
 
 	<script src="https://login.persona.org/include.js"></script>
 	<script src="/javascripts/moment.min.js"></script>
-	<script src="/javascripts/prettify.js"></script>
 
 	<script src="/javascripts/jquery.js"></script>
 	<script src="//code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
 	<script src="/javascripts/bootstrap.js"></script>
 
-	<script type="text/javascript" src="/javascripts/libs/modernizr-2.0.6.min.js"></script>
-	<script type="text/javascript" src="/javascript/ui/jquery.cookie.js"></script>
-	<script type="text/javascript" src="/javascripts/libs/jquery.ba-hashchange.min.js.txt"></script>
 
 	<script type="text/javascript" src="/javascript/jquery.xml2json.js"></script>
 	<script type="text/javascript" src="/javascript/ui/jquery.eComboBox.js"></script>
@@ -75,7 +73,8 @@
 	<link type="text/css" href="/themes/Aristo/Aristo.css" rel="stylesheet" />
 	<!--<link type="text/css" href="themes/demos.css" rel="stylesheet" />-->
 	<link type="text/css" href="/stylesheets/Hypertree.css" rel="stylesheet" />
-	<link type="text/css" href="/stylesheets/prettify.css" rel="stylesheet" />
+
+	<script type="text/javascript" src="/javascripts/hexmd5.js"></script>
 	<script src="/javascripts/application.js"></script>
 		
 		<script type="text/javascript">
