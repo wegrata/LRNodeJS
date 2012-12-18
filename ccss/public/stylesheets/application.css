@@ -11,6 +11,53 @@
   .table-striped tbody tr:nth-child(odd) td, .table-striped tbody tr:nth-child(odd) th {
 background-color: #fff !important;
 }
+.screenDiv{
+
+	width: 45%;
+	float: left;
+	
+	overflow: hidden;
+	padding: 5px;
+	margin-bottom: 15px;
+	color: #333;
+}
+
+.screenDiv a{
+
+	color: #333 !important;
+}
+
+.spanHeader{
+
+	font-weight: bold;
+	text-align: left;
+	width: 100%;
+}
+
+.screenDiv div{
+
+	float: right;
+	
+}
+
+.screenDiv table{
+	
+	background: #fff;
+	width: 100%;
+}
+
+
+.screenDiv td{
+	
+	padding: 10px;
+}
+
+.screenDiv img{
+
+	height: 71px;
+	width: 86px;
+	float: left;
+}
 
 #timeline-table th{
 
@@ -53,12 +100,7 @@ ul li{
 	list-style-type: none;
 }
 
-.crumb{
-
-	display: none;
-}
-
-.crumb span{
+.crumb *{
 
 	display: inline;
 }

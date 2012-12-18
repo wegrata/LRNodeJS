@@ -22,9 +22,20 @@
 				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarked resources will appear here</span>
 
 				<!-- ko foreach: bookmarks -->
-					<div class="lr_border_trans span3">
-						<span style="white-space: nowrap;" data-bind="text:'hi', attr:{name:url}"></span><br/>
-						<img height="180" width="180" data-bind="{attr:{src: '/screenshot/' + hash}}" />
+					<div class="screenDiv">
+					<table>
+						<tr>
+							<td width="90">
+								<a data-bind="attr: {href:'/timeline?query='+url}"><img class="img-polaroid screenshot" data-bind="{attr:{src: image}}" /></a>
+							</td>
+							<td>
+								<a class="spanHeader" data-bind="text:title, attr:{name:url ,href:'/timeline?query='+url}"></a>
+								<div class="spanDesc" data-bind="text:description"></div>
+							</td>
+						</tr>
+					</table>
+					
+						
 					</div>
 				<!-- /ko -->
 			</div>
@@ -80,24 +91,41 @@
 		
 		var tempArray = [];
 		
+		
 		//Get bookmarks from Couch
 		{{#user.bookmarks}}
-		tempArray.push({url:"{{activity.object}}", hash:hex_md5("{{activity.object}}")});
+		temp.bookmarks.push({url:"{{activity.object}}", hash:hex_md5("{{activity.object}}"), title:"r", description:"", image:""});
 		{{/user.bookmarks}}
-		console.log(tempArray);
-		$.each(tempArray, function(i, value) {
-			$.getJSON('/data/' + tempArray[i].hash,function(data){
+		
+		var g = 0;
+		var applyFunction = function(i) { 
+			return function(data){
+				temp.bookmarks()[i].title = (data.title != undefined) ? data.title : temp.bookmarks()[i].url;
+				temp.bookmarks()[i].title = (temp.bookmarks()[i].title.length > 40) ? temp.bookmarks()[i].title.substr(0, 40) + "..." : temp.bookmarks()[i].title;
 				
-				console.log("bookmark: ", tempArray[i]," data: ", data);
-				tempArray[i].title = data.title;
-				tempArray[i].description = data.description;
+				temp.bookmarks()[i].description = (data.description != undefined) ? data.description : "";
+				temp.bookmarks()[i].description = (temp.bookmarks()[i].description.length > 100) ? temp.bookmarks()[i].description.substr(0, 100) + "..." : temp.bookmarks()[i].description;
+				
+				temp.bookmarks()[i].image = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + temp.bookmarks()[i].hash;
+				g++;
+				
+				if(g == temp.bookmarks().length)
+					ko.applyBindings(temp);			
+			}
+		};
+		$.each(temp.bookmarks(), function(i, value) {
+			var apply = applyFunction(i);
+			$.getJSON('/data/' + temp.bookmarks()[i].hash,function(data){
+				apply(data);
+				
+			}).error(function(){
+				apply({error: true});
 			});
 		});
 		
-		temp.bookmarks(tempArray);
 		console.log(temp.bookmarks());
 		//temp.bookmarks({{}});
-		ko.applyBindings(temp);
+
 		/*$.getJSON('/resources',function(data){
 
 			console.log(data);

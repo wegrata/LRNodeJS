@@ -49,23 +49,23 @@ var reverseTransform = {
 
 var genParadataDoc = function(jobTitle, id, action, detail){
 				
-				return {
-						"activity": {
-							"actor": {
-								"objectType": jobTitle,
-								"description": [
-									"You"
-								],
-								"id": id
-							},
-							"verb": {
-								"action": action,
-								"detail": detail != undefined ? detail : "",
-								"date": new Date()
-							},
-							"object": temp.currentObject().url
-						}
-					};
+	return {
+			"activity": {
+				"actor": {
+					"objectType": jobTitle,
+					"description": [
+						"You"
+					],
+					"id": id
+				},
+				"verb": {
+					"action": action,
+					"detail": detail != undefined ? detail : "",
+					"date": new Date()
+				},
+				"object": temp.currentObject().url
+			}
+		};
 	
 };
 
