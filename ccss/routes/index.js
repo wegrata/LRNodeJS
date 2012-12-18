@@ -326,3 +326,19 @@ exports.data = function(req, res){
     }
   });
 }
+
+exports.user = function(request,response) {
+  var opts = {};
+    opts.locals = opts.locals || {};
+  if (request.user)
+      opts.locals.user = request.user;
+      
+  else 
+	response.redirect('/landing');
+      
+  opts.layout = (request.query.ajax === undefined)? true : false;
+  opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
+
+
+    response.render('user.html', opts);
+};

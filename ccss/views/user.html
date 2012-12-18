@@ -1,0 +1,162 @@
+ <div class="container">	
+		<div class="row learningRegistryImage">
+			<div class="span9 learningRegistryImage">
+	
+				<form method="get" action="/find" id="searchinput" class="input-append" style="margin-top: 10px;">
+					 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Search the Learning Registry for resources"/>
+					 <input class="btn btn-primary"id="Search" style="margin-top:0;" type="submit" value="Search" />
+				</form>
+				
+				<div style="margin-top:20px;">
+					<span>Browse By</span>
+					<a class="btn" id="defaultTab" href="/browser">Standards</a>
+					<span>or</span>
+					<a class="btn" href="/sites">Sites</a>
+				</div>
+			</div>
+		</div>
+		<div class="row" style="margin-top:50px;">
+			<div class="span12 activity">
+			
+				<h4 data-bind="visible: bookmarks().length > 0">Bookmarks</h4>
+				<span data-bind="visible: bookmarks().length == 0" class="dropText">Bookmarked resources will appear here</span>
+
+				<!-- ko foreach: bookmarks -->
+					<div data-bind="visible: $root.bookmarks().length > 0" class="screenDiv">
+					<table>
+						<tr>
+							<td width="90">
+								<a data-bind="attr: {href:'/timeline?query='+url}"><img class="img-polaroid screenshot" data-bind="{attr:{src: image}}" /></a>
+							</td>
+							<td>
+								<a class="spanHeader" data-bind="text:title, attr:{name:url ,href:'/timeline?query='+url}"></a>
+								<div class="spanDesc" data-bind="text:description"></div>
+							</td>
+						</tr>
+					</table>
+					
+						
+					</div>
+				<!-- /ko -->
+			</div>
+		</div>
+
+ </div>
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+	
+	<script src="/javascripts/moment.min.js"></script>
+
+	<script src="/javascripts/jquery.js"></script>
+	<script src="//code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
+	<script src="/javascripts/bootstrap.js"></script>
+
+	<script src="/javascripts/Placeholders.js"></script>
+	<script src="/javascripts/spin.min.js"></script>
+	<script src="/javascripts/jquery.nicescroll.js"></script>
+	<script type="text/javascript" src="/javascripts/hexmd5.js"></script>
+
+	<script type="text/javascript">
+
+		  //if user is new:
+		  $("[rel=tooltip]").tooltip();
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', 'UA-26825770-1']);
+		  _gaq.push(['_trackPageview']);
+
+		  (function() {
+			var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+			ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+			var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		  })();
+
+		var allOrganizations = "{{orgs}}".split(",");
+		var followed = "{{followed}}".split(",");
+		var allTerms = "{{terms}}".split(",");
+		
+		//console.log({{orgs}});
+	</script>
+	<script src="/javascripts/application.js"></script>
+	<script>
+		var temp = new mainViewModel([]), activeModalName = null, lastSearchCache = "";
+
+		//Last modal location should either be home, or visual
+		var lastModalLocation = "home";
+		for (var f in followed){
+			temp.followers.push({name:followed[f], content:[]});
+		}
+		
+		var tempArray = [];
+		
+		/*
+		[
+		{{#user.bookmarks}}
+		{url:"{{activity.object}}", hash:hex_md5("{{activity.object}}"), title:"r", description:"", image:""},
+		{{/user.bookmarks}}
+		]
+		*/
+		
+		//Get bookmarks from Couch
+		{{#user.bookmarks}}
+			temp.bookmarks.push({url:"{{activity.object}}", hash:hex_md5("{{activity.object}}"), title:"r", description:"", image:""});
+		{{/user.bookmarks}}
+		
+		var g = 0;
+		var applyFunction = function(i) { 
+			return function(data){
+				temp.bookmarks()[i].title = (data.title != undefined) ? data.title : temp.bookmarks()[i].url;
+				temp.bookmarks()[i].title = (temp.bookmarks()[i].title.length > 40) ? temp.bookmarks()[i].title.substr(0, 40) + "..." : temp.bookmarks()[i].title;
+				
+				temp.bookmarks()[i].description = (data.description != undefined) ? data.description : "";
+				temp.bookmarks()[i].description = (temp.bookmarks()[i].description.length > 100) ? temp.bookmarks()[i].description.substr(0, 100) + "..." : temp.bookmarks()[i].description;
+				
+				temp.bookmarks()[i].image = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + temp.bookmarks()[i].hash;
+				g++;
+				
+				if(g == temp.bookmarks().length)
+					ko.applyBindings(temp);			
+			}
+		};
+		$.each(temp.bookmarks(), function(i, value) {
+			var apply = applyFunction(i);
+			$.getJSON('/data/' + temp.bookmarks()[i].hash,function(data){
+				apply(data);
+				
+			}).error(function(){
+				apply({error: true});
+			});
+		});
+		
+		if(temp.bookmarks().length == 0)
+			ko.applyBindings(temp);	
+		console.log(temp.bookmarks());
+		//temp.bookmarks({{}});
+
+		/*$.getJSON('/resources',function(data){
+
+			console.log(data);
+			return;
+			for(var title in data){
+				var items = new Array();
+				for(var i in data[title]){
+					items.push(new resourceObject(data[title][i].title, data[title][i].resource_url))
+				}
+				temp.data.push(new previewObject(title, data[title]));
+			}
+
+		})
+
+		<% for(var i in relationships){ %>
+			var title = "<%= relationships[i].title %>";
+			var r = new previewObject(title,[]);
+			temp.followers.push(r);
+		<%}%>*/
+
+		$(document).ready(function(){
+			
+			$('input, textarea').placeholder();
+		});
+	</script>

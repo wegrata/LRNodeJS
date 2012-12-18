@@ -86,6 +86,7 @@ app.get('/landing', routes.landing);
 app.get('/sites', routes.sites);
 app.get('/timeline', routes.timeline);
 app.get('/find', routes.find);
+app.get('/user', routes.user);
 app.get('/screenshot/:docid', routes.screenshot);
 app.get('/data/:docid', routes.data);
 app.post('/main', function(req, res){
