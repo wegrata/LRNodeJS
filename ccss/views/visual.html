@@ -1,27 +1,48 @@
  	<div class="container">
-		<div style="height: 30px;" class="modal-header visualModal">
+		<div class="searchHeader visualModal">
 			<div>
-				<span id="doc_list_header"></span> <span>Search</span>
+				<span style="display:none;" id="doc_list_header"></span> <span>Search Results</span>
+									<form method="get" action="/find" id="searchinput" class="input-append" style="float:right;">
+						 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Start New Search (current: {{query}})"/>
+						 <button class="btn btn-primary"id="Search" style="margin-top:0;" type="submit">Search</button>
+					</form>
 			</div>
 		</div>
+		<div class="row">
 
-		<div class="resultModal span4">
-			<table class="table table-striped">
-				<tbody data-bind="foreach: getResults()">
-					<tr data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF'}">
-						<td style="padding-top: 15px; padding-bottom: 15px;">
-							<span data-bind="text:title" >...</span><br/>
-							<span data-bind="text:description" >...</span><br/>
-							<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a><br/>
-							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+			<div class="span9 activity">
+				<table class="table table-striped resultsTable">
+					<tbody data-bind="foreach: getResults()">
+								<tr style="border-top:none;" data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF'}">
+									<td style="border-top:none;padding-top:15px;padding-bottom:15px;" class="imageCell">
+										<a data-bind="attr:{href:'/timeline?query='+url}">
+																					<!-- ko if: hasScreenshot -->
+											<img data-bind="attr:{src:'/screenshot/' + _id}" class="img-polaroid" />
+											<!-- /ko -->
+											<!-- ko if: !hasScreenshot -->
+											<img src="/images/qmark.png" class="img-polaroid" />
+											<!-- /ko -->
+										</a>
+									</td>
+									<td style="border-top:none;padding-top:15px;padding-bottom:15px;">
+										<a data-bind="text:title?title:$root.getShorterArr(keys, 5, true), attr:{href:'/timeline?query='+url, title:title}" class="title"></a><br/>
+										<a data-bind="text:url, attr:{href:'/timeline?query='+url}" class="fine"></a><br/>
+										<span data-bind="text:(description.length<280)? description:description.substr(0, 280)+'...'" class="fine"></span>
+									</td>
+								</tr>
+					</tbody>
+				</table>
+				
+				
+			</div>
 			
+			<div class="span3" style="padding-top:10px;" data-bind="foreach: relatedResultsNodes">
 			
+				<a class="relatedList" data-bind="text:(name[0] == undefined)?'':name[0].toUpperCase() + name.substr(1, name.length-1)"></a>
+			</div>
+			
+
 		</div>
-		
 
 		<div class="infovizModal span8">
 
@@ -98,9 +119,7 @@
 			$(document).ready(function(){
 				
 				startNewSearch("{{query}}");
-				var cacheJObj = $(".resultModal");
-				cacheJObj.niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
-				totalSlice = 5;
+				totalSlice = 20;
 				
 				
 			});

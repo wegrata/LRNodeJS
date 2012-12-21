@@ -135,11 +135,13 @@
 			//An attempt to stop frame redirect      //
 			///////////////////////////////////////////
 			var prevent_bust = 0;
+			var bustHappened = 0;
 			
 			window.onbeforeunload = function() { 
 
 				prevent_bust++;
-				if(tInterval != "done")
+				bustHappened++;
+				if(tInterval != "done" && bustHappened > 0)
 					return "";
 			};  
 			
@@ -147,7 +149,8 @@
 				
 			  console.log(prevent_bust);
 			  if (prevent_bust > 0) {  
-				prevent_bust -= 1  
+				prevent_bust -= 2  
+				
 				window.top.location = '/frame'  
 			  }  
 			}, 1);
@@ -157,7 +160,7 @@
 				
 				clearInterval(tInterval);
 				tInterval = "done";
-			}, 5000);
+			}, 3000);
 			/////////////////////////////////////////////
 			
 			$('input, textarea').placeholder();

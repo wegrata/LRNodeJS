@@ -11,6 +11,23 @@
   .table-striped tbody tr:nth-child(odd) td, .table-striped tbody tr:nth-child(odd) th {
 background-color: #fff !important;
 }
+
+.relatedList{
+
+	font-size: 16px;
+	margin-left: 10px;
+	margin-bottom: 15px;
+	display: block;
+	cursor: pointer;
+}
+
+.searchHeader{
+
+font-size: 24px;
+line-height: 24px;
+font-weight:bold;
+}
+
 .screenDiv{
 
 	width: 45%;

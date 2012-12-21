@@ -402,51 +402,52 @@ var addFullDescriptions = function(){
 			if(self.results().length == 0)
 				return;
 			
-			var temp = self.results.slice(0, totalSlice);			
-			var keys = [];
-			
-			for(var i = 0; i < temp.length; i++){
+			console.log("The total slice: ", totalSlice);	
 				
-				if(temp[i].md5 === undefined){
+			var keys = [];			
+			//Generate an array of MD5 hashes to use as identifiers in request
+			for(var i = 0; i < totalSlice; i++){
+				
+				if(self.results()[i].md5 === undefined){
 					
-					keys[i] = hex_md5(temp[i].url);
+					keys[i] = hex_md5(self.results()[i].url);
 					self.results()[i].md5 = keys[i];
 				}
 				
 				else 
-					keys[i] = temp[i].md5;
+					keys[i] = self.results()[i].md5;
 			}
 			
 			keys = encodeURIComponent(JSON.stringify(keys));
-			
-			
-			console.log("KEYS! ", keys);
 
-			//http://12.109.40.31/screenshot/'+md5+'
-			
+			//Do request and update self.results			
 			$.getJSON('/data/?keys=' + keys, function(data){
 									
 				
 				console.log("Incoming data: ", data);
 				
-				for(var i = 0; i < temp.length; i++){
+				for(var i = 0; i < totalSlice; i++){
 					
 					if(data[i]){
 						
-						console.log("Results: ", self.results()[i].title);
-						temp[i].description = (data[i].description == undefined) ? "" : data[i].description;
-						temp[i].description = (data[i].description.length > 280) ? data[i].description.substr(0, 280) + "..." : data[i].description;
-
-						temp[i].title = (data[i].title == undefined) ? "" : data[i].title;
-						temp[i].title = (data[i].title.length > 80) ? data[i].title.substr(0, 80) + "..." : data[i].title;
+						self.results.remove(i);
 						
 						console.log("Results: ", self.results()[i].title);
-						//image[i] = (data[i].error === true) ? "/images/qmark.png" : "/screenshot/" + md5[i];
+						self.results()[i].description = (data[i].description == undefined) ? "" : data[i].description;
+						
+						//If resource doesn't have a title, set title equal to "" (Knockout will display tags if title == "")
+						//However, if resource doesn't have a title or tags, then set title equal to url
+						self.results()[i].title = (data[i].title == undefined || data[i].title == data[i].url) ? "" : data[i].title;
+						self.results()[i].title = (self.results()[i].title == "" && self.results()[i].keys.length < 1) ? self.results()[i].url : self.results()[i].title;
+						
+						self.results()[i].hasScreenshot = (data[i].hasScreenshot == undefined) ? false : data[i].hasScreenshot;
+						self.results()[i]._id = (data[i]._id == undefined) ? "" : data[i]._id;
 					}
 					
 				}
-				self.results.removeAll();
-				self.results(temp);
+				
+				var temp2 = self.results.removeAll();
+				self.results(temp2);
 				
 			});
 		
@@ -464,6 +465,7 @@ var mainViewModel = function(resources){
     self.results = ko.observableArray();
     self.resultsNotFound = ko.observable(false);
 	self.saveResultsDisplay = ko.observableArray();
+	self.relatedResultsNodes = ko.observableArray();
 	
 	self.notOnBlackList = function(url){
 		
@@ -494,7 +496,6 @@ var mainViewModel = function(resources){
 		loadIndex++;
 		self.results.valueHasMutated();
 		console.log(totalSlice);
-		scrollbarFix($(".resultModal"));
 		addFullDescriptions();
 	};
 	
@@ -560,8 +561,22 @@ var mainViewModel = function(resources){
         }
 
         else if(str !== undefined){
+	
+			if(url === true){
+				
+				var temp = ko.observableArray(str);
+				temp.remove(function(item){
+					
+					
+					return item == "" || ! isNaN(item);
+				});
 
-            return (str.length > length)? str.splice(0, length) : str;
+				
+				return (temp().length > length)? temp().splice(0, length).join(", ") : temp().join(", ") ;
+			}
+			
+			//console.log("KEYS: ", str);
+            return (str.length > length)? str.splice(0, length).join(", ") : str.join(", ") ;
 		}
     };
 
@@ -679,9 +694,6 @@ var mainViewModel = function(resources){
     self.moveResourceToBookmark = function(index){
 
 		console.log(self.currentObject());
-
-        //Doing this kind of check is a workaround for not being able to pass
-        //currentResourceName directly. Not sure what that's about..
 
 		//Element was found in bookmarks
         if(self.bookmarks.indexOf(self.currentObject().url) !== -1){

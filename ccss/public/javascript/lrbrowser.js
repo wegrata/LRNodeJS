@@ -19,6 +19,7 @@
 //var NODE_URL = "http://lrdev05.learningregistry.org";
 var NODE_URL = "http://node01.public.learningregistry.net";
 //var NODE_URL = "http://127.0.0.1:5000";
+//var NODE_URL = "http://sandbox.learningregistry.org/";
 var typeReturnCount = 0;
 
 var TRIM_SIZE = 12;
@@ -485,7 +486,7 @@ function buildNode(value, parentValue, type) {
 	else
 		//shape = 'square';
 		color = '#7A378B';
-
+	
 	return {
 		id : idVal,
 		name : value,
@@ -591,6 +592,7 @@ function parseSliceResult(results) {
 	status("Parsing complete.");
 	summary();
 	topNode.children = trimChildren(topNode.children, TRIM_SIZE);
+	self.relatedResultsNodes(topNode.children);
 	loadGraphData(topNode);
 	status("Principle search complete");
 	if(summary_doc_count>0) $("#secondary").show();
@@ -825,6 +827,8 @@ function buildDocList(node) {
 		//if($.inArray(docDictionary[node.data.doc_ids[i]].url, tempURLs) == -1){
 			docDictionary[node.data.doc_ids[i]].title = "";
 			docDictionary[node.data.doc_ids[i]].description = "";
+			docDictionary[node.data.doc_ids[i]].hasScreenshot = "";
+			docDictionary[node.data.doc_ids[i]]._id = "";
 			temp.results.push(docDictionary[node.data.doc_ids[i]]);
 			tempURLs.push(docDictionary[node.data.doc_ids[i]].url);
 		//}
