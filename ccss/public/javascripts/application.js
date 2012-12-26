@@ -454,6 +454,22 @@ var addFullDescriptions = function(){
 	
 };
 
+var sliceSearchDone = function(){
+	
+	
+	$('#spinnerDiv').hide();
+	$('#spinnerDiv').css("margin-top", "0px");
+	$("#loadMore").show();
+	
+	if(self.results().length == 0){
+		
+		$("#loadMore").hide();
+		$("#resultsNotFound").show();
+	}
+	
+	handlePerfectSize();
+};
+
 /* The main View Model used by Knockout.js */
 var mainViewModel = function(resources){
 
@@ -499,40 +515,47 @@ var mainViewModel = function(resources){
 		addFullDescriptions();
 	};
 	
-	self.loadNewPage = function(){
+	self.loadNewPage = function(isVisual){
 		
 		$('#spinnerDiv').show();
 		$("#loadMore").hide();
 		
-		$.get('/search?page='+(loadIndex-1)+'&terms=' + query, function(data){
-
-			$('#spinnerDiv').hide();
-			$("#loadMore").show();
-			$('#spinnerDiv').css("margin-top", "50px");
-			var startIndex = (loadIndex == 2) ? 0 : 1;
+		if(isVisual === true){
 			
-			if(data.length == 0 && loadIndex == 2)
-				temp.resultsNotFound(true);
-			
-			else if(data.length == 0){
-				
-				$("#loadMore").hide();
-				$("#endOfResults").show();
-			}
+			startNewSearch(query);
+		}
+		
+		else {
+			$.get('/search?page='+(loadIndex-1)+'&terms=' + query, function(data){
 
-			for(var i = startIndex; i < data.length; i++)
-				self.results.push(data[i]);
+				$('#spinnerDiv').hide();
+				$("#loadMore").show();
+				$('#spinnerDiv').css("margin-top", "50px");
+				var startIndex = (loadIndex == 2) ? 0 : 1;
 				
-			self.results.remove(function(item){
+				if(data.length == 0 && loadIndex == 2)
+					temp.resultsNotFound(true);
 				
-				return !self.notOnBlackList(item.url);
+				else if(data.length == 0){
+					
+					$("#loadMore").hide();
+					$("#endOfResults").show();
+				}
+
+				for(var i = startIndex; i < data.length; i++)
+					self.results.push(data[i]);
+					
+				self.results.remove(function(item){
+					
+					return !self.notOnBlackList(item.url);
+				});
+				
+				handlePerfectSize();
 			});
 			
-			handlePerfectSize();
-		});
-		
-		loadIndex++;
-		scrollbarFix($(".resultModal"));
+			loadIndex++;
+			scrollbarFix($(".resultModal"));
+		}
 	};
 
 	self.handleDataClick = function(e){
@@ -543,6 +566,12 @@ var mainViewModel = function(resources){
 	self.getShorterStr = function(obj){
 		
 		return (obj.title.length>55)? obj.title.substr(0, 55) + '...' : obj.title;
+	};
+	
+	self.relatedTagSlice = function(e){
+		
+		buildDocList(e);
+		console.log(e);
 	};
 
     self.getShorterArr = function(str, length, url){

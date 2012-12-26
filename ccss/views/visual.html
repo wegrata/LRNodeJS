@@ -2,13 +2,15 @@
 		<div class="searchHeader visualModal">
 			<div>
 				<span style="display:none;" id="doc_list_header"></span> <span>Search Results</span>
-									<form method="get" action="/find" id="searchinput" class="input-append" style="float:right;">
+					<form method="get" action="/visual" id="searchinput" class="input-append" style="float:right;">
 						 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Start New Search (current: {{query}})"/>
 						 <button class="btn btn-primary"id="Search" style="margin-top:0;" type="submit">Search</button>
 					</form>
 			</div>
 		</div>
-		<div class="row">
+		
+		
+		<div class="row" data-bind="visible:results().length > 0">
 
 			<div class="span9 activity">
 				<table class="table table-striped resultsTable">
@@ -38,13 +40,14 @@
 			
 			<div class="span3" style="padding-top:10px;" data-bind="foreach: relatedResultsNodes">
 			
-				<a class="relatedList" data-bind="text:(name[0] == undefined)?'':name[0].toUpperCase() + name.substr(1, name.length-1)"></a>
+				<a class="relatedList" data-bind="text:(name[0] == undefined)?'':name[0].toUpperCase() + name.substr(1, name.length-1), click:$root.relatedTagSlice"></a>
 			</div>
 			
 
 		</div>
+		<div id="spinnerDiv"></div>
 
-		<div class="infovizModal span8">
+		<div class="infovizModal span8" style="display:none;">
 
 			<div id="infovis"></div>
 
@@ -68,7 +71,10 @@
 			</div>
 
 		</div>
-		<span style="float: left;" class="btn" data-bind="click: updateSlice">Load More</span>
+		<div id="resultsNotFound" class="resultsPrompt" data-bind="visible:resultsNotFound">
+			<span>Results Not Found</span>
+		</div>
+		<span style="float: left;" id="loadMore" class="btn" data-bind="click: updateSlice">Load More</span>
 	</div>
 		
 
@@ -98,33 +104,57 @@
 	<script type="text/javascript" src="/javascripts/hexmd5.js"></script>
 	<script src="/javascripts/application.js"></script>
 		
-		<script type="text/javascript">
-		  var _gaq = _gaq || [];
-		  _gaq.push(['_setAccount', 'UA-26825770-1']);
-		  _gaq.push(['_trackPageview']);
+	<script type="text/javascript">
+		var handlePerfectSize = function(){
+
+			if($(document).height() > $(window).height()){
+				$("#mainSection").css("height", "auto");
+				return;
+			}
+
+			var height = $(window).height() - $(".navbar-inverse").height() - $("footer").height() * 2.2;
+
+			//console.log(height);
+			$("#mainSection").css("height", height + "px");
+			$("#resultsNotFound").add("#spinnerDiv").css("margin-top", $(window).height()*.3 + "px");
+
+		};
+	
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-26825770-1']);
+	  _gaq.push(['_trackPageview']);
+	
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
 		
-		  (function() {
-		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		  })();
-			
-			var initialGraphBuild = false;
-			var allOrganizations = "{{orgs}}".split(","), allTerms = "{{terms}}".split(","), temp = new mainViewModel([]);
+		var initialGraphBuild = false;
+		var allOrganizations = "{{orgs}}".split(","), allTerms = "{{terms}}".split(","), temp = new mainViewModel([]);
+		var query = "{{query}}";
 		
-			console.log(allTerms);
+		
+		console.log(allTerms);
+		
+		
+		ko.applyBindings(temp);
+		$(document).ready(function(){
 			
 			
-			ko.applyBindings(temp);
-			$(document).ready(function(){
+			spinner = new Spinner(opts).spin($('#spinnerDiv')[0]);
+			self.loadNewPage(true);
+			totalSlice = 20;
+			
+			
+			handlePerfectSize();
+			$(window).resize(function() {
 				
-				startNewSearch("{{query}}");
-				totalSlice = 20;
-				
-				
+				handlePerfectSize();
 			});
-			
-		</script>
+		});
+		
+	</script>
 
 <!--<script>
 jQuery(function(){

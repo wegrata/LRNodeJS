@@ -592,10 +592,15 @@ function parseSliceResult(results) {
 	status("Parsing complete.");
 	summary();
 	topNode.children = trimChildren(topNode.children, TRIM_SIZE);
+	console.log(topNode.children);
 	self.relatedResultsNodes(topNode.children);
 	loadGraphData(topNode);
 	status("Principle search complete");
-	if(summary_doc_count>0) $("#secondary").show();
+	if(summary_doc_count>0){
+		$("#secondary").show();
+	}
+	
+	sliceSearchDone();	
 }
 
 function peekAhead() {
@@ -806,7 +811,7 @@ function handleNodeSingleClick() {
 
 function buildDocList(node) {
 	
-	
+	console.log("NODE: ", node);
 	if(node.id == -1)
 		$("#doc_list_header").html(''); 
 	else if(node.id == topNode.id)
@@ -844,9 +849,6 @@ function buildDocList(node) {
 		loadParadata($(this).attr('id'));
 	});
 	//buildAccordion();
-	
-	//hiasd.cool = "gt";
-	
 }
 
 function buildListing(doc_id) {

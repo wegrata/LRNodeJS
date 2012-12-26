@@ -335,6 +335,7 @@ ul li{
 		overflow: scroll;
 		overflow-x: hidden;
 		height: 100%;
+		background-color: #f7f7f7;
 	}
 	
 	.chatBox, .chatTools{
@@ -344,7 +345,7 @@ ul li{
 		margin: 0;
 		padding: 10px 0 0 0;
 		height: 100px; 
-		background-color: #fff;
+		background-color: #f7f7f7;
 	}
 
 	
@@ -352,6 +353,7 @@ ul li{
 		padding-top: 15px;
 		height: 15px;
 		text-align: center;
+		
 	}
 	
 	.chatTools span{
