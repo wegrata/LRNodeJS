@@ -1,15 +1,58 @@
  	<div class="container">
+		
+		{{#debug}}
+			<p class="warningParagraph">Debug mode is enabled</p>
+		{{/debug}}
 		<div class="searchHeader visualModal">
 			<div>
-				<span style="display:none;" id="doc_list_header"></span> <span>Search Results</span>
-					<form method="get" action="/visual" id="searchinput" class="input-append" style="float:right;">
-						 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Start New Search (current: {{query}})"/>
-						 <button class="btn btn-primary"id="Search" style="margin-top:0;" type="submit">Search</button>
-					</form>
+				<span style="display:none;" id="doc_list_header"></span> 
+				<span>Search Results</span>
+				<form method="get" action="/visual" id="searchinput" class="input-append" style="float:right;">
+					 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Start New Search (current: {{query}})"/>
+					 <button class="btn btn-primary"id="Search" style="margin-top:0;" type="submit">Search</button>
+				</form>
 			</div>
 		</div>
-		
-		
+		<div data-bind="visible: {{debug}}" style="margin-top:15px;">
+			<div class="resultModal span4">
+				<table class="table table-striped">
+					<tbody data-bind="foreach: getResults()">
+						<tr>
+							<td style="padding-top: 15px; padding-bottom: 15px;">
+								<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a><br/>
+								<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+
+			</div>
+			<div class="infovizModal span8">
+
+				<div id="infovis"></div>
+
+				<div class="text" >
+					<div style="text-align: center;">
+						<div id="progressbar" align="center"></div>
+					</div>
+					<div id="status">
+						...
+					</div>
+				</div>
+				<br>
+				<div class="text">
+					<div id="results_summary"></div>
+				</div>
+				<br>
+				<div id = "debugDiv" class="text">
+					<div id="debug">
+						...
+					</div>
+				</div>
+
+			</div>
+		</div>
 		<div class="row" data-bind="visible:results().length > 0">
 
 			<div class="span9 activity">
@@ -46,31 +89,6 @@
 
 		</div>
 		<div id="spinnerDiv"></div>
-
-		<div class="infovizModal span8" style="display:none;">
-
-			<div id="infovis"></div>
-
-			<div class="text" >
-				<div style="text-align: center;">
-					<div id="progressbar" align="center"></div>
-				</div>
-				<div id="status">
-					...
-				</div>
-			</div>
-			<br>
-			<div class="text">
-				<div id="results_summary"></div>
-			</div>
-			<br>
-			<div id = "debugDiv" class="text">
-				<div id="debug">
-					...
-				</div>
-			</div>
-
-		</div>
 		<div id="resultsNotFound" class="resultsPrompt" data-bind="visible:resultsNotFound">
 			<span>Results Not Found</span>
 		</div>
@@ -137,7 +155,6 @@
 		
 		console.log(allTerms);
 		
-		
 		ko.applyBindings(temp);
 		$(document).ready(function(){
 			
@@ -145,6 +162,9 @@
 			spinner = new Spinner(opts).spin($('#spinnerDiv')[0]);
 			self.loadNewPage(true);
 			totalSlice = 20;
+			
+			var cacheJObj = $(".resultModal");
+			cacheJObj.niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
 			
 			
 			handlePerfectSize();

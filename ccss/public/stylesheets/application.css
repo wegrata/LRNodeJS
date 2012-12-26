@@ -26,6 +26,18 @@ background-color: #fff !important;
 font-size: 24px;
 line-height: 24px;
 font-weight:bold;
+height: 35px;
+}
+
+.warningParagraph{
+
+	border: 1px solid #ddd;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	color: #a07833;
+	padding: 10px 40%;
+	background-color: #fcf8e3;
 }
 
 .screenDiv{

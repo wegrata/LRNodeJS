@@ -209,6 +209,7 @@ exports.index = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  viewOptions.locals.debug = (request.query.debug === undefined)? false : true;
 
   response.render('visual.html', viewOptions);
 };
