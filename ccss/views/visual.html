@@ -1,8 +1,4 @@
  	<div class="container">
-		
-		{{#debug}}
-			<p class="warningParagraph">Debug mode is enabled</p>
-		{{/debug}}
 		<div class="searchHeader visualModal">
 			<div>
 				<span style="display:none;" id="doc_list_header"></span> 
@@ -10,13 +6,19 @@
 				<form method="get" action="/visual" id="searchinput" class="input-append" style="float:right;">
 					 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Start New Search (current: {{query}})"/>
 					 <button class="btn btn-primary"id="Search" style="margin-top:0;" type="submit">Search</button>
+				 {{#debug}}
+					<input type="hidden" name="debug" value="true" />
+				 {{/debug}}
+				  {{#server}}
+					<input type="hidden" name="server" value="{{server}}" />
+				 {{/server}}
 				</form>
 			</div>
 		</div>
 		<div data-bind="visible: {{debug}}" style="margin-top:15px;">
 			<div class="resultModal span4">
 				<table class="table table-striped">
-					<tbody data-bind="foreach: getResults()">
+					<tbody data-bind="foreach: results">
 						<tr>
 							<td style="padding-top: 15px; padding-bottom: 15px;">
 								<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a><br/>
@@ -159,7 +161,9 @@
 		$(document).ready(function(){
 			
 			
-			spinner = new Spinner(opts).spin($('#spinnerDiv')[0]);
+			{{^debug}}
+				spinner = new Spinner(opts).spin($('#spinnerDiv')[0]);
+			{{/debug}}
 			self.loadNewPage(true);
 			totalSlice = 20;
 			
@@ -172,6 +176,10 @@
 				
 				handlePerfectSize();
 			});
+			
+			{{#server}}
+				$(".warningParagraph p").append(" ("+NODE_URL+")");
+			{{/server}}
 		});
 		
 	</script>

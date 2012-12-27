@@ -16,10 +16,6 @@
  * @author John Brecht
  */
 
-//var NODE_URL = "http://lrdev05.learningregistry.org";
-var NODE_URL = "http://node01.public.learningregistry.net";
-//var NODE_URL = "http://127.0.0.1:5000";
-//var NODE_URL = "http://sandbox.learningregistry.org/";
 var typeReturnCount = 0;
 
 var TRIM_SIZE = 12;

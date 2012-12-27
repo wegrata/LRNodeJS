@@ -210,6 +210,7 @@ exports.index = function(request,response) {
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
   viewOptions.locals.debug = (request.query.debug === undefined)? false : true;
+  viewOptions.locals.server = (parseInt(request.query.server) >= 1 && parseInt(request.query.server) < 7)? parseInt(request.query.server) : viewOptions.locals.debug ? 1 : false;
 
   response.render('visual.html', viewOptions);
 };
@@ -278,6 +279,7 @@ exports.landing = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  viewOptions.locals.debug = (request.query.debug === undefined)? false : true;
   viewOptions.locals.landing = true;
 
   response.render('landing.html', viewOptions);

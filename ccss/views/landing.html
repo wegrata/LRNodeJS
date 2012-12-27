@@ -4,9 +4,23 @@
 				<div class="span9 learningRegistryImage">
 				
 					<img alt="Learning Registry" src="/images/customLogo.png" />
-					<form method="get" action="/find" id="searchinput" class="input-append" style="margin-top: 60px;">
-						 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Search the Learning Registry for resources"/>
-						 <button class="btn btn-primary" id="Search" style="margin-top:0;" type="submit">Search</button>
+					<form method="get" id="searchinput"  style="margin-top: 60px;">
+						 <div class="input-append">
+							 <input class="input-xxlarge" id="term" name="query" type="text" autofocus="true" placeholder="Search the Learning Registry for resources"/>
+							 <button class="btn btn-primary" id="Search" style="margin-top:0;" type="submit">Search</button>
+						 </div>
+						 {{#debug}}
+							<span>Choose a node:</span>
+							<select name="server">
+								<option value="1">http://node01.public.learningregistry.net</option>
+								<option value="2">http://node02.public.learningregistry.net</option>
+								<option value="3">http://lrtest01.public.learningregistry.net</option>
+								<option value="4">http://sandbox.learningregistry.org/</option>
+								<option value="5">http://lrdev03.learningregistry.org</option>
+								<option value="6">http://lrdev05.learningregistry.org</option>
+							</select>
+							<input type="hidden" name="debug" value="true" />
+						 {{/debug}}
 					</form>
 					
 					<div style="margin-top:50px;">
@@ -40,16 +54,15 @@
 	<script src="/javascripts/Placeholders.js"></script>
 	<script type="text/javascript">
 
-		//var temp = new mainViewModel(previewResources);
-		var slides = ["first", "second", "third"];
-		var current = 0;
-		
+		//var temp = new mainViewModel(previewResources);		
 		//ko.applyBindings(temp);
 		//console.log(self.data());
 		
 
 		
 		$(function(){
+			
+			$("#searchinput").attr("action", {{debug}} ? "/visual" : "/find");
 			
 			$('#signin').openid();
 			$('input, textarea').placeholder();
@@ -71,7 +84,6 @@
 			var handlePerfectSize = function(){
 				var height = $(window).height() - $(".navbar-inverse").height() - $("footer").height() * 2.2;
 				height = (height < 380) ? 380 : height;
-				console.log(height);
 				$("#mainSection").css("height", height + "px");	
 				$("#first").css("margin-top", $(window).height()*.10 + "px");					
 			};
