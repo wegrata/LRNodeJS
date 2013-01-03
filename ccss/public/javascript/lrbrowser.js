@@ -27,7 +27,7 @@ var sliceAsIdentityResultCount;
 var max_results;
 var limit_results;
 var SLICE_LIMIT_MAX = 100000;
-var SUGGESTED_SLICE_LIMIT = 500;
+var SUGGESTED_SLICE_LIMIT = globalSliceMax;
 var sliceLimit = SLICE_LIMIT_MAX;
 
 var summary_doc_count = 0;
@@ -329,8 +329,8 @@ function compareTagAndIdentityCountResults() {
 		});
 	}
 	if(max_results > SUGGESTED_SLICE_LIMIT) {
-		sliceLimit = 500;
-		max_results = 500;
+		sliceLimit = SUGGESTED_SLICE_LIMIT;
+		max_results = SUGGESTED_SLICE_LIMIT;
 		post_confirm_search_data = search_data
 		limit_results = true;
 		//confirmSearch(search_data);

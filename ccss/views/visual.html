@@ -15,9 +15,9 @@
 				</form>
 			</div>
 		</div>
-		<div data-bind="visible: {{debug}}" style="margin-top:15px;">
+		<div data-bind="visible: {{debug}}" class="resultParent" style="margin-top:15px;">
 			<div class="resultModal span4">
-				<table class="table table-striped">
+				<table class="table table-striped" style="width:100%;">
 					<tbody data-bind="foreach: results">
 						<tr>
 							<td style="padding-top: 15px; padding-bottom: 15px;">
@@ -114,6 +114,14 @@
 	<script src="/javascripts/jquery.nicescroll.js"></script>
 
 	<script language="javascript" type="text/javascript" src="/javascript/jit-yc.js"></script>
+	
+	
+	{{#max}}
+	<script>
+		var globalSliceMax = {{max}};
+	</script>
+	{{/max}}
+	
 	<script type="text/javascript" src="/javascript/lrbrowser.js"></script>
 	<script type="text/javascript" src="/javascript/paradata.js"></script>
 	<script type="text/javascript" src="/javascript/utils.js"></script>
@@ -160,14 +168,24 @@
 		ko.applyBindings(temp);
 		$(document).ready(function(){
 			
-			
+			var cacheJObj = $(".resultModal");
 			{{^debug}}
 				spinner = new Spinner(opts).spin($('#spinnerDiv')[0]);
 			{{/debug}}
 			self.loadNewPage(true);
 			totalSlice = 20;
+			var bodyWidth = $("body").css("width");
 			
-			var cacheJObj = $(".resultModal");
+			cacheJObj.mouseenter(function(){
+					
+					
+					$("html").addClass("overflowHidden");
+					$("body").css("width", bodyWidth);
+			});
+			cacheJObj.mouseleave(function(){
+					
+					$("html").removeClass("overflowHidden");
+			});
 			cacheJObj.niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
 			
 			

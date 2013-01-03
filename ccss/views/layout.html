@@ -27,14 +27,15 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    {{#server}}
-		<script type="text/javascript">
-		
+    <script type="text/javascript">
+		var NODE_URL = "http://node01.public.learningregistry.net";
+		{{#server}}
 			var temp_NODE_URL = ["","http://node01.public.learningregistry.net","http://node02.public.learningregistry.net", "http://lrtest01.public.learningregistry.net",
 								 "http://sandbox.learningregistry.org/", "http://lrdev03.learningregistry.org", "http://lrdev05.learningregistry.org"];
-			var NODE_URL = temp_NODE_URL[{{server}}];
-		</script>
-	{{/server}}
+			NODE_URL = temp_NODE_URL[{{server}}];
+
+		{{/server}}
+	</script>
   </head>
    <body>
 

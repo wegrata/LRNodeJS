@@ -46,6 +46,11 @@ height: 35px;
 	text-align: center;
 }
 
+.overflowHidden{
+
+	overflow: hidden;
+}
+
 .screenDiv{
 
 	width: 45%;

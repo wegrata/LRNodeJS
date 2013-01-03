@@ -211,6 +211,7 @@ exports.index = function(request,response) {
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
   viewOptions.locals.debug = (request.query.debug === undefined)? false : true;
   viewOptions.locals.server = (parseInt(request.query.server) >= 1 && parseInt(request.query.server) < 7)? parseInt(request.query.server) : viewOptions.locals.debug ? 1 : false;
+  viewOptions.locals.max = (parseInt(request.query.max) >= 500 && parseInt(request.query.max) <= 100000)? parseInt(request.query.max) : 500;
 
   response.render('visual.html', viewOptions);
 };
