@@ -232,24 +232,28 @@ var BROWSER = (function () {
 					md5[i] = hex_md5($(this).attr('name'));
 
 					//http://12.109.40.31/screenshot/'+md5+'
+				});
+				
+				var keys = encodeURIComponent(JSON.stringify(md5));
+				$.getJSON('/data/?keys=' + keys, function(data){
+										
+					for(var i = 0; i < data.length; i++){
 					
-					$.getJSON('/data/' + md5[i],function(data){
-											
-						
 						console.log("resource number: ", i);
-						
-						data.description = (data.description == undefined) ? "" : data.description;
-						data.description = (data.description.length > 280) ? data.description.substr(0, 280) + "..." : data.description;
-						
-						data.title = (data.title == undefined) ? thisObj[i].attr("name") : data.title;
-						data.title = (data.title.length > 80) ? data.title.substr(0, 80) + "..." : data.title;
-						
-						image[i] = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + md5[i];
-						
-						thisObj[i].html(data.title);
-						$('.'+md5[i]).attr("src", image[i]);
-						$('#'+md5[i]).html(data.description);
-					});
+						if(data[i]){
+							data[i].description = (data[i].description == undefined) ? "" : data[i].description;
+							data[i].description = (data[i].description.length > 280) ? data[i].description.substr(0, 280) + "..." : data[i].description;
+							
+							data[i].title = (data[i].title == undefined) ? thisObj[i].attr("name") : data[i].title;
+							data[i].title = (data[i].title.length > 80) ? data[i].title.substr(0, 80) + "..." : data[i].title;
+							
+							image[i] = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + md5[i];
+							
+							thisObj[i].html(data[i].title);
+							$('.'+md5[i]).attr("src", image[i]);
+							$('#'+md5[i]).html(data[i].description);
+						}
+					}
 				});
 				
 				console.log("RESOURCE CLICK");

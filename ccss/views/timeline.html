@@ -1,31 +1,31 @@
 <div class="timeline-container">
 	<div class="modal-timeline">
 		<table id="timeline-table" class="table table-striped">
-			
+		{{^hideFrame}}
 			<th data-bind="visible: $.inArray(temp.currentObject().url, tempBookmarksArray) == -1" ><a class="btn btn-info" id="bookmark">Bookmark Resource</a></th>
 			<th data-bind="visible:  $.inArray(temp.currentObject().url, tempBookmarksArray) > -1" ><a class="btn btn-info disabled">Bookmark Resource</a></th>
+		{{/hideFrame}}
 			<tbody data-bind="foreach: getReversedTimeline()">
-			
-				
-				<tr><td data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF', 'border-top': $index()==0 ? 'none' : '1px #DDD solid'}">
+				<tr>
+					<td data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF', 'border-top': $index()==0 ? 'none' : '1px #DDD solid'}">
 								   
 						<div data-bind="html: $root.generateParadataText($data, $index()), attr:{id: 'paradata' + $index() }"></div>
 					</td>			   
 				</tr>
 			</tbody>
 		</table>
-
+		
 		<div style="text-align: center;">
-			<span data-bind="if: checkTimelineLength(currentObject().timeline) == 0">Be the first to interact (below)</span>
+			<span data-bind="if: checkTimelineLength(currentObject().timeline) == 0">{{^hideFrame}}Be the first to interact (below){{/hideFrame}}{{#hideFrame}}Paradata not found{{/hideFrame}}</span>
 		</div>
 	</div>
-	
+	{{^hideFrame}}
 	<div class="modal-iframe">
 		<div id="mBody" class="modal-body">
 			<div id="spinnerDiv" style="margin: 100px auto; height: 20%; width:20%;"></div>
 		</div>
 	</div>
-
+	
 
 	<div class="chatTools">
 		<span style="border-right: 1px solid #aaa">
@@ -42,6 +42,13 @@
 	<div class="chatBox">
 		<textarea placeholder="Add comment here (press Enter to send)."></textarea>
 	</div>
+	{{/hideFrame}}	
+	{{#hideFrame}}
+		<div class="hide-frame">
+			<p>iframes have been disabled</p>
+		</div>
+	{{/hideFrame}}
+	
 </div>
 
 <div class="modal" id="metadata" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -66,13 +73,6 @@
 	<script src="//code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
 	<script src="/javascripts/bootstrap.js"></script>
 
-	<script type="text/javascript" src="/javascripts/libs/modernizr-2.0.6.min.js"></script>
-	<script type="text/javascript" src="/javascript/ui/jquery.cookie.js"></script>
-	<script type="text/javascript" src="/javascripts/libs/jquery.ba-hashchange.min.js.txt"></script>
-
-	<script type="text/javascript" src="/javascript/jquery.xml2json.js"></script>
-	<script type="text/javascript" src="/javascript/ui/jquery.eComboBox.js"></script>
-
 	<script src="/javascripts/Placeholders.js"></script>
 	<script src="/javascripts/spin.min.js"></script>
 	<script src="/javascripts/jquery.nicescroll.js"></script>
@@ -81,9 +81,7 @@
 	<script type="text/javascript" src="/javascript/lrbrowser.js"></script>
 	<script type="text/javascript" src="/javascript/paradata.js"></script>
 	<script type="text/javascript" src="/javascript/utils.js"></script>
-	<link type="text/css" href="/themes/Aristo/Aristo.css" rel="stylesheet" />
-	<!--<link type="text/css" href="themes/demos.css" rel="stylesheet" />-->
-	<link type="text/css" href="/stylesheets/Hypertree.css" rel="stylesheet" />
+
 	<link type="text/css" href="/stylesheets/prettify.css" rel="stylesheet" />
 	<script type="text/javascript">
 
@@ -95,7 +93,9 @@
 		var allTerms = "{{terms}}".split(",");
 
 		//console.log({{orgs}});
+		var iframeHidden = {{hideFrame}};
 	</script>
+	<script type="text/javascript" src="/javascripts/hexmd5.js"></script>
 	<script src="/javascripts/application.js"></script>
 	<script>
 	
@@ -107,8 +107,7 @@
 		$("#metadata").modal('hide'); 
 		var allOrganizations = "{{orgs}}".split(","), allTerms = "{{terms}}".split(","), temp = new mainViewModel([]);
 		//console.log("{{query}}");
-		
-		console.log("Comments: ", "{{user.comments[0]}}");
+		//console.log("Comments: ", "{{user.comments[0]}}");
 		
 		handleMainResourceModal("{{query}}");
 		console.log(allTerms);
@@ -156,7 +155,6 @@
 			}, 1);
 			
 			setTimeout(function(){
-				
 				
 				clearInterval(tInterval);
 				tInterval = "done";
@@ -265,7 +263,7 @@
 			var handlePerfectSize = function(){
 				var height = $(window).height() - $(".navbar-inverse").height();
 				$(".timeline-container").css("height", height + "px");				
-				$(".modal-timeline").css("height", (height - 150) + "px");
+				$(".modal-timeline").css("height", (height {{^hideFrame}}- 150{{/hideFrame}}) + "px");
 			};
 			
 			handlePerfectSize();

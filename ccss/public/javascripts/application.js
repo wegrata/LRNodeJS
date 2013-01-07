@@ -134,7 +134,8 @@ var generateContentFrame = function(src, alreadyAppended){
 	}
 
 	var frame = $('#modalFrame')[0];
-	frame.contentWindow.location.replace(src);
+	if(frame)
+		frame.contentWindow.location.replace(src);
 
 	if(alreadyAppended !== true){
 		$("#spinnerDiv").show();
@@ -155,7 +156,33 @@ var sortTimeline = function(l, r){
 
 var handleMainResourceModal = function(src, direct){
 
+	if(iframeHidden){
+		
+			var md5 = hex_md5(src);
 
+			//http://12.109.40.31/screenshot/'+md5+'
+			
+			$.getJSON('/data/' + md5,function(data){					
+			
+				if(data){
+					data.description = (data.description == undefined) ? "" : data.description;
+					data.description = (data.description.length > 280) ? data.description.substr(0, 280) + "..." : data.description;
+					
+					data.title = (data.title == undefined) ? src : data.title;
+					data.title = (data.title.length > 80) ? data.title.substr(0, 80) + "..." : data.title;
+					
+					var image = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + md5;
+					
+					$('.'+md5).attr("src", image);
+					$('#'+md5).html(data.description);
+					
+					self.currentObject(new resourceObject("Item", src));
+					$(".prettyprint").remove();
+				}
+			});
+			
+			return;
+	}
 
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
 	src = (typeof src == "string")? src : $(this).attr("name");
@@ -655,7 +682,9 @@ var mainViewModel = function(resources){
 		content = (content[content.length-1] == ".")? content.substr(0, content.length-1) : content;
 		content = (content.indexOf("The a user") > -1)? "The anonymous user" + content.substr(10, content.length - 9): content;
 
-        //Handle each verb differently
+		var imageTest = '<img height="80" width="80" src="http://www.learningregistry.org/_/rsrc/1332197520195/community/adl-3d-repository/3dr_logo.png" />'
+
+        //Handle each verb differently        
         switch(verb){
 
             case "rated":
@@ -675,7 +704,7 @@ var mainViewModel = function(resources){
 				return content + " " + generateAuthorSpan(dateStr, actor, content, i);
 
 			case "viewed":
-				return content + " is " + measure.value + generateAuthorSpan(dateStr, actor, undefined, i);
+				return imageTest + content + " is " + measure.value + generateAuthorSpan(dateStr, actor, undefined, i);
 
 			case "matched":
 				return actor + " has a match " + generateAuthorSpan(dateStr, actor, content, i);

@@ -118,7 +118,7 @@
 	
 	{{#max}}
 	<script>
-		var globalSliceMax = {{max}};
+		globalSliceMax = {{max}};
 	</script>
 	{{/max}}
 	
@@ -178,13 +178,12 @@
 			
 			cacheJObj.mouseenter(function(){
 					
-					
-					$("html").addClass("overflowHidden");
+					$("html").add("body").addClass("overflowHidden");
 					$("body").css("width", bodyWidth);
 			});
 			cacheJObj.mouseleave(function(){
 					
-					$("html").removeClass("overflowHidden");
+					$("html").add("body").removeClass("overflowHidden");
 			});
 			cacheJObj.niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
 			

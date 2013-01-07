@@ -316,6 +316,7 @@ exports.sites = function(request,response) {
     opts.layout = (request.query.ajax === undefined)? true : false;
     opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
     opts.locals.hide = {topMargin:true, footer: true};
+    opts.locals.hideFrame = (request.query.hide === undefined)? false : true;
 
     response.render('timeline.html', opts);
   };

@@ -193,12 +193,12 @@ $(function() {
 	} else {
 		$("#serverselect").hide();
 		$("#debugDiv").hide();
-	}*/
+	}
 	
 	$("#serverselect").eComboBox({
 		'allowNewElements' : true,
 		'editableElements' : false
-	});
+	});*/
 	$("#serverselect").change(function() {
 		NODE_URL = "http://" + $("#serverselect").val();
 	});

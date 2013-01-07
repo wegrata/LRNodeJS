@@ -337,14 +337,14 @@ ul li{
 		background-color: #fff;
 	}
 	
-	.modal-iframe, .modal-bookmark{
+	.modal-iframe, .modal-bookmark, .hide-frame{
 	
 		margin: 0;
 		padding: 0;
 		
 	}
 	
-	.modal-iframe{
+	.modal-iframe, .hide-frame{
 		
 		float: right;
 		width: 85%;
