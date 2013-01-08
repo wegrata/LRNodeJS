@@ -156,62 +156,60 @@ var sortTimeline = function(l, r){
 
 var handleMainResourceModal = function(src, direct){
 
-	if(iframeHidden){
-		
-			var md5 = hex_md5(src);
-
-			//http://12.109.40.31/screenshot/'+md5+'
-			
-			$.getJSON('/data/' + md5,function(data){					
-			
-				if(data){
-					data.description = (data.description == undefined) ? "" : data.description;
-					data.description = (data.description.length > 280) ? data.description.substr(0, 280) + "..." : data.description;
-					
-					data.title = (data.title == undefined) ? src : data.title;
-					data.title = (data.title.length > 80) ? data.title.substr(0, 80) + "..." : data.title;
-					
-					var image = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + md5;
-					
-					$('.'+md5).attr("src", image);
-					$('#'+md5).html(data.description);
-					
-					self.currentObject(new resourceObject("Item", src));
-					$(".prettyprint").remove();
-				}
-			});
-			
-			return;
-	}
-
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
 	src = (typeof src == "string")? src : $(this).attr("name");
 	var tempUrl = getLocation(src);
-
+	var md5 = hex_md5(src);
 	src = (urlTransform[tempUrl.hostname] !== undefined ) ? urlTransform[tempUrl.hostname](tempUrl) : src;
 
 
 	var target = document.getElementById('spinnerDiv');
 	self.currentObject(new resourceObject("Item", src));
-
+	
 	//Remove any residual JSON prettyprinted documents
 	$(".prettyprint").remove();
-	generateContentFrame(src);
+	
+	if(iframeHidden){
 
-	/*
-		While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
+		//Workaround to get 'hasScreenshot' property
+		$.getJSON('/data/?keys=' + encodeURIComponent(JSON.stringify([md5])),function(data){					
+		
+			if(data[0]){
+				data = data[0];
+				var currentObject = new resourceObject("Item", src);
+				currentObject.timeline = self.currentObject().timeline;
+				currentObject.title = (data.title == undefined) ? src : data.title;
+				currentObject.description = (data.description == undefined) ? "" : data.description;
+				currentObject.image = (data.hasScreenshot !== true) ? "/images/qmark.png" : "/screenshot/" + md5;
+				currentObject.hasScreenshot = data.hasScreenshot;				
+				
+				self.currentObject(currentObject);
+				console.log(data);
+				
+			}
+		});
+	}
+	
+	else{
+	
+		generateContentFrame(src);
 
-		self.currentObject().timeline.push(NEW ENTRIES);
-	*/
+		/*
+			While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
 
+			self.currentObject().timeline.push(NEW ENTRIES);
+		*/
+	}
+	
 	if(reverseTransform[tempUrl.hostname] !== undefined){
 
 		console.log("BEFORE TRANSFORM: ", src);
 		src = reverseTransform[tempUrl.hostname](getLocation(src));
 		console.log("REVERSE TRANSFORM: ", src);
 	}
+	
 
-	console.log("This is the src we will be using to search: ", src);
+	console.log("This is the src we will be using to datra search: ", src);
 	$.ajax("https://node02.public.learningregistry.net/obtain?request_id="+src,{
 		dataType : 'jsonp',
 		jsonp : 'callback'
@@ -305,6 +303,9 @@ var resourceObject = function(name, url, timeline){
 
     this.url = (url !== undefined) ? url : null;
     this.title = getLocation(url).hostname;
+    this.description = "";
+    this.image = "";
+    this.hasScreenshot = false;
 
     //The timeline should be an observable array of paradata objects
     this.timeline = (timeline !== undefined) ? ko.observableArray(timeline) : ko.observableArray();
@@ -681,8 +682,9 @@ var mainViewModel = function(resources){
 		//3DR paradata fixes. Remove period, and fix "a user". More fixes (for all orgs) to come.
 		content = (content[content.length-1] == ".")? content.substr(0, content.length-1) : content;
 		content = (content.indexOf("The a user") > -1)? "The anonymous user" + content.substr(10, content.length - 9): content;
-
-		var imageTest = '<img height="80" width="80" src="http://www.learningregistry.org/_/rsrc/1332197520195/community/adl-3d-repository/3dr_logo.png" />'
+		
+		//Temporarily disabling paradata logo
+		var imageTest = ''; //'<img height="80" width="80" src="http://www.learningregistry.org/_/rsrc/1332197520195/community/adl-3d-repository/3dr_logo.png" />'
 
         //Handle each verb differently        
         switch(verb){

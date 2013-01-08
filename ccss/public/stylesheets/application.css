@@ -334,7 +334,19 @@ ul li{
 	
 		height: 700px;
 		overflow:hidden;
-		background-color: #fff;
+	}
+	
+	.innerTimelineContent{
+	
+		width: 80%;
+		margin: 4% 0 0 4%;
+		padding: 3% 1%;
+	}
+
+	.innerTimelineContent span{
+	
+		display: block;
+		padding: 10px 0;
 	}
 	
 	.modal-iframe, .modal-bookmark, .hide-frame{
