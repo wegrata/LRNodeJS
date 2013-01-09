@@ -247,7 +247,7 @@ var BROWSER = (function () {
 							data[i].title = (data[i].title == undefined) ? thisObj[i].attr("name") : data[i].title;
 							data[i].title = (data[i].title.length > 80) ? data[i].title.substr(0, 80) + "..." : data[i].title;
 							
-							image[i] = (data.error === true) ? "/images/qmark.png" : "/screenshot/" + md5[i];
+							image[i] = (data.hasScreenshot !== true) ? "/images/qmark.png" : "/screenshot/" + md5[i];
 							
 							thisObj[i].html(data[i].title);
 							$('.'+md5[i]).attr("src", image[i]);

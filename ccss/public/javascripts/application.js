@@ -154,6 +154,12 @@ var sortTimeline = function(l, r){
 	return getDate(l.activity.verb.date) - getDate(r.activity.verb.date);
 };
 
+var doTransform = function(src){
+	
+	var tempUrl = getLocation(src);
+	return (urlTransform[tempUrl.hostname] !== undefined ) ? urlTransform[tempUrl.hostname](tempUrl) : src;
+};
+
 var handleMainResourceModal = function(src, direct){
 
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
@@ -178,14 +184,13 @@ var handleMainResourceModal = function(src, direct){
 				data = data[0];
 				var currentObject = new resourceObject("Item", src);
 				currentObject.timeline = self.currentObject().timeline;
-				currentObject.title = (data.title == undefined) ? src : data.title;
+				currentObject.title = (data.title == undefined) ? doTransform(src) : data.title;
 				currentObject.description = (data.description == undefined) ? "" : data.description;
 				currentObject.image = (data.hasScreenshot !== true) ? "/images/qmark.png" : "/screenshot/" + md5;
 				currentObject.hasScreenshot = data.hasScreenshot;				
 				
 				self.currentObject(currentObject);
-				console.log(data);
-				
+				//console.log(data);
 			}
 		});
 	}

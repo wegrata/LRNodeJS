@@ -330,6 +330,14 @@ ul li{
 		margin-right: 0 !important;
 	}
 	
+	.notFound{
+		
+		text-align: center;
+		color: #bbb;
+		font-size: 16px;
+		padding: 12% 0;
+	}
+	
 	.timeline-container{
 	
 		height: 700px;
