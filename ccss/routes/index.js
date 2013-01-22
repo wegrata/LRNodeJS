@@ -34,7 +34,10 @@ var getDisplayData = function(res){
   return function(e, d){
     console.error(e);
     console.log(d);
-  res.writeHead(200, {"Content-Type": "application/json"});
+  res.writeHead(200, {"Content-Type": "application/json",
+                      "Content-Control-Allow-Origin": "*",
+                      "Content-Control-Allow-Methods": "GET",
+                      "Content-Control-Allow-Headers": "*"  });
   res.end(JSON.stringify(underscore.map(d.rows, function(item){
     if(!item.error){
       item.doc.hasScreenshot = item.doc._attachments !== undefined;
