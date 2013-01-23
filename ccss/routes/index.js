@@ -35,9 +35,9 @@ var getDisplayData = function(res){
     console.error(e);
     console.log(d);
   res.writeHead(200, {"Content-Type": "application/json",
-                      "Content-Control-Allow-Origin": "*",
-                      "Content-Control-Allow-Methods": "GET",
-                      "Content-Control-Allow-Headers": "*"  });
+                      "Access-Control-Allow-Origin": "*",
+                      "Access-Control-Allow-Methods": "GET",
+                      "Access-Control-Allow-Headers": "*"  });
   res.end(JSON.stringify(underscore.map(d.rows, function(item){
     if(!item.error){
       item.doc.hasScreenshot = item.doc._attachments !== undefined;
@@ -319,10 +319,10 @@ exports.sites = function(request,response) {
       opts.locals.user = request.user;
     opts.layout = (request.query.ajax === undefined)? true : false;
     opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
-    
+
     opts.locals.hideFrame = (request.query.hide === undefined)? false : true;
 	opts.locals.hide = {topMargin:true, footer: opts.locals.hideFrame===false?true:false};
-	
+
     response.render('timeline.html', opts);
   };
 
