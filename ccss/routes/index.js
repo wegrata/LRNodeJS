@@ -32,8 +32,6 @@ var standardsView  = standardsDb.ddoc('nodes').view('standards');
 var jobTitleView  = usersDb.ddoc("users").view("jobTitle");
 var getDisplayData = function(res){
   return function(e, d){
-    console.error(e);
-    console.log(d);
   res.writeHead(200, {"Content-Type": "application/json",
                       "Access-Control-Allow-Origin": "*",
                       "Access-Control-Allow-Methods": "GET",
@@ -64,47 +62,49 @@ exports.nodes = function( request, response, next ) {
     (category && !standard) ||
     (!category && standard)) {
     return next(new Error('Must provide cateogry + standard or parent'));
-}
+  }
 
-if (category) category = unescape(category);
-if (standard) standard = unescape(standard);
-if (parent)   parent   = unescape(parent);
+  if (category) category = unescape(category);
+  if (standard) standard = unescape(standard);
+  if (parent)   parent   = unescape(parent);
 
-var nodesParams = {
-  include_docs: true
-};
-
-var nodesFinished = function(err, result) {
-  if (err) return next(err);
-
-  var docs = result.rows.map( function(n) { return n.value; } );
-
-  var viewOptions = {};
-  viewOptions.layout = false;
-  viewOptions.locals = {};
-  viewOptions.locals.nodes = docs;
-
-  response.render('nodes.html', viewOptions);
-};
-
-var standardsParams;
-
-if (standard) {
-  standardsParams = {
-    include_docs: true,
-    startkey: [ category, standard ],
-    endkey: [ category, standard ]
+  var nodesParams = {
+    include_docs: true
   };
 
-  standardsView.query(standardsParams, function (err, result) {
-    nodesParams.startkey = nodesParams.endkey = [ result.rows[0].value, grade ];
+  var nodesFinished = function(err, result) {
+    if (err) return next(err);
+
+    var docs = result.rows.map( function(n) { return n.value; } );
+
+    var viewOptions = {};
+    viewOptions.layout = false;
+    viewOptions.locals = {};
+    viewOptions.locals.nodes = docs;
+    response.writeHead(200, {"Access-Control-Allow-Origin": "*",
+                             "Access-Control-Allow-Methods": "GET",
+                             "Access-Control-Allow-Headers": "*"  });
+    response.render('nodes.html', viewOptions);
+  };
+
+  var standardsParams;
+
+  if (standard) {
+    standardsParams = {
+      include_docs: true,
+      startkey: [ category, standard ],
+      endkey: [ category, standard ]
+    };
+
+    standardsView.query(standardsParams, function (err, result) {
+      nodesParams.startkey = nodesParams.endkey = [ result.rows[0].value, grade ];
+      nodesView.query(nodesParams, nodesFinished);
+    });
+  }
+  else {
+    nodesParams.startkey = nodesParams.endkey = [ parent, grade ];
     nodesView.query(nodesParams, nodesFinished);
-  });
-}
-else {
-  nodesParams.startkey = nodesParams.endkey = [ parent, grade ];
-  nodesView.query(nodesParams, nodesFinished);
-}
+  }
 };
 
 // route for displaying categorized standards
@@ -152,6 +152,9 @@ exports.browser = function( request, response, next ) {
 
     viewOptions.layout = (request.query.ajax === undefined)? true : false;
     viewOptions.locals.ajax = (request.query.ajax === undefined)? false : true;
+    response.writeHead(200, {"Access-Control-Allow-Origin": "*",
+                             "Access-Control-Allow-Methods": "GET",
+                             "Access-Control-Allow-Headers": "*"  });
     response.render('browser.html', viewOptions);
   });
 };
