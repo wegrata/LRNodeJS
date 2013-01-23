@@ -148,6 +148,7 @@ exports.browser = function( request, response, next ) {
     };
 
     viewOptions.layout = (request.query.ajax === undefined)? true : false;
+    viewOptions.locals.ajax = (request.query.ajax === undefined)? false : true;
     response.render('browser.html', viewOptions);
   });
 };
