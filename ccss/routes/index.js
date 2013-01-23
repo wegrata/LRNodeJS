@@ -81,9 +81,9 @@ exports.nodes = function( request, response, next ) {
     viewOptions.layout = false;
     viewOptions.locals = {};
     viewOptions.locals.nodes = docs;
-    response.writeHead(200, {"Access-Control-Allow-Origin": "*",
-                             "Access-Control-Allow-Methods": "GET",
-                             "Access-Control-Allow-Headers": "*"  });
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Methods", "GET");
+    response.header("Access-Control-Allow-Headers", "*");
     response.render('nodes.html', viewOptions);
   };
 
@@ -152,9 +152,9 @@ exports.browser = function( request, response, next ) {
 
     viewOptions.layout = (request.query.ajax === undefined)? true : false;
     viewOptions.locals.ajax = (request.query.ajax === undefined)? false : true;
-    response.writeHead(200, {"Access-Control-Allow-Origin": "*",
-                             "Access-Control-Allow-Methods": "GET",
-                             "Access-Control-Allow-Headers": "*"  });
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Methods", "GET");
+    response.header("Access-Control-Allow-Headers", "*");
     response.render('browser.html', viewOptions);
   });
 };
