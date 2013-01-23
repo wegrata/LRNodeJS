@@ -150,12 +150,11 @@ app.post('/main', function(req, res){
 
 app.configure('development', function(){
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-    app.listen(1337);
+    app.listen(500);
 });
 
 app.configure('production', function(){
     app.use(express.errorHandler());
-    app.listen(80);
+    app.listen(5000);
 });
-app.listen(80);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
