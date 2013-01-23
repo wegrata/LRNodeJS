@@ -58,7 +58,7 @@ exports.nodes = function( request, response, next ) {
   var category = request.body.category           || null;
   var standard = request.body.standard           || null;
   var parent   = request.body.parent             || null;
-  var grade    = request.cookies['grade-filter'] || 'K';
+  var grade    = request.body.grade || request.cookies['grade-filter'];
 
   if ((!category && !standard && !parent) ||
     (category && !standard) ||
@@ -151,6 +151,7 @@ exports.browser = function( request, response, next ) {
     };
 
     viewOptions.layout = (request.query.ajax === undefined)? true : false;
+    viewOptions.locals.ajax = (request.query.ajax === undefined)? false : true;
     response.render('browser.html', viewOptions);
   });
 };
@@ -212,6 +213,9 @@ exports.index = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  viewOptions.locals.debug = (request.query.debug === undefined)? false : true;
+  viewOptions.locals.server = (parseInt(request.query.server) >= 1 && parseInt(request.query.server) < 7)? parseInt(request.query.server) : viewOptions.locals.debug ? 1 : false;
+  viewOptions.locals.max = (parseInt(request.query.max) >= 500 && parseInt(request.query.max) <= 100000)? parseInt(request.query.max) : 500;
 
   response.render('visual.html', viewOptions);
 };
@@ -280,6 +284,7 @@ exports.landing = function(request,response) {
   var viewOptions = {locals:{}};
   viewOptions.layout = (request.query.ajax === undefined)? true : false;
   viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
+  viewOptions.locals.debug = (request.query.debug === undefined)? false : true;
   viewOptions.locals.landing = true;
 
   response.render('landing.html', viewOptions);
@@ -314,8 +319,10 @@ exports.sites = function(request,response) {
       opts.locals.user = request.user;
     opts.layout = (request.query.ajax === undefined)? true : false;
     opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
-    opts.locals.hide = {topMargin:true, footer: true};
-
+    
+    opts.locals.hideFrame = (request.query.hide === undefined)? false : true;
+	opts.locals.hide = {topMargin:true, footer: opts.locals.hideFrame===false?true:false};
+	
     response.render('timeline.html', opts);
   };
 

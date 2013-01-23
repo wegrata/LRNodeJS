@@ -27,7 +27,16 @@
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script type="text/javascript">
+		var globalSliceMax = 500;
+		var NODE_URL = "http://node01.public.learningregistry.net";
+		{{#server}}
+			var temp_NODE_URL = ["","http://node01.public.learningregistry.net","http://node02.public.learningregistry.net", "http://lrtest01.public.learningregistry.net",
+								 "http://sandbox.learningregistry.org/", "http://lrdev03.learningregistry.org", "http://lrdev05.learningregistry.org"];
+			NODE_URL = temp_NODE_URL[{{server}}];
 
+		{{/server}}
+	</script>
   </head>
    <body>
 
@@ -41,7 +50,7 @@
 					<li class="active"><a href="/">Home</a></li>
 					{{/user}}
 					{{^user}}
-					<li class="active"><a href="/landing">Home</a></li>
+					<li class="active"><a href="/landing{{#debug}}?debug=true{{/debug}}">Home</a></li>
 					{{/user}}
 				</ul>
 
@@ -67,6 +76,11 @@
         </div>
       </div>
     </div>
+    {{#debug}}
+		<div class="container" style="margin-top:10px;">
+			<div class="warningParagraph"><p>Debug mode is enabled</p></div>
+		</div>
+	{{/debug}}
     {{^hide.topMargin}}
       <section id="mainSection" style="margin-top: 1em;">
     {{/hide.topMargin}}

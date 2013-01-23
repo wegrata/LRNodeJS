@@ -1,53 +1,100 @@
  	<div class="container">
-		<div style="height: 30px;" class="modal-header visualModal">
+		<div class="searchHeader visualModal">
 			<div>
-				<span id="doc_list_header"></span> <span>Search</span>
+				<span style="display:none;" id="doc_list_header"></span> 
+				<span>Search Results</span>
+				<form method="get" action="/visual" id="searchinput" class="input-append" style="float:right;">
+					 <input class="input-xxlarge" id="term" name="query" type="text" placeholder="Start New Search (current: {{query}})"/>
+					 <button class="btn btn-primary"id="Search" style="margin-top:0;" type="submit">Search</button>
+				 {{#debug}}
+					<input type="hidden" name="debug" value="true" />
+				 {{/debug}}
+				  {{#server}}
+					<input type="hidden" name="server" value="{{server}}" />
+				 {{/server}}
+				</form>
 			</div>
 		</div>
+		<div data-bind="visible: {{debug}}" class="resultParent" style="margin-top:15px;">
+			<div class="resultModal span4">
+				<table class="table table-striped" style="width:100%;">
+					<tbody data-bind="foreach: results">
+						<tr>
+							<td style="padding-top: 15px; padding-bottom: 15px;">
+								<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a><br/>
+								<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a>
+							</td>
+						</tr>
+					</tbody>
+				</table>
 
-		<div class="resultModal span4">
-			<table class="table table-striped">
-				<tbody data-bind="foreach: getResults()">
-					<tr data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF'}">
-						<td style="padding-top: 15px; padding-bottom: 15px;">
-							<span data-bind="text:title" >...</span><br/>
-							<span data-bind="text:description" >...</span><br/>
-							<a class="resultClick" style="color: #666;" data-bind="text:$root.getShorterArr(keys, 4), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a><br/>
-							<a class="resultClick" data-bind="text:$root.getShorterArr(url, 50), attr:{name: $root.getShorterArr(url), href:'/timeline?query='+url}"></a>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+
+			</div>
+			<div class="infovizModal span8">
+
+				<div id="infovis"></div>
+
+				<div class="text" >
+					<div style="text-align: center;">
+						<div id="progressbar" align="center"></div>
+					</div>
+					<div id="status">
+						...
+					</div>
+				</div>
+				<br>
+				<div class="text">
+					<div id="results_summary"></div>
+				</div>
+				<br>
+				<div id = "debugDiv" class="text">
+					<div id="debug">
+						...
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<div class="row" data-bind="visible:results().length > 0">
+
+			<div class="span9 activity">
+				<table class="table table-striped resultsTable">
+					<tbody data-bind="foreach: getResults()">
+								<tr style="border-top:none;" data-bind="style: { 'background-color': $index()%2 == 1 ? '#F9F9F9' : '#FFF'}">
+									<td style="border-top:none;padding-top:15px;padding-bottom:15px;" class="imageCell">
+										<a data-bind="attr:{href:'/timeline?query='+url}">
+																					<!-- ko if: hasScreenshot -->
+											<img data-bind="attr:{src:'/screenshot/' + _id}" class="img-polaroid" />
+											<!-- /ko -->
+											<!-- ko if: !hasScreenshot -->
+											<img src="/images/qmark.png" class="img-polaroid" />
+											<!-- /ko -->
+										</a>
+									</td>
+									<td style="border-top:none;padding-top:15px;padding-bottom:15px;">
+										<a data-bind="text:title?title:$root.getShorterArr(keys, 5, true), attr:{href:'/timeline?query='+url, title:title}" class="title"></a><br/>
+										<a data-bind="text:url, attr:{href:'/timeline?query='+url}" class="fine"></a><br/>
+										<span data-bind="text:(description.length<280)? description:description.substr(0, 280)+'...'" class="fine"></span>
+									</td>
+								</tr>
+					</tbody>
+				</table>
+				
+				
+			</div>
 			
+			<div class="span3" style="padding-top:10px;" data-bind="foreach: relatedResultsNodes">
 			
-		</div>
-		
-
-		<div class="infovizModal span8">
-
-			<div id="infovis"></div>
-
-			<div class="text" >
-				<div style="text-align: center;">
-					<div id="progressbar" align="center"></div>
-				</div>
-				<div id="status">
-					...
-				</div>
+				<a class="relatedList" data-bind="text:(name[0] == undefined)?'':name[0].toUpperCase() + name.substr(1, name.length-1), click:$root.relatedTagSlice"></a>
 			</div>
-			<br>
-			<div class="text">
-				<div id="results_summary"></div>
-			</div>
-			<br>
-			<div id = "debugDiv" class="text">
-				<div id="debug">
-					...
-				</div>
-			</div>
+			
 
 		</div>
-		<span style="float: left;" class="btn" data-bind="click: updateSlice">Load More</span>
+		<div id="spinnerDiv"></div>
+		<div id="resultsNotFound" class="resultsPrompt" data-bind="visible:resultsNotFound">
+			<span>Results Not Found</span>
+		</div>
+		<span style="float: left;" id="loadMore" class="btn" data-bind="click: updateSlice">Load More</span>
 	</div>
 		
 
@@ -67,6 +114,14 @@
 	<script src="/javascripts/jquery.nicescroll.js"></script>
 
 	<script language="javascript" type="text/javascript" src="/javascript/jit-yc.js"></script>
+	
+	
+	{{#max}}
+	<script>
+		globalSliceMax = {{max}};
+	</script>
+	{{/max}}
+	
 	<script type="text/javascript" src="/javascript/lrbrowser.js"></script>
 	<script type="text/javascript" src="/javascript/paradata.js"></script>
 	<script type="text/javascript" src="/javascript/utils.js"></script>
@@ -77,35 +132,74 @@
 	<script type="text/javascript" src="/javascripts/hexmd5.js"></script>
 	<script src="/javascripts/application.js"></script>
 		
-		<script type="text/javascript">
-		  var _gaq = _gaq || [];
-		  _gaq.push(['_setAccount', 'UA-26825770-1']);
-		  _gaq.push(['_trackPageview']);
+	<script type="text/javascript">
+		var handlePerfectSize = function(){
+
+			if($(document).height() > $(window).height()){
+				$("#mainSection").css("height", "auto");
+				return;
+			}
+
+			var height = $(window).height() - $(".navbar-inverse").height() - $("footer").height() * 2.2;
+
+			//console.log(height);
+			$("#mainSection").css("height", height + "px");
+			$("#resultsNotFound").add("#spinnerDiv").css("margin-top", $(window).height()*.3 + "px");
+
+		};
+	
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-26825770-1']);
+	  _gaq.push(['_trackPageview']);
+	
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
 		
-		  (function() {
-		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-		  })();
-			
-			var initialGraphBuild = false;
-			var allOrganizations = "{{orgs}}".split(","), allTerms = "{{terms}}".split(","), temp = new mainViewModel([]);
+		var initialGraphBuild = false;
+		var allOrganizations = "{{orgs}}".split(","), allTerms = "{{terms}}".split(","), temp = new mainViewModel([]);
+		var query = "{{query}}";
 		
-			console.log(allTerms);
+		
+		console.log(allTerms);
+		
+		ko.applyBindings(temp);
+		$(document).ready(function(){
+			
+			var cacheJObj = $(".resultModal");
+			{{^debug}}
+				spinner = new Spinner(opts).spin($('#spinnerDiv')[0]);
+			{{/debug}}
+			self.loadNewPage(true);
+			totalSlice = 20;
+			var bodyWidth = $("body").css("width");
+			
+			cacheJObj.mouseenter(function(){
+					
+					$("html").add("body").addClass("overflowHidden");
+					$("body").css("width", bodyWidth);
+			});
+			cacheJObj.mouseleave(function(){
+					
+					$("html").add("body").removeClass("overflowHidden");
+			});
+			cacheJObj.niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
 			
 			
-			ko.applyBindings(temp);
-			$(document).ready(function(){
+			handlePerfectSize();
+			$(window).resize(function() {
 				
-				startNewSearch("{{query}}");
-				var cacheJObj = $(".resultModal");
-				cacheJObj.niceScroll({"cursoropacitymax": 0.7, "cursorborderradius": 0} );
-				totalSlice = 5;
-				
-				
+				handlePerfectSize();
 			});
 			
-		</script>
+			{{#server}}
+				$(".warningParagraph p").append(" ("+NODE_URL+")");
+			{{/server}}
+		});
+		
+	</script>
 
 <!--<script>
 jQuery(function(){

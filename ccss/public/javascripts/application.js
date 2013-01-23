@@ -134,7 +134,8 @@ var generateContentFrame = function(src, alreadyAppended){
 	}
 
 	var frame = $('#modalFrame')[0];
-	frame.contentWindow.location.replace(src);
+	if(frame)
+		frame.contentWindow.location.replace(src);
 
 	if(alreadyAppended !== true){
 		$("#spinnerDiv").show();
@@ -153,38 +154,67 @@ var sortTimeline = function(l, r){
 	return getDate(l.activity.verb.date) - getDate(r.activity.verb.date);
 };
 
+var doTransform = function(src){
+	
+	var tempUrl = getLocation(src);
+	return (urlTransform[tempUrl.hostname] !== undefined ) ? urlTransform[tempUrl.hostname](tempUrl) : src;
+};
+
 var handleMainResourceModal = function(src, direct){
-
-
 
 	//src should either be the URL, or a jQuery object whose name attribute is the URL
 	src = (typeof src == "string")? src : $(this).attr("name");
 	var tempUrl = getLocation(src);
-
+	var md5 = hex_md5(src);
 	src = (urlTransform[tempUrl.hostname] !== undefined ) ? urlTransform[tempUrl.hostname](tempUrl) : src;
 
 
 	var target = document.getElementById('spinnerDiv');
 	self.currentObject(new resourceObject("Item", src));
-
+	
 	//Remove any residual JSON prettyprinted documents
 	$(".prettyprint").remove();
-	generateContentFrame(src);
+	
+	if(iframeHidden){
 
-	/*
-		While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
+		//Workaround to get 'hasScreenshot' property
+		$.getJSON('/data/?keys=' + encodeURIComponent(JSON.stringify([md5])),function(data){					
+		
+			if(data[0]){
+				data = data[0];
+				var currentObject = new resourceObject("Item", src);
+				currentObject.timeline = self.currentObject().timeline;
+				currentObject.title = (data.title == undefined) ? doTransform(src) : data.title;
+				currentObject.description = (data.description == undefined) ? "" : data.description;
+				currentObject.image = (data.hasScreenshot !== true) ? "/images/qmark.png" : "/screenshot/" + md5;
+				currentObject.hasScreenshot = data.hasScreenshot;				
+				
+				self.currentObject(currentObject);
+				//console.log(data);
+			}
+		});
+	}
+	
+	else{
+	
+		generateContentFrame(src);
 
-		self.currentObject().timeline.push(NEW ENTRIES);
-	*/
+		/*
+			While the modal content is loading, load the timeline. Need jQuery/socket.io here. Need to do ordering.
 
+			self.currentObject().timeline.push(NEW ENTRIES);
+		*/
+	}
+	
 	if(reverseTransform[tempUrl.hostname] !== undefined){
 
 		console.log("BEFORE TRANSFORM: ", src);
 		src = reverseTransform[tempUrl.hostname](getLocation(src));
 		console.log("REVERSE TRANSFORM: ", src);
 	}
+	
 
-	console.log("This is the src we will be using to search: ", src);
+	console.log("This is the src we will be using to datra search: ", src);
 	$.ajax("https://node02.public.learningregistry.net/obtain?request_id="+src,{
 		dataType : 'jsonp',
 		jsonp : 'callback'
@@ -278,6 +308,9 @@ var resourceObject = function(name, url, timeline){
 
     this.url = (url !== undefined) ? url : null;
     this.title = getLocation(url).hostname;
+    this.description = "";
+    this.image = "";
+    this.hasScreenshot = false;
 
     //The timeline should be an observable array of paradata objects
     this.timeline = (timeline !== undefined) ? ko.observableArray(timeline) : ko.observableArray();
@@ -402,55 +435,72 @@ var addFullDescriptions = function(){
 			if(self.results().length == 0)
 				return;
 			
-			var temp = self.results.slice(0, totalSlice);			
-			var keys = [];
-			
-			for(var i = 0; i < temp.length; i++){
+			console.log("The total slice: ", totalSlice);	
 				
-				if(temp[i].md5 === undefined){
+			var keys = [];			
+			//Generate an array of MD5 hashes to use as identifiers in request
+			for(var i = 0; i < totalSlice; i++){
+				
+				if(self.results()[i].md5 === undefined){
 					
-					keys[i] = hex_md5(temp[i].url);
+					keys[i] = hex_md5(self.results()[i].url);
 					self.results()[i].md5 = keys[i];
 				}
 				
 				else 
-					keys[i] = temp[i].md5;
+					keys[i] = self.results()[i].md5;
 			}
 			
 			keys = encodeURIComponent(JSON.stringify(keys));
-			
-			
-			console.log("KEYS! ", keys);
 
-			//http://12.109.40.31/screenshot/'+md5+'
-			
+			//Do request and update self.results			
 			$.getJSON('/data/?keys=' + keys, function(data){
 									
 				
 				console.log("Incoming data: ", data);
 				
-				for(var i = 0; i < temp.length; i++){
+				for(var i = 0; i < totalSlice; i++){
 					
 					if(data[i]){
 						
-						console.log("Results: ", self.results()[i].title);
-						temp[i].description = (data[i].description == undefined) ? "" : data[i].description;
-						temp[i].description = (data[i].description.length > 280) ? data[i].description.substr(0, 280) + "..." : data[i].description;
-
-						temp[i].title = (data[i].title == undefined) ? "" : data[i].title;
-						temp[i].title = (data[i].title.length > 80) ? data[i].title.substr(0, 80) + "..." : data[i].title;
+						self.results.remove(i);
 						
 						console.log("Results: ", self.results()[i].title);
-						//image[i] = (data[i].error === true) ? "/images/qmark.png" : "/screenshot/" + md5[i];
+						self.results()[i].description = (data[i].description == undefined) ? "" : data[i].description;
+						
+						//If resource doesn't have a title, set title equal to "" (Knockout will display tags if title == "")
+						//However, if resource doesn't have a title or tags, then set title equal to url
+						self.results()[i].title = (data[i].title == undefined || data[i].title == data[i].url) ? "" : data[i].title;
+						self.results()[i].title = (self.results()[i].title == "" && self.results()[i].keys.length < 1) ? self.results()[i].url : self.results()[i].title;
+						
+						self.results()[i].hasScreenshot = (data[i].hasScreenshot == undefined) ? false : data[i].hasScreenshot;
+						self.results()[i]._id = (data[i]._id == undefined) ? "" : data[i]._id;
 					}
 					
 				}
-				self.results.removeAll();
-				self.results(temp);
+				
+				var temp2 = self.results.removeAll();
+				self.results(temp2);
 				
 			});
 		
 	
+};
+
+var sliceSearchDone = function(){
+	
+	
+	$('#spinnerDiv').hide();
+	$('#spinnerDiv').css("margin-top", "0px");
+	$("#loadMore").show();
+	
+	if(self.results().length == 0){
+		
+		$("#loadMore").hide();
+		$("#resultsNotFound").show();
+	}
+	
+	handlePerfectSize();
 };
 
 /* The main View Model used by Knockout.js */
@@ -464,6 +514,7 @@ var mainViewModel = function(resources){
     self.results = ko.observableArray();
     self.resultsNotFound = ko.observable(false);
 	self.saveResultsDisplay = ko.observableArray();
+	self.relatedResultsNodes = ko.observableArray();
 	
 	self.notOnBlackList = function(url){
 		
@@ -494,44 +545,50 @@ var mainViewModel = function(resources){
 		loadIndex++;
 		self.results.valueHasMutated();
 		console.log(totalSlice);
-		scrollbarFix($(".resultModal"));
 		addFullDescriptions();
 	};
 	
-	self.loadNewPage = function(){
+	self.loadNewPage = function(isVisual){
 		
 		$('#spinnerDiv').show();
 		$("#loadMore").hide();
 		
-		$.get('/search?page='+(loadIndex-1)+'&terms=' + query, function(data){
-
-			$('#spinnerDiv').hide();
-			$("#loadMore").show();
-			$('#spinnerDiv').css("margin-top", "50px");
-			var startIndex = (loadIndex == 2) ? 0 : 1;
+		if(isVisual === true){
 			
-			if(data.length == 0 && loadIndex == 2)
-				temp.resultsNotFound(true);
-			
-			else if(data.length == 0){
-				
-				$("#loadMore").hide();
-				$("#endOfResults").show();
-			}
+			startNewSearch(query);
+		}
+		
+		else {
+			$.get('/search?page='+(loadIndex-1)+'&terms=' + query, function(data){
 
-			for(var i = startIndex; i < data.length; i++)
-				self.results.push(data[i]);
+				$('#spinnerDiv').hide();
+				$("#loadMore").show();
+				$('#spinnerDiv').css("margin-top", "50px");
+				var startIndex = (loadIndex == 2) ? 0 : 1;
 				
-			self.results.remove(function(item){
+				if(data.length == 0 && loadIndex == 2)
+					temp.resultsNotFound(true);
 				
-				return !self.notOnBlackList(item.url);
+				else if(data.length == 0){
+					
+					$("#loadMore").hide();
+					$("#endOfResults").show();
+				}
+
+				for(var i = startIndex; i < data.length; i++)
+					self.results.push(data[i]);
+					
+				self.results.remove(function(item){
+					
+					return !self.notOnBlackList(item.url);
+				});
+				
+				handlePerfectSize();
 			});
 			
-			handlePerfectSize();
-		});
-		
-		loadIndex++;
-		scrollbarFix($(".resultModal"));
+			loadIndex++;
+			scrollbarFix($(".resultModal"));
+		}
 	};
 
 	self.handleDataClick = function(e){
@@ -542,6 +599,12 @@ var mainViewModel = function(resources){
 	self.getShorterStr = function(obj){
 		
 		return (obj.title.length>55)? obj.title.substr(0, 55) + '...' : obj.title;
+	};
+	
+	self.relatedTagSlice = function(e){
+		
+		buildDocList(e);
+		console.log(e);
 	};
 
     self.getShorterArr = function(str, length, url){
@@ -560,8 +623,22 @@ var mainViewModel = function(resources){
         }
 
         else if(str !== undefined){
+	
+			if(url === true){
+				
+				var temp = ko.observableArray(str);
+				temp.remove(function(item){
+					
+					
+					return item == "" || ! isNaN(item);
+				});
 
-            return (str.length > length)? str.splice(0, length) : str;
+				
+				return (temp().length > length)? temp().splice(0, length).join(", ") : temp().join(", ") ;
+			}
+			
+			//console.log("KEYS: ", str);
+            return (str.length > length)? str.splice(0, length).join(", ") : str.join(", ") ;
 		}
     };
 
@@ -610,8 +687,11 @@ var mainViewModel = function(resources){
 		//3DR paradata fixes. Remove period, and fix "a user". More fixes (for all orgs) to come.
 		content = (content[content.length-1] == ".")? content.substr(0, content.length-1) : content;
 		content = (content.indexOf("The a user") > -1)? "The anonymous user" + content.substr(10, content.length - 9): content;
+		
+		//Temporarily disabling paradata logo
+		var imageTest = ''; //'<img height="80" width="80" src="http://www.learningregistry.org/_/rsrc/1332197520195/community/adl-3d-repository/3dr_logo.png" />'
 
-        //Handle each verb differently
+        //Handle each verb differently        
         switch(verb){
 
             case "rated":
@@ -631,7 +711,7 @@ var mainViewModel = function(resources){
 				return content + " " + generateAuthorSpan(dateStr, actor, content, i);
 
 			case "viewed":
-				return content + " is " + measure.value + generateAuthorSpan(dateStr, actor, undefined, i);
+				return imageTest + content + " is " + measure.value + generateAuthorSpan(dateStr, actor, undefined, i);
 
 			case "matched":
 				return actor + " has a match " + generateAuthorSpan(dateStr, actor, content, i);
@@ -679,9 +759,6 @@ var mainViewModel = function(resources){
     self.moveResourceToBookmark = function(index){
 
 		console.log(self.currentObject());
-
-        //Doing this kind of check is a workaround for not being able to pass
-        //currentResourceName directly. Not sure what that's about..
 
 		//Element was found in bookmarks
         if(self.bookmarks.indexOf(self.currentObject().url) !== -1){

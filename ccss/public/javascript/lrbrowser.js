@@ -16,9 +16,6 @@
  * @author John Brecht
  */
 
-//var NODE_URL = "http://lrdev05.learningregistry.org";
-var NODE_URL = "http://node01.public.learningregistry.net";
-//var NODE_URL = "http://127.0.0.1:5000";
 var typeReturnCount = 0;
 
 var TRIM_SIZE = 12;
@@ -30,7 +27,7 @@ var sliceAsIdentityResultCount;
 var max_results;
 var limit_results;
 var SLICE_LIMIT_MAX = 100000;
-var SUGGESTED_SLICE_LIMIT = 500;
+var SUGGESTED_SLICE_LIMIT = globalSliceMax;
 var sliceLimit = SLICE_LIMIT_MAX;
 
 var summary_doc_count = 0;
@@ -196,12 +193,12 @@ $(function() {
 	} else {
 		$("#serverselect").hide();
 		$("#debugDiv").hide();
-	}*/
+	}
 	
 	$("#serverselect").eComboBox({
 		'allowNewElements' : true,
 		'editableElements' : false
-	});
+	});*/
 	$("#serverselect").change(function() {
 		NODE_URL = "http://" + $("#serverselect").val();
 	});
@@ -332,8 +329,8 @@ function compareTagAndIdentityCountResults() {
 		});
 	}
 	if(max_results > SUGGESTED_SLICE_LIMIT) {
-		sliceLimit = 500;
-		max_results = 500;
+		sliceLimit = SUGGESTED_SLICE_LIMIT;
+		max_results = SUGGESTED_SLICE_LIMIT;
 		post_confirm_search_data = search_data
 		limit_results = true;
 		//confirmSearch(search_data);
@@ -485,7 +482,7 @@ function buildNode(value, parentValue, type) {
 	else
 		//shape = 'square';
 		color = '#7A378B';
-
+	
 	return {
 		id : idVal,
 		name : value,
@@ -591,9 +588,15 @@ function parseSliceResult(results) {
 	status("Parsing complete.");
 	summary();
 	topNode.children = trimChildren(topNode.children, TRIM_SIZE);
+	console.log(topNode.children);
+	self.relatedResultsNodes(topNode.children);
 	loadGraphData(topNode);
 	status("Principle search complete");
-	if(summary_doc_count>0) $("#secondary").show();
+	if(summary_doc_count>0){
+		$("#secondary").show();
+	}
+	
+	sliceSearchDone();	
 }
 
 function peekAhead() {
@@ -804,7 +807,7 @@ function handleNodeSingleClick() {
 
 function buildDocList(node) {
 	
-	
+	console.log("NODE: ", node);
 	if(node.id == -1)
 		$("#doc_list_header").html(''); 
 	else if(node.id == topNode.id)
@@ -825,6 +828,8 @@ function buildDocList(node) {
 		//if($.inArray(docDictionary[node.data.doc_ids[i]].url, tempURLs) == -1){
 			docDictionary[node.data.doc_ids[i]].title = "";
 			docDictionary[node.data.doc_ids[i]].description = "";
+			docDictionary[node.data.doc_ids[i]].hasScreenshot = "";
+			docDictionary[node.data.doc_ids[i]]._id = "";
 			temp.results.push(docDictionary[node.data.doc_ids[i]]);
 			tempURLs.push(docDictionary[node.data.doc_ids[i]].url);
 		//}
@@ -840,9 +845,6 @@ function buildDocList(node) {
 		loadParadata($(this).attr('id'));
 	});
 	//buildAccordion();
-	
-	//hiasd.cool = "gt";
-	
 }
 
 function buildListing(doc_id) {

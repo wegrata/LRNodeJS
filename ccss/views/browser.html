@@ -47,8 +47,9 @@
 		</div>  
 	</div>
 </div>
+	
+	{{^ajax}}
 		<script src="/javascripts/jquery.js"></script>
-
 		<script>
 			var allOrganizations = "";
 			var followed = "";
@@ -59,16 +60,18 @@
 		<script type="text/javascript" src="/javascripts/hexmd5.js"></script>
 		<script type="text/javascript" src="/javascripts/crumbs.js"></script>
 		<script type="text/javascript" src="/javascripts/libs/jquery.cookie.js"></script>
-		<script type="text/javascript" src="/javascripts/browser.js"></script>
 		
-		<script>
-			
-			
-			  try{
-				 BROWSER.start($('#hierarchy'));
-			 }catch(ex){
-			  console.log(ex);
-			 }
+		<script type="text/javascript" src="/javascripts/browser.js"></script>
+	{{/ajax}}
+	
+	<script>
+		
+		
+		  try{
+			 BROWSER.start($('#hierarchy'));
+		 }catch(ex){
+		  console.log(ex);
+		 }
 
-		</script>
+	</script>
 
