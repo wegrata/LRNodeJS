@@ -22,7 +22,7 @@ var users = require('./routes/users');
 passport.serializeUser(users.serializeUser);
 passport.deserializeUser(users.deserializeUser);
 passport.use(new browserid({
-    audience: 'http://192.168.190.128'
+    audience: 'http://12.109.40.31'
 }, users.validateUser));
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
@@ -50,6 +50,15 @@ var tmpl = { // template functions to render with mustache
 var routes = require('./routes');
 var app = module.exports = express.createServer();
 
+//CORS middleware
+var allowCrossDomain = function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', "*");
+    res.header('Access-Control-Allow-Methods', 'GET');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+    next();
+};
+
 // Configuration
 
 app.configure(function(){
@@ -64,6 +73,7 @@ app.configure(function(){
     app.use(express.session({'secret': 'secret'}));
     app.use(passport.initialize());
     app.use(passport.session());
+    app.use(allowCrossDomain);
     app.use(app.router);
     app.use(express.static(__dirname + '/public'));
 });
@@ -150,12 +160,11 @@ app.post('/main', function(req, res){
 
 app.configure('development', function(){
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-    app.listen(1337);
+    app.listen(80);
 });
 
 app.configure('production', function(){
     app.use(express.errorHandler());
     app.listen(80);
 });
-app.listen(80);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
