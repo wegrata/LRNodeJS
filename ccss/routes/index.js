@@ -55,7 +55,7 @@ exports.nodes = function( request, response, next ) {
   var category = request.body.category           || null;
   var standard = request.body.standard           || null;
   var parent   = request.body.parent             || null;
-  var grade    = request.cookies['grade-filter'] || 'K';
+  var grade    = request.body.grade || request.cookies['grade-filter'];
 
   if ((!category && !standard && !parent) ||
     (category && !standard) ||
