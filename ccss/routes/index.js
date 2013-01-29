@@ -53,10 +53,10 @@ var getDisplayData = function(res){
 //   cookies.grade-filter determines grade of nodes to load
 //     defaults to K/Kindergarten
 exports.nodes = function( request, response, next ) {
-  var category = request.body.category           || null;
-  var standard = request.body.standard           || null;
-  var parent   = request.body.parent             || null;
-  var grade    = request.body.grade || request.cookies['grade-filter'];
+  var category = request.body.category || request.query.category || null;
+  var standard = request.body.standard || request.query.standard || null;
+  var parent   = request.body.parent || request.query.parent || null;
+  var grade    = request.body.grade || request.query.grade || request.cookies['grade-filter'];
 
   if ((!category && !standard && !parent) ||
     (category && !standard) ||
