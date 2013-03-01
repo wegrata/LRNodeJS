@@ -38,6 +38,8 @@ var getDisplayData = function(res){
                       "Access-Control-Allow-Headers": "*"  });
   res.end(JSON.stringify(underscore.map(d.rows, function(item){
     if(!item.error){
+      console.log(item.doc._attachments);
+      console.log(item.doc._id);
       item.doc.hasScreenshot = item.doc._attachments !== undefined;
       delete item.doc._attachments;
       return item.doc;
@@ -349,8 +351,11 @@ exports.sites = function(request,response) {
       var doc = db.doc(doc_id);
       doc.get(function(err, s){
         if (s){
-          res.writeHead(200, {"Content-Type":"application/json"});
           delete s._attachments;
+	  res.writeHead(200, {"Content-Type": "application/json",
+                              "Access-Control-Allow-Origin": "*",
+                              "Access-Control-Allow-Methods": "GET",
+                              "Access-Control-Allow-Headers": "*"  });
           res.end(JSON.stringify(s));
         }else{
           res.writeHead(404, {});
