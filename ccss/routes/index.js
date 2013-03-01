@@ -113,29 +113,63 @@ exports.nodes = function( request, response, next ) {
 //   pass params.category to filter by category
 exports.standards = function( request, response, next ) {
     var category = request.params.category || null; // optional
-
-    var query = { group: true };
-
-    if (category !== null) {
-      query.startkey = category;
-      query.endkey = category;
-    }
-
-    categoriesView.query(query, function(err, result) {
-      if (err) return next(err);
-
-      var viewOptions = {
-        layout: false,
-        locals: {
-          categories: result.rows.map( function(n) {
-            return { name: n.key, standards: n.value };
-          })
-        }
-      };
-      response.header("Access-Control-Allow-Origin", "*");
-      response.header("Access-Control-Allow-Methods", "GET");
-      response.header("Access-Control-Allow-Headers", "*");
-      response.render('standards.html', viewOptions);
+    var query = { reduce: false, include_docs: true};
+    query.keys = JSON.stringify(["english", "math"]);
+    standardsDb.allDocs(query, function(err, result) {
+      if (err) {
+        console.log(err);
+        return next(err);
+      }
+      var docs = result.rows.map(function(row){
+        return row.doc;
+      });
+      function process_tree(queue){
+          if(queue.length > 0){
+            var node = queue.pop();
+            if (node.id){
+              client.get(node.id, function(err, result){
+                node.count = result || 0;
+                node.title = node.text;
+                node.description = node.dcterms_description.literal;
+                delete node.leaf;
+                delete node.text;
+                delete node.dcterms_language;
+                delete node.dcterms_educationLevel;
+                delete node.asn_indexingStatus;
+                delete node.skos_exactMatch;
+                delete node.asn_authorityStatus;
+                delete node.asn_identifier;
+                delete node.dcterms_description;
+                delete node.dcterms_subject;
+                delete node.asn_statementLabel;
+                delete node.asn_statementNotation;
+                delete node.asn_altStatementNotation;
+                delete node.asn_listID;
+                delete node.cls;
+                for(var child in node.children){
+                  queue.push(node.children[child]);
+                }
+                process_tree(queue);
+              });
+            }else{
+              for(var child in node.children){
+                queue.push(node.children[child]);
+              }
+              process_tree(queue);
+            }
+          }else{
+              response.header("Access-Control-Allow-Origin", "*");
+              response.header("Access-Control-Allow-Methods", "GET");
+              response.header("Access-Control-Allow-Headers", "*");
+              response.header("Content-Type", "application/json");
+              response.end(JSON.stringify(docs));
+          }
+      }
+      var queue = [];
+      for (var d in docs){
+        queue.push(docs[d]);
+      }
+      process_tree(queue);
     });
   };
 
