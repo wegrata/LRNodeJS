@@ -38,8 +38,6 @@ var getDisplayData = function(res){
                       "Access-Control-Allow-Headers": "*"  });
   res.end(JSON.stringify(underscore.map(d.rows, function(item){
     if(!item.error){
-      console.log(item.doc._attachments);
-      console.log(item.doc._id);
       item.doc.hasScreenshot = item.doc._attachments !== undefined;
       delete item.doc._attachments;
       return item.doc;
@@ -113,8 +111,7 @@ exports.nodes = function( request, response, next ) {
 //   pass params.category to filter by category
 exports.standards = function( request, response, next ) {
     var category = request.params.category || null; // optional
-    var query = { reduce: false, include_docs: true};
-    query.keys = JSON.stringify(["english", "math"]);
+    var query = { include_docs: true, keys:["english", "math"]};
     standardsDb.allDocs(query, function(err, result) {
       if (err) {
         console.log(err);
@@ -126,8 +123,8 @@ exports.standards = function( request, response, next ) {
       function process_tree(queue){
           if(queue.length > 0){
             var node = queue.pop();
-            if (node.id){
-              client.get(node.id, function(err, result){
+            if (node.id ){
+              client.get(node.id + "-count", function(err, result){
                 node.count = result || 0;
                 node.title = node.text;
                 node.description = node.dcterms_description.literal;
@@ -285,6 +282,7 @@ exports.search = function(req, res) {
   }else if(req.query.terms){
     terms = getTerms(req.query.terms);
   }
+  console.log(terms);
   if (req.body.page)
     page = req.body.page;
   else if(req.query.page)
