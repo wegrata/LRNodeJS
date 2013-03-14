@@ -106,7 +106,18 @@ exports.nodes = function( request, response, next ) {
     nodesView.query(nodesParams, nodesFinished);
   }
 };
-
+function roll_up_count(node){
+  if(!node.count){
+    node.count = 0;
+  }
+  if(node.children){
+    for(var child in node.children){
+      var child_node = node.children[child];
+      roll_up_count(child_node);
+      node.count += child_node.count;
+    }
+  }
+}
 // route for displaying categorized standards
 //   pass params.category to filter by category
 exports.standards = function( request, response, next ) {
@@ -156,6 +167,7 @@ exports.standards = function( request, response, next ) {
                 delete node.asn_altStatementNotation;
                 delete node.asn_listID;
                 delete node.cls;
+                delete node.asn_comment;
                 for(var child in node.children){
                   queue.push(node.children[child]);
                 }
@@ -172,6 +184,9 @@ exports.standards = function( request, response, next ) {
               response.header("Access-Control-Allow-Methods", "GET");
               response.header("Access-Control-Allow-Headers", "*");
               response.header("Content-Type", "application/json");
+              for(var i in docs){
+                roll_up_count(docs[i]);
+              }
               response.end(JSON.stringify(docs));
           }
       }
