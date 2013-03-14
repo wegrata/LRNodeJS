@@ -111,10 +111,10 @@ exports.nodes = function( request, response, next ) {
 //   pass params.category to filter by category
 exports.standards = function( request, response, next ) {
     var category = request.params.category || null; // optional
-    var query = { include_docs: true, keys:["english", "math"]};
+    var query = { include_docs: true, keys:JSON.stringify(["english", "math"])};
     standardsDb.allDocs(query, function(err, result) {
       if (err) {
-        console.log(err);
+        console.error(err);
         return next(err);
       }
       var docs = result.rows.map(function(row){
@@ -123,8 +123,21 @@ exports.standards = function( request, response, next ) {
       function process_tree(queue){
           if(queue.length > 0){
             var node = queue.pop();
+            if(node.asn_identifier){
+              if(node.asn_identifier.uri){
+                node.id = node.asn_identifier.uri;
+              } else {
+                node.id = node.asn_identifier;
+              }
+            }
             if (node.id ){
               client.get(node.id + "-count", function(err, result){
+                if(err){
+                  console.error(err);
+                }
+                if(result){
+                  console.log(result);
+                }
                 node.count = result || 0;
                 node.title = node.text;
                 node.description = node.dcterms_description.literal;
@@ -132,12 +145,12 @@ exports.standards = function( request, response, next ) {
                 delete node.text;
                 delete node.dcterms_language;
                 delete node.dcterms_educationLevel;
-                delete node.asn_indexingStatus;
                 delete node.skos_exactMatch;
-                delete node.asn_authorityStatus;
-                delete node.asn_identifier;
                 delete node.dcterms_description;
                 delete node.dcterms_subject;
+                delete node.asn_indexingStatus;
+                delete node.asn_authorityStatus;
+                delete node.asn_identifier;
                 delete node.asn_statementLabel;
                 delete node.asn_statementNotation;
                 delete node.asn_altStatementNotation;
