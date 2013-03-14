@@ -149,7 +149,7 @@ exports.standards = function( request, response, next ) {
                 if(result){
                   console.log(result);
                 }
-                node.count = result || 0;
+                node.count = parseInt(result) || 0;
                 node.title = node.text;
                 node.description = node.dcterms_description.literal;
                 delete node.leaf;
