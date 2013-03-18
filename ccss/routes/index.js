@@ -300,41 +300,58 @@ exports.search = function(req, res) {
     var terms = [];
     terms = termsString.toLowerCase().split(' ');
     terms.push(termsString.toLowerCase());
-    return terms;
+    return terms.sort();
   }
   var terms = [];
+  var filter = null;
   var page = 0;
   var pageSize = 20;
   if (req.body.terms){
     terms = getTerms(req.body.terms);
+    filter = req.body.filter;
   }else if(req.query.terms){
     terms = getTerms(req.query.terms);
+    filter = req.query.filter;
   }
-  console.log(terms);
   if (req.body.page)
     page = req.body.page;
   else if(req.query.page)
     page = req.query.page;
+  console.log(filter);
   page = parseInt(page, 10) * pageSize;
-  client.incr("session_id", function(err, data){
-    var params = [data, terms.length];
-    params = params.concat(terms);
-    params.push(function(err, result){
-      client.expire(data, 360, redis.print);
-      client.zrevrange(data, page, page + pageSize, function(err, items){
-        if(items.length > 0){
-          var dis = getDisplayData(res);
-          db.allDocs({include_docs: true}, items, dis);
-        }else{
-          res.writeHead(200, {"Content-Type": "application/json"});
-          res.end(JSON.stringify([]));
-        }
-
-      });
+  var data = terms.join("");
+  var params = [data, terms.length];
+  params = params.concat(terms);
+  function returnResults(target){
+    client.zrevrange(target, page, page + pageSize, function(err, items){
+      if(items.length > 0){
+        var dis = getDisplayData(res);
+        db.allDocs({include_docs: true}, items, dis);
+      }else{
+        res.writeHead(200, {"Content-Type": "application/json"});
+        res.end(JSON.stringify([]));
+      }
 
     });
-    client.zunionstore.apply(client, params);
+  }
+  params.push(function(err, result){
+    client.expire(data, 360, redis.print);
+    if(filter){
+      client.zinterstore(data+filter, 2, data, filter, function(err, result){
+        if(err){
+          res.writeHead(500);
+          res.end();
+        }else{
+          console.log('filter');
+          returnResults(data+filter);
+        }
+      });
+    }else{
+      returnResults(data);
+    }
+
   });
+  client.zunionstore.apply(client, params);
 };
 
 exports.find = function(request,response) {
@@ -388,7 +405,7 @@ exports.sites = function(request,response) {
     opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
 
     opts.locals.hideFrame = (request.query.hide === undefined)? false : true;
-	opts.locals.hide = {topMargin:true, footer: opts.locals.hideFrame===false?true:false};
+  opts.locals.hide = {topMargin:true, footer: opts.locals.hideFrame===false?true:false};
 
     response.render('timeline.html', opts);
   };
@@ -412,7 +429,7 @@ exports.sites = function(request,response) {
       doc.get(function(err, s){
         if (s){
           delete s._attachments;
-	  res.writeHead(200, {"Content-Type": "application/json",
+    res.writeHead(200, {"Content-Type": "application/json",
                               "Access-Control-Allow-Origin": "*",
                               "Access-Control-Allow-Methods": "GET",
                               "Access-Control-Allow-Headers": "*"  });
