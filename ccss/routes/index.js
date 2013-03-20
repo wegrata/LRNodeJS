@@ -351,6 +351,7 @@ exports.search = function(req, res) {
           returnResults(outid);
         }
       });
+      console.log(filterParms);
       client.zinterstore.apply(client, filterParms);
     }else{
       returnResults(data);
