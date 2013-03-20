@@ -299,7 +299,8 @@ exports.search = function(req, res) {
   function getTerms(termsString){
     var terms = [];
     terms = termsString.toLowerCase().split(' ');
-    terms.push(termsString.toLowerCase());
+    if(terms.length > 1)
+      terms.push(termsString.toLowerCase());
     return terms.sort();
   }
   var terms = [];
@@ -312,9 +313,9 @@ exports.search = function(req, res) {
     terms = getTerms(req.query.terms);
   }
   if(req.body.filter)
-    filter = req.body.filter.toLowerCase();
+    filter = req.body.filter.toLowerCase().split(' ');
   else if(req.query.filter)
-    filter = req.query.filter.toLowerCase();
+    filter = req.query.filter.toLowerCase().split(' ');
   if (req.body.page)
     page = req.body.page;
   else if(req.query.page)
@@ -338,15 +339,19 @@ exports.search = function(req, res) {
   params.push(function(err, result){
     client.expire(data, 360, redis.print);
     if(filter){
-      client.zinterstore(data+filter, 2, data, filter, function(err, result){
+      var outid = data+filter.join("");
+      var filterParms = [outid, filter.length + 1];
+      filterParms = filterParms.concat(filter);
+      filterParms.push(data);
+      filterParms.push(function(err, result){
         if(err){
           res.writeHead(500);
           res.end();
         }else{
-          console.log('filter');
-          returnResults(data+filter);
+          returnResults(outid);
         }
       });
+      client.zinterstore.apply(client, filterParms);
     }else{
       returnResults(data);
     }
