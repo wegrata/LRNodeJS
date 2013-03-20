@@ -312,10 +312,9 @@ exports.search = function(req, res) {
     terms = getTerms(req.query.terms);
   }
   if(req.body.filter)
-    filter = req.body.filter;
+    filter = req.body.filter.toLowerCase();
   else if(req.query.filter)
-    filter = req.query.filter;
-  filter = filter.toLowerCase();
+    filter = req.query.filter.toLowerCase();
   if (req.body.page)
     page = req.body.page;
   else if(req.query.page)
