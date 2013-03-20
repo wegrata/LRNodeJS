@@ -313,9 +313,9 @@ exports.search = function(req, res) {
     terms = getTerms(req.query.terms);
   }
   if(req.body.filter)
-    filter = req.body.filter.toLowerCase().split(' ');
+    filter = req.body.filter.toLowerCase().split(';');
   else if(req.query.filter)
-    filter = req.query.filter.toLowerCase().split(' ');
+    filter = req.query.filter.toLowerCase().split(';');
   if (req.body.page)
     page = req.body.page;
   else if(req.query.page)
