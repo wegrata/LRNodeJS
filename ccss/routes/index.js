@@ -321,7 +321,7 @@ exports.search = function(req, res) {
   else if(req.query.page)
     page = req.query.page;
   page = parseInt(page, 10) * pageSize;
-  var data = terms.join("");
+  var data = terms.join("") + "-index";
   var params = [data, terms.length];
   params = params.concat(terms);
   function returnResults(target){
