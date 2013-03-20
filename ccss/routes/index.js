@@ -308,16 +308,18 @@ exports.search = function(req, res) {
   var pageSize = 20;
   if (req.body.terms){
     terms = getTerms(req.body.terms);
-    filter = req.body.filter;
   }else if(req.query.terms){
     terms = getTerms(req.query.terms);
-    filter = req.query.filter;
   }
+  if(req.body.filter)
+    filter = req.body.filter;
+  else if(req.query.filter)
+    filter = req.query.filter;
+  filter = filter.toLowerCase();
   if (req.body.page)
     page = req.body.page;
   else if(req.query.page)
     page = req.query.page;
-  console.log(filter);
   page = parseInt(page, 10) * pageSize;
   var data = terms.join("");
   var params = [data, terms.length];
