@@ -70,7 +70,8 @@ app.configure(function(){
 
 // routes
 app.get('/',routes.index);
-app.get('/standards/:category?', routes.standards);
+app.get('/standards/:state?', routes.standards2);
+app.get('/new/standards/:state?', routes.standards);
 app.get('/browser', routes.browser);
 app.get('/visual', routes.visual);
 app.post('/nodes/', routes.nodes);

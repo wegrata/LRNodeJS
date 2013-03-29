@@ -118,19 +118,102 @@ function roll_up_count(node){
     }
   }
 }
+
+exports.standards = function(request, response, next) {
+  var state = request.params.state || null; // optional
+  function writeSuccess(doc){
+      response.header("Access-Control-Allow-Origin", "*");
+      response.header("Access-Control-Allow-Methods", "GET");
+      response.header("Access-Control-Allow-Headers", "*");
+      response.header("Content-Type", "application/json");
+      response.end(JSON.stringify(doc));
+  }
+  function writeNotFound(){
+    response.writeHead(404, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET",
+      "Access-Control-Allow-Headers": "*",
+      "Content-Type": "text/plain"
+    });
+    response.end("Not Found");
+  }
+  function process_tree(queue, root){
+      if(queue.length > 0){
+        var node = queue.pop();
+        if(node.asn_identifier){
+          if(node.asn_identifier.uri){
+            node.id = node.asn_identifier.uri;
+          } else {
+            node.id = node.asn_identifier;
+          }
+        }
+        if (node.id ){
+          client.get(node.id + "-count", function(err, result){
+            node.count = parseInt(result) || 0;
+            node.title = node.text;
+            node.description = node.dcterms_description.literal;
+            delete node.leaf;
+            delete node.text;
+            delete node.dcterms_language;
+            delete node.dcterms_educationLevel;
+            delete node.skos_exactMatch;
+            delete node.dcterms_description;
+            delete node.dcterms_subject;
+            delete node.asn_indexingStatus;
+            delete node.asn_authorityStatus;
+            delete node.asn_identifier;
+            delete node.asn_statementLabel;
+            delete node.asn_statementNotation;
+            delete node.asn_altStatementNotation;
+            delete node.asn_listID;
+            delete node.cls;
+            delete node.asn_comment;
+            for(var child in node.children){
+              queue.push(node.children[child]);
+            }
+            process_tree(queue, root);
+          });
+        }else{
+          for(var child in node.children){
+            queue.push(node.children[child]);
+          }
+          process_tree(queue, root);
+        }
+      }else{
+          roll_up_count(root);
+          writeSuccess(root);
+      }
+  }
+  if(state){
+    var doc = standardsDb.doc(state);
+    doc.get(function(err, result){
+      if(err){
+        writeNotFound();
+      }else{
+        var queue = [result];
+        process_tree(queue, result);
+      }
+    });
+  }else{
+    standardsDb.allDocs({}, function(err, result){
+      var states = underscore.map(result.rows, function(row){
+        return row.key;
+      });
+      writeSuccess(states);
+    });
+  }
+};
 // route for displaying categorized standards
 //   pass params.category to filter by category
-exports.standards = function( request, response, next ) {
+exports.standards2 = function( request, response, next ) {
     var category = request.params.category || null; // optional
-    var query = { include_docs: true, keys:JSON.stringify(["english", "math"])};
-    standardsDb.allDocs(query, function(err, result) {
+    var commonDoc = standardsDb.doc("Common");
+    commonDoc.get(function(err, result) {
       if (err) {
         console.error(err);
         return next(err);
       }
-      var docs = result.rows.map(function(row){
-        return row.doc;
-      });
+      var docs = result.children;
       function process_tree(queue){
           if(queue.length > 0){
             var node = queue.pop();
