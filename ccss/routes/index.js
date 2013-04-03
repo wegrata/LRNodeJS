@@ -190,8 +190,7 @@ exports.standards = function(request, response, next) {
       if(err){
         writeNotFound();
       }else{
-        var queue = [result];
-        process_tree(queue, result);
+        writeSuccess(result);
       }
     });
   }else{
