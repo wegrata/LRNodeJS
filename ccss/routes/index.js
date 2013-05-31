@@ -19,6 +19,7 @@ var r       = require('request');
 var underscore = require('underscore');
 var redis = require("redis");
 var client = redis.createClient();
+client.select(1, function(){});
 // couchdb db
 var server       = couchdb.srv('localhost', 5984, false, true);
 var standardsDb  = server.db('standards');
@@ -36,13 +37,16 @@ var getDisplayData = function(res){
                       "Access-Control-Allow-Origin": "*",
                       "Access-Control-Allow-Methods": "GET",
                       "Access-Control-Allow-Headers": "*"  });
-  res.end(JSON.stringify(underscore.map(d.rows, function(item){
+  var filteredList = underscore.filter(d.rows, function(item) {
+	return !item.error && item.doc.url;
+  });
+  console.log(d.rows);
+  console.log(filteredList);
+  res.end(JSON.stringify(underscore.map(filteredList, function(item){
     if(!item.error){
       item.doc.hasScreenshot = item.doc._attachments !== undefined;
       delete item.doc._attachments;
       return item.doc;
-    }else{
-      return null;
     }
   })));
 };
