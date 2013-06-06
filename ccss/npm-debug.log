@@ -1,0 +1,210 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/local/bin/node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   '-g',
+1 verbose cli   'nodemon' ]
+2 info using npm@1.1.65
+3 info using node@v0.8.14
+4 verbose read json /usr/local/lib/package.json
+5 verbose read json /usr/local/lib/package.json
+6 verbose cache add [ 'nodemon', null ]
+7 silly cache add name=undefined spec="nodemon" args=["nodemon",null]
+8 verbose parsed url { pathname: 'nodemon', path: 'nodemon', href: 'nodemon' }
+9 silly lockFile 1625b929-nodemon nodemon
+10 verbose lock nodemon /home/wegrata/.npm/1625b929-nodemon.lock
+11 silly lockFile 1625b929-nodemon nodemon
+12 verbose addNamed [ 'nodemon', '' ]
+13 verbose addNamed [ null, '' ]
+14 silly lockFile 4f5e51c6-nodemon nodemon@
+15 verbose lock nodemon@ /home/wegrata/.npm/4f5e51c6-nodemon.lock
+16 silly addNameRange { name: 'nodemon', range: '', hasData: false }
+17 verbose url raw nodemon
+18 verbose url resolving [ 'https://registry.npmjs.org/', './nodemon' ]
+19 verbose url resolved https://registry.npmjs.org/nodemon
+20 info trying registry request attempt 1 at 10:32:01
+21 http GET https://registry.npmjs.org/nodemon
+22 http 200 https://registry.npmjs.org/nodemon
+23 silly registry.get cb [ 200,
+23 silly registry.get   { vary: 'Accept',
+23 silly registry.get     server: 'CouchDB/1.3.0 (Erlang OTP/R15B03)',
+23 silly registry.get     etag: '"AL80E9SCBN7A8J8LD1MCJBDHI"',
+23 silly registry.get     date: 'Thu, 06 Jun 2013 14:32:02 GMT',
+23 silly registry.get     'content-type': 'application/json',
+23 silly registry.get     'content-length': '284755' } ]
+24 silly addNameRange number 2 { name: 'nodemon', range: '', hasData: true }
+25 silly addNameRange versions [ 'nodemon',
+25 silly addNameRange   [ '0.1.4',
+25 silly addNameRange     '0.1.5',
+25 silly addNameRange     '0.1.6',
+25 silly addNameRange     '0.1.7',
+25 silly addNameRange     '0.1.8',
+25 silly addNameRange     '0.2.0',
+25 silly addNameRange     '0.2.1',
+25 silly addNameRange     '0.2.2',
+25 silly addNameRange     '0.3.0',
+25 silly addNameRange     '0.3.1',
+25 silly addNameRange     '0.3.2',
+25 silly addNameRange     '0.4.0',
+25 silly addNameRange     '0.4.1',
+25 silly addNameRange     '0.5.0',
+25 silly addNameRange     '0.5.1',
+25 silly addNameRange     '0.5.2',
+25 silly addNameRange     '0.5.3',
+25 silly addNameRange     '0.5.4',
+25 silly addNameRange     '0.5.5',
+25 silly addNameRange     '0.5.6',
+25 silly addNameRange     '0.5.7',
+25 silly addNameRange     '0.6.0',
+25 silly addNameRange     '0.6.1',
+25 silly addNameRange     '0.6.2',
+25 silly addNameRange     '0.6.3',
+25 silly addNameRange     '0.6.4',
+25 silly addNameRange     '0.6.5',
+25 silly addNameRange     '0.6.6',
+25 silly addNameRange     '0.6.7',
+25 silly addNameRange     '0.6.8',
+25 silly addNameRange     '0.6.9',
+25 silly addNameRange     '0.6.10',
+25 silly addNameRange     '0.6.10a',
+25 silly addNameRange     '0.6.11',
+25 silly addNameRange     '0.6.12',
+25 silly addNameRange     '0.6.13',
+25 silly addNameRange     '0.6.14',
+25 silly addNameRange     '0.6.15',
+25 silly addNameRange     '0.6.16',
+25 silly addNameRange     '0.6.17',
+25 silly addNameRange     '0.6.18',
+25 silly addNameRange     '0.6.19',
+25 silly addNameRange     '0.6.20',
+25 silly addNameRange     '0.6.21',
+25 silly addNameRange     '0.6.22',
+25 silly addNameRange     '0.6.23',
+25 silly addNameRange     '0.7.0',
+25 silly addNameRange     '0.7.1',
+25 silly addNameRange     '0.7.2',
+25 silly addNameRange     '0.7.3',
+25 silly addNameRange     '0.7.4',
+25 silly addNameRange     '0.7.5',
+25 silly addNameRange     '0.7.6',
+25 silly addNameRange     '0.7.7',
+25 silly addNameRange     '0.7.8' ] ]
+26 verbose addNamed [ 'nodemon', '0.7.8' ]
+27 verbose addNamed [ '0.7.8', '0.7.8' ]
+28 silly lockFile 197e3f4d-nodemon-0-7-8 nodemon@0.7.8
+29 verbose lock nodemon@0.7.8 /home/wegrata/.npm/197e3f4d-nodemon-0-7-8.lock
+30 silly lockFile 484dd191-js-org-nodemon-nodemon-0-7-8-tgz https://registry.npmjs.org/nodemon/-/nodemon-0.7.8.tgz
+31 verbose lock https://registry.npmjs.org/nodemon/-/nodemon-0.7.8.tgz /home/wegrata/.npm/484dd191-js-org-nodemon-nodemon-0-7-8-tgz.lock
+32 verbose addRemoteTarball [ 'https://registry.npmjs.org/nodemon/-/nodemon-0.7.8.tgz',
+32 verbose addRemoteTarball   'c0667a000f208dbf6a4dad08a5186595a9889590' ]
+33 info retry fetch attempt 1 at 10:32:03
+34 verbose fetch to= /home/wegrata/tmp/npm-5297/1370529123443-0.48254132363945246/tmp.tgz
+35 http GET https://registry.npmjs.org/nodemon/-/nodemon-0.7.8.tgz
+36 http 200 https://registry.npmjs.org/nodemon/-/nodemon-0.7.8.tgz
+37 silly shasum updated bytes 12309
+38 info shasum c0667a000f208dbf6a4dad08a5186595a9889590
+38 info shasum /home/wegrata/tmp/npm-5297/1370529123443-0.48254132363945246/tmp.tgz
+39 verbose tar unpack /home/wegrata/tmp/npm-5297/1370529123443-0.48254132363945246/tmp.tgz
+40 silly lockFile 6684a2a5-3443-0-48254132363945246-package /home/wegrata/tmp/npm-5297/1370529123443-0.48254132363945246/package
+41 verbose lock /home/wegrata/tmp/npm-5297/1370529123443-0.48254132363945246/package /home/wegrata/.npm/6684a2a5-3443-0-48254132363945246-package.lock
+42 silly gunzTarPerm modes [ '755', '644' ]
+43 silly gunzTarPerm extractEntry package.json
+44 silly gunzTarPerm extractEntry .npmignore
+45 silly gunzTarPerm extractEntry README.md
+46 silly gunzTarPerm extractEntry nodemon.js
+47 silly gunzTarPerm extractEntry faq.md
+48 silly gunzTarPerm extractEntry nodemonignore.example
+49 verbose read json /home/wegrata/tmp/npm-5297/1370529123443-0.48254132363945246/package/package.json
+50 silly lockFile 6684a2a5-3443-0-48254132363945246-package /home/wegrata/tmp/npm-5297/1370529123443-0.48254132363945246/package
+51 verbose from cache /home/wegrata/tmp/npm-5297/1370529123443-0.48254132363945246/package/package.json
+52 verbose tar pack [ '/home/wegrata/.npm/nodemon/0.7.8/package.tgz',
+52 verbose tar pack   '/home/wegrata/tmp/npm-5297/1370529123443-0.48254132363945246/package' ]
+53 verbose tarball /home/wegrata/.npm/nodemon/0.7.8/package.tgz
+54 verbose folder /home/wegrata/tmp/npm-5297/1370529123443-0.48254132363945246/package
+55 silly lockFile 182283e3-ta-npm-nodemon-0-7-8-package-tgz /home/wegrata/.npm/nodemon/0.7.8/package.tgz
+56 verbose lock /home/wegrata/.npm/nodemon/0.7.8/package.tgz /home/wegrata/.npm/182283e3-ta-npm-nodemon-0-7-8-package-tgz.lock
+57 silly lockFile 182283e3-ta-npm-nodemon-0-7-8-package-tgz /home/wegrata/.npm/nodemon/0.7.8/package.tgz
+58 silly lockFile f1694eab-egrata-npm-nodemon-0-7-8-package /home/wegrata/.npm/nodemon/0.7.8/package
+59 verbose lock /home/wegrata/.npm/nodemon/0.7.8/package /home/wegrata/.npm/f1694eab-egrata-npm-nodemon-0-7-8-package.lock
+60 silly lockFile f1694eab-egrata-npm-nodemon-0-7-8-package /home/wegrata/.npm/nodemon/0.7.8/package
+61 verbose tar unpack /home/wegrata/.npm/nodemon/0.7.8/package.tgz
+62 silly lockFile f1694eab-egrata-npm-nodemon-0-7-8-package /home/wegrata/.npm/nodemon/0.7.8/package
+63 verbose lock /home/wegrata/.npm/nodemon/0.7.8/package /home/wegrata/.npm/f1694eab-egrata-npm-nodemon-0-7-8-package.lock
+64 silly gunzTarPerm modes [ '755', '644' ]
+65 silly gunzTarPerm extractEntry package.json
+66 silly gunzTarPerm extractEntry .npmignore
+67 silly gunzTarPerm extractEntry README.md
+68 silly gunzTarPerm extractEntry nodemon.js
+69 silly gunzTarPerm extractEntry nodemonignore.example
+70 silly gunzTarPerm extractEntry faq.md
+71 verbose read json /home/wegrata/.npm/nodemon/0.7.8/package/package.json
+72 silly lockFile f1694eab-egrata-npm-nodemon-0-7-8-package /home/wegrata/.npm/nodemon/0.7.8/package
+73 silly shasum updated bytes 12298
+74 info shasum 4573ef25e08278879b28cf7a0cdce7c4cad1ee30
+74 info shasum /home/wegrata/.npm/nodemon/0.7.8/package.tgz
+75 verbose from cache /home/wegrata/.npm/nodemon/0.7.8/package/package.json
+76 verbose chmod /home/wegrata/.npm/nodemon/0.7.8/package.tgz 644
+77 verbose chown /home/wegrata/.npm/nodemon/0.7.8/package.tgz [ 1000, 1000 ]
+78 silly lockFile 484dd191-js-org-nodemon-nodemon-0-7-8-tgz https://registry.npmjs.org/nodemon/-/nodemon-0.7.8.tgz
+79 silly lockFile 197e3f4d-nodemon-0-7-8 nodemon@0.7.8
+80 silly lockFile 4f5e51c6-nodemon nodemon@
+81 silly resolved [ { name: 'nodemon',
+81 silly resolved     homepage: 'http://github.com/remy/nodemon',
+81 silly resolved     author: { name: 'Remy Sharp', url: 'http://github.com/remy' },
+81 silly resolved     bin: { nodemon: './nodemon.js' },
+81 silly resolved     repository: { type: 'git', url: 'http://github.com/remy/nodemon.git' },
+81 silly resolved     description: 'Simple monitor script for use during development of a node.js app.',
+81 silly resolved     keywords:
+81 silly resolved      [ 'monitor',
+81 silly resolved        'development',
+81 silly resolved        'restart',
+81 silly resolved        'autoload',
+81 silly resolved        'reload',
+81 silly resolved        'terminal' ],
+81 silly resolved     version: '0.7.8',
+81 silly resolved     preferGlobal: 'true',
+81 silly resolved     licenses: [ [Object] ],
+81 silly resolved     main: './nodemon',
+81 silly resolved     readme: '# nodemon\n\nFor use during development of a node.js based application. \n\nnodemon will watch the files in the directory that nodemon was started, and if they change, it will automatically restart your node application.\n\nnodemon does **not** require *any* changes to your code or method of development. nodemon simply wraps your node application and keeps an eye on any files that have changed. Remember that nodemon is a replacement wrapper for `node`, think of it as replacing the word "node" on the command line when you run your script.\n\n# Installation\n\nEither through forking or by using [npm](http://npmjs.org) (the recommended way):\n\n    npm install -g nodemon\n\nAnd nodemon will be installed in to your bin path. Note that as of npm v1, you must explicitly tell npm to install globally as nodemon is a command line utility.\n\n# Usage\n\nnodemon wraps your application, so you can pass all the arguments you would normally pass to your app:\n\n    nodemon [your node app]\n\nFor example, if my application accepted a host and port as the arguments, I would start it as so:\n\n    nodemon ./server.js localhost 8080\n\nAny output from this script is prefixed with `[nodemon]`, otherwise all output from your application, errors included, will be echoed out as expected.\n\nnodemon also supports running and monitoring [coffee-script](http://jashkenas.github.com/coffee-script/) apps:\n\n    nodemon server.coffee\n\nIf no script is given, nodemon will test for a `package.json` file and if found, will run the file associated with the *main* property ([ref](https://github.com/remy/nodemon/issues/14)).\n\nYou can also pass the debug flag to node through the command line as you would normally:\n\n    nodemon --debug ./server.js 80\n\nIf you have a `package.json` file for your app, you can omit the main script entirely and nodemon will read the `package.json` for the `main` property and use that value as the app.\n\n# Automatic re-running\n\nnodemon was original written to restart hanging processes such as web servers, but now supports apps that cleanly exit. If your script exits cleanly, nodemon will continue to monitor the directory (or directories) and restart the script if there are any changes.\n\n# Manual restarting\n\nWhilst nodemon is running, if you need to manually restart your application, instead of stopping and restart nodemon, you can simply type `rs` with a carridge return, and nodemon will restart your process.\n\n# Running non-node scripts\n\nnodemon can also be used to execute and monitor other programs. nodemon will read the file extension of the script being run and monitor that extension instead of .js if there\'s no .nodemonignore:\n\n    nodemon --exec "python -v" ./app.py\n\nNow nodemon will run `app.py` with python in verbose mode (note that if you\'re not passing args to the exec program, you don\'t need the quotes), and look for new or modified files with the `.py` extension.\n\n# Monitoring multiple directories\n\nBy default nodemon monitors the current working directory. If you want to take control of that option, use the `--watch` option to add specific paths:\n\n    nodemon --watch app --watch libs app/server.js\n\nNow nodemon will only restart if there are changes in the `./app` or `./libs` directory. By default nodemon will traverse sub-directories, so there\'s no need in explicitly including sub-directories.\n\n# Specifying extension watch list\n\nBy default, nodemon looks for files with the `.js` extension. If you use the `--exec` option and monitor `app.py` nodemon will monitor files with the extension of `.py`. However, you can specify your own list with the `-e` switch like so:\n\n    nodemon -e js,css,html\n\nOr with alternative syntax:\n\n    nodemon --ext \'.js|.css|.html\'\n\nNow nodemon will restart on any changes to files in the directory (or subdirectories) with the extensions .js, .css or .html.\n\n# Delaying restarting\n\nIn some situations, you may want to wait until a number of files have changed. The timeout before checking for new file changes is 1 second. If you\'re uploading a number of files and it\'s taking some number of seconds, this could cause your app to restart multiple time unnecessarily.\n\nTo add an extra throttle, or delay restarting, use the `--delay` command:\n\n    nodemon --delay 10 server.js\n\nThe delay figure is number of seconds to delay before restarting. So nodemon will only restart your app the given number of seconds after the *last* file change.\n\n# Ignoring files\n\nBy default, if nodemon will only restart when a `.js` JavaScript file changes.  In some cases you will want to ignore some specific files, directories or file patterns, to prevent nodemon from prematurely restarting your application.\n\nYou can use the [example ignore file](http://github.com/remy/nodemon/blob/master/nodemonignore.example) (note that this example file is not hidden - you must rename it to `.nodemonignore`) as a basis for your nodemon, but it\'s very simple to create your own:\n\n    # this is my ignore file with a nice comment at the top\n    \n    /vendor/*     # ignore all external submodules\n    /public/*     # static files\n    ./README.md   # a specific file\n    *.css         # ignore any CSS files too\n    :(\\d)*\\.js    # monitor javascript files with only digits in their name\n\nThe ignore file accepts:\n\n* Comments starting with a `#` symbol\n* Blank lines\n* Specific files\n* File patterns (this is converted to a regex, so you have full control of the pattern)\n* Unescaped regex\'s begining with `:`.\n\n**Note** the `.nodemonignore` file is read from the directory you run nodemon from, *not* from the location of the node script you\'re running.\n\n# Controlling shutdown of your script\n\nnodemon sends a kill signal to your application when it sees a file update. If you need to clean up on shutdown inside your script you can capture the kill signal and handle it yourself.\n\nThe following example will listen once for the `SIGUSR2` signal (used by nodemon to restart), run the clean up process and then kill itself for nodemon to continue control:\n\n    process.once(\'SIGUSR2\', function () {\n      gracefulShutdown(function () {\n        process.kill(process.pid, \'SIGUSR2\'); \n      })\n    });\n\nNote that the `process.kill` is *only* called once your shutdown jobs are complete. Hat tip to [Benjie Gillam](http://www.benjiegillam.com/2011/08/node-js-clean-restart-and-faster-development-with-nodemon/) for writing technique this up.\n\n# Help! My changes aren\'t being detected!\n\nnodemon has three potential methods it uses to look for file changes. First, it polls using the find command to search for files modified within the last second. This method works on systems with a BSD based find (Mac, for example). \n\nNext it tries using node\'s `fs.watch`. `fs.watch` will not always work however, and nodemon will try and detect if this is the case by writing a file to the tmp directory and seeing if fs.watch is triggered when it\'s removed. If nodemon finds that fs.watch was not triggered, it will then fall back to the third method (called legacy watch), which works by statting each file in your working directory looking for changes to the last modified time. This is the most cpu intensive method, but it may be the only option on some systems.\n\nIn certain cases, like when where you are working on a different drive than your tmp directory is on, `fs.watch` may give you a false positive. You can force nodemon to start using the most compatible legacy method by passing the -L switch, e.g. `nodemon -L /my/odd/file.js`.\n\n# License\n\nMIT [http://rem.mit-license.org](http://rem.mit-license.org)\n',
+81 silly resolved     readmeFilename: 'README.md',
+81 silly resolved     _id: 'nodemon@0.7.8',
+81 silly resolved     dist: { shasum: '4573ef25e08278879b28cf7a0cdce7c4cad1ee30' },
+81 silly resolved     _from: 'nodemon' } ]
+82 info install nodemon@0.7.8 into /usr/local/lib
+83 info installOne nodemon@0.7.8
+84 verbose from cache /home/wegrata/.npm/nodemon/0.7.8/package/package.json
+85 info /usr/local/lib/node_modules/nodemon unbuild
+86 verbose read json /usr/local/lib/node_modules/nodemon/package.json
+87 verbose tar unpack /home/wegrata/.npm/nodemon/0.7.8/package.tgz
+88 silly lockFile 49f7ed19-r-local-lib-node-modules-nodemon /usr/local/lib/node_modules/nodemon
+89 verbose lock /usr/local/lib/node_modules/nodemon /home/wegrata/.npm/49f7ed19-r-local-lib-node-modules-nodemon.lock
+90 silly gunzTarPerm modes [ '755', '644' ]
+91 error Error: EACCES, mkdir '/usr/local/lib/node_modules/nodemon'
+91 error  { [Error: EACCES, mkdir '/usr/local/lib/node_modules/nodemon']
+91 error   errno: 3,
+91 error   code: 'EACCES',
+91 error   path: '/usr/local/lib/node_modules/nodemon',
+91 error   fstream_type: 'Directory',
+91 error   fstream_path: '/usr/local/lib/node_modules/nodemon',
+91 error   fstream_class: 'DirWriter',
+91 error   fstream_stack:
+91 error    [ 'DirWriter._create (/usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23)',
+91 error      '/usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:37:53',
+91 error      'Object.oncomplete (fs.js:297:15)' ] }
+92 error Please try running this command again as root/Administrator.
+93 error System Linux 3.5.0-32-generic
+94 error command "/usr/local/bin/node" "/usr/local/bin/npm" "install" "-g" "nodemon"
+95 error cwd /home/wegrata/src/LRNodeJS/ccss
+96 error node -v v0.8.14
+97 error npm -v 1.1.65
+98 error path /usr/local/lib/node_modules/nodemon
+99 error fstream_path /usr/local/lib/node_modules/nodemon
+100 error fstream_type Directory
+101 error fstream_class DirWriter
+102 error code EACCES
+103 error errno 3
+104 error stack Error: EACCES, mkdir '/usr/local/lib/node_modules/nodemon'
+105 error fstream_stack DirWriter._create (/usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23)
+105 error fstream_stack /usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:37:53
+105 error fstream_stack Object.oncomplete (fs.js:297:15)
+106 verbose exit [ 3, true ]

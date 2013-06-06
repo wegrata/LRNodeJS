@@ -110,18 +110,6 @@ exports.nodes = function( request, response, next ) {
     nodesView.query(nodesParams, nodesFinished);
   }
 };
-function roll_up_count(node){
-  if(!node.count){
-    node.count = 0;
-  }
-  if(node.children){
-    for(var child in node.children){
-      var child_node = node.children[child];
-      roll_up_count(child_node);
-      node.count += child_node.count;
-    }
-  }
-}
 
 exports.standards = function(request, response, next) {
   var state = request.params.state || null; // optional
@@ -141,53 +129,6 @@ exports.standards = function(request, response, next) {
     });
     response.end("Not Found");
   }
-  function process_tree(queue, root){
-      if(queue.length > 0){
-        var node = queue.pop();
-        if(node.asn_identifier){
-          if(node.asn_identifier.uri){
-            node.id = node.asn_identifier.uri;
-          } else {
-            node.id = node.asn_identifier;
-          }
-        }
-        if (node.id ){
-          client.get(node.id + "-count", function(err, result){
-            node.count = parseInt(result) || 0;
-            node.title = node.text;
-            node.description = node.dcterms_description.literal;
-            delete node.leaf;
-            delete node.text;
-            delete node.dcterms_language;
-            delete node.dcterms_educationLevel;
-            delete node.skos_exactMatch;
-            delete node.dcterms_description;
-            delete node.dcterms_subject;
-            delete node.asn_indexingStatus;
-            delete node.asn_authorityStatus;
-            delete node.asn_identifier;
-            delete node.asn_statementLabel;
-            delete node.asn_statementNotation;
-            delete node.asn_altStatementNotation;
-            delete node.asn_listID;
-            delete node.cls;
-            delete node.asn_comment;
-            for(var child in node.children){
-              queue.push(node.children[child]);
-            }
-            process_tree(queue, root);
-          });
-        }else{
-          for(var child in node.children){
-            queue.push(node.children[child]);
-          }
-          process_tree(queue, root);
-        }
-      }else{
-          roll_up_count(root);
-          writeSuccess(root);
-      }
-  }
   if(state){
     var doc = standardsDb.doc(state);
     doc.get(function(err, result){
@@ -199,90 +140,17 @@ exports.standards = function(request, response, next) {
     });
   }else{
     standardsDb.allDocs({}, function(err, result){
-      var states = underscore.map(result.rows, function(row){
-        return row.key;
-      });
-      writeSuccess(states);
+      if (err){
+        writeNotFound();
+      }else{
+        var states = underscore.map(result.rows, function(row){
+          return row.key;
+        });
+        writeSuccess(states);
+      }
     });
   }
 };
-// route for displaying categorized standards
-//   pass params.category to filter by category
-exports.standards2 = function( request, response, next ) {
-    var category = request.params.category || null; // optional
-    var commonDoc = standardsDb.doc("Common");
-    commonDoc.get(function(err, result) {
-      if (err) {
-        console.error(err);
-        return next(err);
-      }
-      var docs = result.children;
-      function process_tree(queue){
-          if(queue.length > 0){
-            var node = queue.pop();
-            if(node.asn_identifier){
-              if(node.asn_identifier.uri){
-                node.id = node.asn_identifier.uri;
-              } else {
-                node.id = node.asn_identifier;
-              }
-            }
-            if (node.id ){
-              client.get(node.id + "-count", function(err, result){
-                if(err){
-                  console.error(err);
-                }
-                if(result){
-                  console.log(result);
-                }
-                node.count = parseInt(result) || 0;
-                node.title = node.text;
-                node.description = node.dcterms_description.literal;
-                delete node.leaf;
-                delete node.text;
-                delete node.dcterms_language;
-                delete node.dcterms_educationLevel;
-                delete node.skos_exactMatch;
-                delete node.dcterms_description;
-                delete node.dcterms_subject;
-                delete node.asn_indexingStatus;
-                delete node.asn_authorityStatus;
-                delete node.asn_identifier;
-                delete node.asn_statementLabel;
-                delete node.asn_statementNotation;
-                delete node.asn_altStatementNotation;
-                delete node.asn_listID;
-                delete node.cls;
-                delete node.asn_comment;
-                for(var child in node.children){
-                  queue.push(node.children[child]);
-                }
-                process_tree(queue);
-              });
-            }else{
-              for(var child in node.children){
-                queue.push(node.children[child]);
-              }
-              process_tree(queue);
-            }
-          }else{
-              response.header("Access-Control-Allow-Origin", "*");
-              response.header("Access-Control-Allow-Methods", "GET");
-              response.header("Access-Control-Allow-Headers", "*");
-              response.header("Content-Type", "application/json");
-              for(var i in docs){
-                roll_up_count(docs[i]);
-              }
-              response.end(JSON.stringify(docs));
-          }
-      }
-      var queue = [];
-      for (var d in docs){
-        queue.push(docs[d]);
-      }
-      process_tree(queue);
-    });
-  };
 
 // main route for browser UI
 exports.browser = function( request, response, next ) {
@@ -319,68 +187,6 @@ exports.resources = function (request, response, next) {
   request.pipe(external).pipe(response);
 };
 
-exports.index = function(request,response) {
-  var opts = {};
-  opts.locals = opts.locals || {};
-
-
-
-  function userLoggedIn(){
-
-       //For testing purporses.. may have to make this a global array..
-       opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
-       'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
-       'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
-       if(request.user){
-        opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
-          return !underscore.contains(request.user.following, org);
-        });
-        opts.locals.followed = underscore.uniq(request.user.following);
-      }
-      opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
-      'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
-      'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
-      if ((request.user && request.user.jobTitle) || false){
-        params = {
-          include_docs: true,
-          key: request.user.jobTitle
-        };
-        jobTitleView.query(params, function(err, result){
-          opts.locals.sameOccupation = result.rows.map( function(n) {
-            return n.value;
-          });
-          response.render('index.html', opts);
-        });
-      }
-      response.render('index.html', opts);
-    }
-    if (request.user){
-     opts.locals.user = request.user;
-     userLoggedIn();
-   }
-   else
-     response.redirect('/landing');
- };
- exports.visual = function(request,response) {
-  var viewOptions = {locals:{}};
-  viewOptions.layout = (request.query.ajax === undefined)? true : false;
-  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
-  viewOptions.locals.debug = (request.query.debug === undefined)? false : true;
-  viewOptions.locals.server = (parseInt(request.query.server) >= 1 && parseInt(request.query.server) < 7)? parseInt(request.query.server) : viewOptions.locals.debug ? 1 : false;
-  viewOptions.locals.max = (parseInt(request.query.max) >= 500 && parseInt(request.query.max) <= 100000)? parseInt(request.query.max) : 500;
-
-  response.render('visual.html', viewOptions);
-};
-
-exports.main = function(request, response){
-
-  //I assume this is how we know whether or not a user is logged in
-  if (request.session)
-    resp.redirect('/index');
-
-  else
-    response.render('main.html');
-};
 exports.search = function(req, res) {
   function getTerms(termsString){
     var terms = [];
@@ -447,95 +253,39 @@ exports.search = function(req, res) {
   client.zunionstore.apply(client, params);
 };
 
-exports.find = function(request,response) {
-  var opts = {};
-  opts.locals = opts.locals || {};
-  if (request.user)
-    opts.locals.user = request.user;
-  opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
-
-  response.render('find.html', opts);
-};
-
-exports.landing = function(request,response) {
-  var viewOptions = {locals:{}};
-  viewOptions.layout = (request.query.ajax === undefined)? true : false;
-  viewOptions.locals.query = (request.query.query === undefined)? "" : request.query.query;
-  viewOptions.locals.debug = (request.query.debug === undefined)? false : true;
-  viewOptions.locals.landing = true;
-
-  response.render('landing.html', viewOptions);
-};
-
-exports.sites = function(request,response) {
- var opts = {};
- opts.locals = opts.locals || {};
- if (request.user)
-  opts.locals.user = request.user;
-  //For testing purporses.. may have to make this a global array..
-  opts.locals = opts.locals || {};
-  opts.locals.orgs = ['ADL 3D Repository','Agilix / BrainHoney','BCOE / CADRE','BetterLesson','California Dept of Ed',
-  'Doing What Works','European Schoolnet','Florida\'s CPALMS','FREE','Library of Congress',
-  'National Archives','NSDL','PBS LearningMedia','Shodor','Smithsonian Education'];
-  if(request.user){
-  opts.locals.orgs = underscore.filter(opts.locals.orgs, function(org){
-    return !underscore.contains(request.user.following, org);
+exports.screenshot = function(req, res){
+  var doc_id = req.params.docid;
+  var doc = db.doc(doc_id);
+  doc.attachment('screenshot.jpeg').get(true, function(err, s){
+    if(s){
+      s.pipe(res, {end: true});
+    }else{
+      res.writeHead(404, {});
+      res.end("<html><body><h1>Not Found</h1></body></html>");
+    }
   });
-  opts.locals.followed = underscore.uniq(request.user.following);
-  }
-  opts.locals.terms = ['adl','betterlesson','brokers of expertise','BetterLesson','brokers of expertise',
-  'Doing What Works','EUN','cpalms','Federal Resources for Educational Excellence','Library of Congress',
-  'National Archives','NSDL','PBS','Shodor','Smithsonian Education'];
-  response.render('sites.html', opts);
 };
-
-  exports.timeline = function(request,response) {
-    var opts = {};
-    opts.locals = opts.locals || {};
-    if (request.user)
-      opts.locals.user = request.user;
-    opts.layout = (request.query.ajax === undefined)? true : false;
-    opts.locals.query = (request.query.query === undefined)? "" : request.query.query;
-
-    opts.locals.hideFrame = (request.query.hide === undefined)? false : true;
-  opts.locals.hide = {topMargin:true, footer: opts.locals.hideFrame===false?true:false};
-
-    response.render('timeline.html', opts);
-  };
-
-  exports.screenshot = function(req, res){
+exports.data = function(req, res){
+  if(!req.query.keys){
     var doc_id = req.params.docid;
     var doc = db.doc(doc_id);
-    doc.attachment('screenshot.jpeg').get(true, function(err, s){
-      if(s){
-        s.pipe(res, {end: true});
+    doc.get(function(err, s){
+      if (s){
+        delete s._attachments;
+  res.writeHead(200, {"Content-Type": "application/json",
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Allow-Methods": "GET",
+                            "Access-Control-Allow-Headers": "*"  });
+        res.end(JSON.stringify(s));
       }else{
         res.writeHead(404, {});
-        res.end("<html><body><h1>Not Found</h1></body></html>");
+        res.end(JSON.stringify({error:true}));
       }
     });
-  };
-  exports.data = function(req, res){
-    if(!req.query.keys){
-      var doc_id = req.params.docid;
-      var doc = db.doc(doc_id);
-      doc.get(function(err, s){
-        if (s){
-          delete s._attachments;
-    res.writeHead(200, {"Content-Type": "application/json",
-                              "Access-Control-Allow-Origin": "*",
-                              "Access-Control-Allow-Methods": "GET",
-                              "Access-Control-Allow-Headers": "*"  });
-          res.end(JSON.stringify(s));
-        }else{
-          res.writeHead(404, {});
-          res.end(JSON.stringify({error:true}));
-        }
-      });
-    }else{
-      var keys = JSON.parse(req.query.keys);
-      console.log(keys);
-      var dis = getDisplayData(res);
-      db.allDocs({include_docs: true}, keys, dis);
-    }
-  };
+  }else{
+    var keys = JSON.parse(req.query.keys);
+    console.log(keys);
+    var dis = getDisplayData(res);
+    db.allDocs({include_docs: true}, keys, dis);
+  }
+};
