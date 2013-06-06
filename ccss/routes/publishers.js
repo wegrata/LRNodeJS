@@ -22,7 +22,7 @@ response.end("Not Found");
 
 
 exports.publishers = function(req, res){
-	publisherView.query({group: true, stale="update_after"}, function(err, results){
+	publisherView.query({group: true, stale: "update_after"}, function(err, results){
 		if(err){
 			writeNotFound(res);
 		}else{
@@ -34,7 +34,7 @@ exports.publishers = function(req, res){
 }
 exports.publisher = function(req, res){
 	var pub = req.params.pub;
-	publisherView.query({reduce: false, key: pub, include_docs: true, stale="update_after"}, function(err, results){
+	publisherView.query({reduce: false, key: pub, include_docs: true, stale: "update_after"}, function(err, results){
 		if(err){
 			writeNotFound(res);
 		}else{
