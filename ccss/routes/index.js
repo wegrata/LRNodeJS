@@ -31,7 +31,7 @@ var nodesView      = standardsDb.ddoc('nodes').view('parent-grade');
 var categoriesView = standardsDb.ddoc('nodes').view('categories');
 var standardsView  = standardsDb.ddoc('nodes').view('standards');
 var jobTitleView  = usersDb.ddoc("users").view("jobTitle");
-var getDisplayData = function(res){
+var getDisplayData = function(res, count){
   return function(e, d){
   res.writeHead(200, {"Content-Type": "application/json",
                       "Access-Control-Allow-Origin": "*",
@@ -42,13 +42,23 @@ var getDisplayData = function(res){
   });
   console.log(d.rows);
   console.log(filteredList);
-  res.end(JSON.stringify(underscore.map(filteredList, function(item){
+  var result = underscore.map(filteredList, function(item){
     if(!item.error){
       item.doc.hasScreenshot = item.doc._attachments !== undefined;
       delete item.doc._attachments;
       return item.doc;
+    }else{
+      console.log(item);
     }
-  })));
+  });
+  if(count){
+    var resultList = result;
+    result = {
+      count: count,
+      data: resultList
+    };
+  }
+  res.end(JSON.stringify(result));
 };
 };
 // route to display nodes hierarchically
@@ -217,15 +227,16 @@ exports.search = function(req, res) {
   var params = [data, terms.length];
   params = params.concat(terms);
   function returnResults(target){
-    client.zrevrange(target, page, page + pageSize, function(err, items){
-      if(items.length > 0){
-        var dis = getDisplayData(res);
-        db.allDocs({include_docs: true}, items, dis);
-      }else{
-        res.writeHead(200, {"Content-Type": "application/json"});
-        res.end(JSON.stringify([]));
-      }
-
+    client.zcard(target, function(err, result){
+      client.zrevrange(target, page, page + pageSize, function(err, items){
+        if(items.length > 0){
+          var dis = getDisplayData(res, result);
+          db.allDocs({include_docs: true}, items, dis);
+        }else{
+          res.writeHead(200, {"Content-Type": "application/json"});
+          res.end(JSON.stringify({data: [], count: 0}));
+        }
+      });      
     });
   }
   params.push(function(err, result){
@@ -250,6 +261,7 @@ exports.search = function(req, res) {
     }
 
   });
+  console.log(params);
   client.zunionstore.apply(client, params);
 };
 
