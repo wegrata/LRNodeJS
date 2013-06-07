@@ -20,10 +20,12 @@ response.writeHead(404, {
 response.end("Not Found");
 }
 
-
+var pageSize = 25;
 exports.publishers = function(req, res){
-	publisherView.query({group: true, stale: "update_after"}, function(err, results){
+	var page = req.query.page || 0;
+	publisherView.query({group: true, stale: "update_after", limit: pageSize, skip: page * pageSize,  inclusive_end: true}, function(err, results){
 		if(err){
+			console.log(err);
 			writeNotFound(res);
 		}else{
 			writeSuccess(underscore.map(results.rows, function(item){
@@ -34,7 +36,8 @@ exports.publishers = function(req, res){
 }
 exports.publisher = function(req, res){
 	var pub = req.params.pub;
-	publisherView.query({reduce: false, key: pub, include_docs: true, stale: "update_after"}, function(err, results){
+	var page = req.query.page || 0;
+	publisherView.query({reduce: false, key: pub, include_docs: true, stale: "update_after", limit: pageSize, skip: page * pageSize,  inclusive_end: true}, function(err, results){
 		if(err){
 			writeNotFound(res);
 		}else{

@@ -1,0 +1,36 @@
+<ul data-bind="foreach: publishers">
+	<li>
+		<h3 data-bind="text: title" >
+		</h3>
+		<div data-bind="text: description">
+		</div>
+	</li>
+</ul>
+<!-- ko if: loadMore -->
+<button data-bind="click: load">More</button>
+<!-- /ko -->
+<script>
+	$(function(){
+		var viewModel = function() {
+			var self = this;
+			self.page = 0;
+			self.publishers = ko.observableArray([]);
+			self.loadMore = ko.observable(true);
+			self.load = function(){
+				$.getJSON("/publisher/{{pub}}?page=" + self.page, function(data){							
+					self.page++;
+					if(data.length <= 0){
+						self.loadMore(false);
+					}else{
+						for(var i in data){
+							self.publishers.push(data[i])
+						}
+					}
+				});
+			}
+		}				
+		var vm = new viewModel();
+		ko.applyBindings(vm);				
+		vm.load();
+	});
+</script>

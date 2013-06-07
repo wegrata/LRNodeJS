@@ -67,7 +67,18 @@ app.get('/screenshot/:docid', routes.screenshot);
 app.get('/data/:docid', routes.data);
 app.get('/data', routes.data);
 app.get("/publishers", publishers.publishers);
+app.get("/publishers/view", function(req, res){
+    res.render("publishers.html")
+});
 app.get("/publisher/:pub", publishers.publisher);
+app.get("/publisher/:pub/view", function(req, res){
+    var viewOptions = {
+      locals: {
+        pub: req.params.pub,
+      }
+    };    
+    res.render("publisher.html", viewOptions)
+});
 // start
 
 app.configure('development', function(){

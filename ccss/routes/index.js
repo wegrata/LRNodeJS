@@ -208,7 +208,7 @@ exports.search = function(req, res) {
   var terms = [];
   var filter = null;
   var page = 0;
-  var pageSize = 20;
+  var pageSize = 25;
   if (req.body.terms){
     terms = getTerms(req.body.terms);
   }else if(req.query.terms){
