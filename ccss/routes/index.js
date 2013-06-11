@@ -25,6 +25,7 @@ var server       = couchdb.srv('localhost', 5984, false, true);
 var standardsDb  = server.db('standards');
 var usersDb      = server.db('users');
 var db           = server.db('lr-data');
+var govView = db.ddoc("gov").view("gov-list");
 // views
 var pageSize = 25;
 var childrenView      = standardsDb.ddoc('standards').view('children');
@@ -107,7 +108,7 @@ exports.resources = function (request, response, next) {
 
   request.pipe(external).pipe(response);
 };
-function getSearchResults(page, terms, filter, res){
+function getSearchResults(page, terms, filter, res, gov){
   var data = terms.join("") + "-index";
   var params = [data, terms.length];
   params = params.concat(terms);
@@ -116,7 +117,11 @@ function getSearchResults(page, terms, filter, res){
       client.zrevrange(target, page, page + pageSize, function(err, items){
         if(items.length > 0){
           var dis = getDisplayData(res, result);
-          db.allDocs({include_docs: true}, items, dis);
+          var targetView = db.allDocs;
+          if (gov){
+            targetView = govView;
+          }
+          targetView({include_docs: true}, items, dis);
         }else{
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify({data: [], count: 0}));
@@ -159,6 +164,7 @@ exports.search = function(req, res) {
   var filter = null;
   var page = 0;
   var rawTerm = null;
+  var gov = false;
   if (req.body.terms){
     rawTerm = req.body.terms;
     terms = getTerms(req.body.terms);
@@ -166,6 +172,11 @@ exports.search = function(req, res) {
     rawTerm = req.query.terms;
     terms = getTerms(req.query.terms);
   }
+  if (req.body.gov){
+    rawTerm = req.body.gov;
+  }else if(req.query.gov){
+    rawTerm = req.query.gov;
+  }  
   if(req.body.filter)
     filter = req.body.filter.toLowerCase().split(';');
   else if(req.query.filter)
@@ -183,7 +194,7 @@ exports.search = function(req, res) {
       terms.push(rawTerm);
     }
     console.log(terms);
-    getSearchResults(page, terms, filter, res);    
+    getSearchResults(page, terms, filter, res, gov);    
   });
   
 };
