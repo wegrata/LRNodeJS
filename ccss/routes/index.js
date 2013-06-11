@@ -180,6 +180,7 @@ exports.search = function(req, res) {
       terms = underscore.map(result.rows, function(item){
         return item.value;
       });
+      terms.push(rawTerm);
     }
     console.log(terms);
     getSearchResults(page, terms, filter, res);    
