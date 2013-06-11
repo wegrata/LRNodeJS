@@ -19,18 +19,15 @@ var r       = require('request');
 var underscore = require('underscore');
 var redis = require("redis");
 var client = redis.createClient();
-client.select(1, function(){});
+client.select(0, function(){});
 // couchdb db
 var server       = couchdb.srv('localhost', 5984, false, true);
 var standardsDb  = server.db('standards');
 var usersDb      = server.db('users');
 var db           = server.db('lr-data');
 // views
-
-var nodesView      = standardsDb.ddoc('nodes').view('parent-grade');
-var categoriesView = standardsDb.ddoc('nodes').view('categories');
-var standardsView  = standardsDb.ddoc('nodes').view('standards');
-var jobTitleView  = usersDb.ddoc("users").view("jobTitle");
+var pageSize = 25;
+var childrenView      = standardsDb.ddoc('standards').view('children');
 var getDisplayData = function(res, count){
   return function(e, d){
   res.writeHead(200, {"Content-Type": "application/json",
@@ -40,15 +37,11 @@ var getDisplayData = function(res, count){
   var filteredList = underscore.filter(d.rows, function(item) {
 	return !item.error && item.doc.url;
   });
-  console.log(d.rows);
-  console.log(filteredList);
   var result = underscore.map(filteredList, function(item){
     if(!item.error){
       item.doc.hasScreenshot = item.doc._attachments !== undefined;
       delete item.doc._attachments;
       return item.doc;
-    }else{
-      console.log(item);
     }
   });
   if(count){
@@ -59,66 +52,7 @@ var getDisplayData = function(res, count){
     };
   }
   res.end(JSON.stringify(result));
-};
-};
-// route to display nodes hierarchically
-//   set body.category + body.standard for standard's child nodes
-//   OR body.parent for child nodes of parent
-//   cookies.grade-filter determines grade of nodes to load
-//     defaults to K/Kindergarten
-exports.nodes = function( request, response, next ) {
-  var category = request.body.category || request.query.category || null;
-  var standard = request.body.standard || request.query.standard || null;
-  var parent   = request.body.parent || request.query.parent || null;
-  var grade    = request.body.grade || request.query.grade || request.cookies['grade-filter'];
-
-  if ((!category && !standard && !parent) ||
-    (category && !standard) ||
-    (!category && standard)) {
-    return next(new Error('Must provide cateogry + standard or parent'));
-  }
-
-  if (category) category = unescape(category);
-  if (standard) standard = unescape(standard);
-  if (parent)   parent   = unescape(parent);
-
-  var nodesParams = {
-    include_docs: true
-  };
-
-  var nodesFinished = function(err, result) {
-    if (err) return next(err);
-
-    var docs = result.rows.map( function(n) { return n.value; } );
-
-    var viewOptions = {};
-    viewOptions.layout = false;
-    viewOptions.locals = {};
-    viewOptions.locals.nodes = docs;
-    response.header("Access-Control-Allow-Origin", "*");
-    response.header("Access-Control-Allow-Methods", "GET");
-    response.header("Access-Control-Allow-Headers", "*");
-    response.render('nodes.html', viewOptions);
-  };
-
-  var standardsParams;
-
-  if (standard) {
-    standardsParams = {
-      include_docs: true,
-      startkey: [ category, standard ],
-      endkey: [ category, standard ]
-    };
-
-    standardsView.query(standardsParams, function (err, result) {
-      nodesParams.startkey = nodesParams.endkey = [ result.rows[0].value, grade ];
-      nodesView.query(nodesParams, nodesFinished);
-    });
-  }
-  else {
-    nodesParams.startkey = nodesParams.endkey = [ parent, grade ];
-    nodesView.query(nodesParams, nodesFinished);
-  }
+  }; 
 };
 
 exports.standards = function(request, response, next) {
@@ -162,29 +96,6 @@ exports.standards = function(request, response, next) {
   }
 };
 
-// main route for browser UI
-exports.browser = function( request, response, next ) {
-  var query = { group: true };
-
-  categoriesView.query(query, function(err, result) {
-    if (err) return next(err);
-
-    var viewOptions = {
-      locals: {
-        categories: result.rows.map( function(n) {
-          return { name: n.key, standards: n.value };
-        })
-      }
-    };
-
-    viewOptions.layout = (request.query.ajax === undefined)? true : false;
-    viewOptions.locals.ajax = (request.query.ajax === undefined)? false : true;
-    response.header("Access-Control-Allow-Origin", "*");
-    response.header("Access-Control-Allow-Methods", "GET");
-    response.header("Access-Control-Allow-Headers", "*");
-    response.render('browser.html', viewOptions);
-  });
-};
 
 exports.resources = function (request, response, next) {
   var requestOptions = {
@@ -196,33 +107,7 @@ exports.resources = function (request, response, next) {
 
   request.pipe(external).pipe(response);
 };
-
-exports.search = function(req, res) {
-  function getTerms(termsString){
-    var terms = [];
-    terms = termsString.toLowerCase().split(' ');
-    if(terms.length > 1)
-      terms.push(termsString.toLowerCase());
-    return terms.sort();
-  }
-  var terms = [];
-  var filter = null;
-  var page = 0;
-  var pageSize = 25;
-  if (req.body.terms){
-    terms = getTerms(req.body.terms);
-  }else if(req.query.terms){
-    terms = getTerms(req.query.terms);
-  }
-  if(req.body.filter)
-    filter = req.body.filter.toLowerCase().split(';');
-  else if(req.query.filter)
-    filter = req.query.filter.toLowerCase().split(';');
-  if (req.body.page)
-    page = req.body.page;
-  else if(req.query.page)
-    page = req.query.page;
-  page = parseInt(page, 10) * pageSize;
+function getSearchResults(page, terms, filter, res){
   var data = terms.join("") + "-index";
   var params = [data, terms.length];
   params = params.concat(terms);
@@ -254,15 +139,52 @@ exports.search = function(req, res) {
           returnResults(outid);
         }
       });
-      console.log(filterParms);
       client.zinterstore.apply(client, filterParms);
     }else{
       returnResults(data);
     }
 
   });
-  console.log(params);
   client.zunionstore.apply(client, params);
+}
+exports.search = function(req, res) {
+  function getTerms(termsString){
+    var terms = [];
+    terms = termsString.toLowerCase().split(' ');
+    // if(terms.length > 1)
+    //   terms.push(termsString.toLowerCase());
+    return terms.sort();
+  }
+  var terms = [];
+  var filter = null;
+  var page = 0;
+  var rawTerm = null;
+  if (req.body.terms){
+    rawTerm = req.body.terms;
+    terms = getTerms(req.body.terms);
+  }else if(req.query.terms){
+    rawTerm = req.query.terms;
+    terms = getTerms(req.query.terms);
+  }
+  if(req.body.filter)
+    filter = req.body.filter.toLowerCase().split(';');
+  else if(req.query.filter)
+    filter = req.query.filter.toLowerCase().split(';');
+  if (req.body.page)
+    page = req.body.page;
+  else if(req.query.page)
+    page = req.query.page;
+  page = parseInt(page, 10) * pageSize;
+  childrenView.query({key: rawTerm}, function(err, result){
+    if(!err && result.rows.length > 0){
+      terms = underscore.map(result.rows, function(item){
+        return item.value;
+      });
+    }
+    console.log(terms);
+    getSearchResults(page, terms, filter, res);    
+  });
+  
 };
 
 exports.screenshot = function(req, res){
@@ -296,7 +218,6 @@ exports.data = function(req, res){
     });
   }else{
     var keys = JSON.parse(req.query.keys);
-    console.log(keys);
     var dis = getDisplayData(res);
     db.allDocs({include_docs: true}, keys, dis);
   }
