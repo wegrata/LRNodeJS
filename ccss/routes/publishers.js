@@ -31,7 +31,7 @@ exports.publishers = function(req, res){
 			writeNotFound(res);
 		}else{
 			writeSuccess(underscore.map(results.rows, function(item){
-				return item.key;
+				return item.value;
 			}), res);
 		}
 	});
