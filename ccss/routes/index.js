@@ -31,29 +31,39 @@ var pageSize = 25;
 var childrenView      = standardsDb.ddoc('standards').view('children');
 var getDisplayData = function(res, count){
   return function(e, d){
-  res.writeHead(200, {"Content-Type": "application/json",
-                      "Access-Control-Allow-Origin": "*",
-                      "Access-Control-Allow-Methods": "GET",
-                      "Access-Control-Allow-Headers": "*"  });
-  var filteredList = underscore.filter(d.rows, function(item) {
-	return !item.error && item.doc.url;
-  });
-  var result = underscore.map(filteredList, function(item){
-    if(!item.error){
-      item.doc.hasScreenshot = item.doc._attachments !== undefined;
-      delete item.doc._attachments;
-      return item.doc;
+  if(e){
+    res.writeHead(404, {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET",
+      "Access-Control-Allow-Headers": "*",
+      "Content-Type": "text/plain"
+    });
+    res.end("Not Found");    
+  }else{
+    res.writeHead(200, {"Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Allow-Methods": "GET",
+                        "Access-Control-Allow-Headers": "*"  });
+    var filteredList = underscore.filter(d.rows, function(item) {
+  	   return !item.error && item.doc.url;
+    });
+    var result = underscore.map(filteredList, function(item){
+      if(!item.error){
+        item.doc.hasScreenshot = item.doc._attachments !== undefined;
+        delete item.doc._attachments;
+        return item.doc;
+      }
+    });
+    if(count){
+      var resultList = result;
+      result = {
+        count: count,
+        data: resultList
+      };
     }
-  });
-  if(count){
-    var resultList = result;
-    result = {
-      count: count,
-      data: resultList
-    };
+    res.end(JSON.stringify(result));
+    }; 
   }
-  res.end(JSON.stringify(result));
-  }; 
 };
 
 exports.standards = function(request, response, next) {
@@ -118,7 +128,7 @@ function getSearchResults(page, terms, filter, res, gov){
         if(items.length > 0){
           var dis = getDisplayData(res, result);
           if (gov){
-            govView.query({include_docs: true, stale: "update_after"}, JSON.stringify(items), dis);
+            govView.query({include_docs: true, keys: JSON.stringify(items), stale: "update_after"}, dis);
           }else{
             db.allDocs({include_docs: true}, items, dis);
           }
