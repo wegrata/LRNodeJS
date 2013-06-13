@@ -173,9 +173,9 @@ exports.search = function(req, res) {
     terms = getTerms(req.query.terms);
   }
   if (req.body.gov){
-    rawTerm = req.body.gov;
+    gov = req.body.gov;
   }else if(req.query.gov){
-    rawTerm = req.query.gov;
+    gov = req.query.gov;
   }  
   if(req.body.filter)
     filter = req.body.filter.toLowerCase().split(';');
