@@ -11,11 +11,12 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 // License for the specific language governing permissions and limitations under
 // the License.
-
+var numCPUs = require('os').cpus().length;
 var express  = require('express');
 var mustache = require('mustache');
 var config   = require('config');
 var routes = require('./routes');
+var cluster = require('cluster');
 var publishers = require("./routes/publishers");
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
@@ -80,14 +81,14 @@ app.get("/publisher/:pub/view", function(req, res){
     res.render("publisher.html", viewOptions)
 });
 // start
-
-app.configure('development', function(){
-    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-    app.listen(5000);
-});
-
-app.configure('production', function(){
+if(cluster.isMaster){
+    var startingPort = 5000;
+    for(var i=0; i < numCPUs; i++){
+        cluster.fork({port: startingPort});
+    }
+}else {
     app.use(express.errorHandler());
-    app.listen(5000);
-});
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+    console.log(process.env.port);
+    console.log(app.listen(process.env.port));
+    //console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+}
