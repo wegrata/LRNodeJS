@@ -118,7 +118,7 @@ function getSearchResults(page, terms, filter, res, gov){
         if(items.length > 0){
           var dis = getDisplayData(res, result);
           if (gov){
-            govView.query({include_docs: true, keys: items}, dis);
+            govView.query({include_docs: true, keys: JSON.stringify(items)}, dis);
           }else{
             db.allDocs({include_docs: true}, items, dis);
           }
