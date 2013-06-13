@@ -3,6 +3,7 @@ var underscore = require('underscore');
 var server       = couchdb.srv('localhost', 5984, false, true);
 var db           = server.db('lr-data');
 var publisherView      = db.ddoc('publisher_view').view('publishers');
+var govPublisherView      = db.ddoc('publisher_view').view('gov-publishers');
 function writeSuccess(doc, response){
   response.header("Access-Control-Allow-Origin", "*");
   response.header("Access-Control-Allow-Methods", "GET");
@@ -23,7 +24,8 @@ response.end("Not Found");
 var pageSize = 25;
 exports.publishers = function(req, res){
 	var page = req.query.page || 0;
-	publisherView.query({group: true, stale: "update_after", limit: pageSize, skip: page * pageSize,  inclusive_end: true}, function(err, results){
+	var view = req.query.gov ? govPublisherView : publisherView;
+	view.query({group: true, stale: "update_after", limit: pageSize, skip: page * pageSize,  inclusive_end: true}, function(err, results){
 		if(err){
 			console.log(err);
 			writeNotFound(res);
