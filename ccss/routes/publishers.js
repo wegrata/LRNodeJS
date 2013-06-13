@@ -37,7 +37,7 @@ exports.publishers = function(req, res){
 exports.publisher = function(req, res){
 	var pub = req.params.pub;
 	var page = req.query.page || 0;
-	publisherView.query({reduce: false, key: pub, include_docs: true, stale: "update_after", limit: pageSize, skip: page * pageSize,  inclusive_end: true}, function(err, results){
+	publisherView.query({reduce: false, key: pub.toLowerCase(), include_docs: true, stale: "update_after", limit: pageSize, skip: page * pageSize,  inclusive_end: true}, function(err, results){
 		if(err){
 			writeNotFound(res);
 		}else{
