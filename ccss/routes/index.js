@@ -117,11 +117,14 @@ function getSearchResults(page, terms, filter, res, gov){
       client.zrevrange(target, page, page + pageSize, function(err, items){
         if(items.length > 0){
           var dis = getDisplayData(res, result);
-          var targetView = db.allDocs;
           if (gov){
-            targetView = govView;
+            govView.query({include_docs: true}, function(e, d){
+              d.rows = underscore.filter(d.rows, function(item){return underscore.contains(items, item.id)});
+              dic(e, d)
+            });
+          }else{
+            db.allDocs({include_docs: true}, items, dis);
           }
-          targetView({include_docs: true}, items, dis);
         }else{
           res.writeHead(200, {"Content-Type": "application/json"});
           res.end(JSON.stringify({data: [], count: 0}));
