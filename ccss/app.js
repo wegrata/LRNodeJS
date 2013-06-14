@@ -11,7 +11,7 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 // License for the specific language governing permissions and limitations under
 // the License.
-var numCPUs = require('os').cpus().length;
+var numCPUs = 1 + (require('os').cpus().length * 2);
 var express  = require('express');
 var mustache = require('mustache');
 var config   = require('config');
@@ -88,7 +88,6 @@ if(cluster.isMaster){
     }
 }else {
     app.use(express.errorHandler());
-    console.log(process.env.port);
-    console.log(app.listen(process.env.port));
+    app.listen(process.env.port);
     //console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 }
