@@ -19,7 +19,7 @@ var r       = require('request');
 var underscore = require('underscore');
 var redis = require("redis");
 var client = redis.createClient();
-client.select(0, function(){});
+client.select(1, function(){});
 // couchdb db
 var server       = couchdb.srv('localhost', 5984, false, true);
 var standardsDb  = server.db('standards');
@@ -45,12 +45,15 @@ var getDisplayData = function(res, count){
                         "Access-Control-Allow-Methods": "GET",
                         "Access-Control-Allow-Headers": "*"  });
     var result = underscore.map(d.rows, function(item){
-      if(!item.error && item.doc.url){
+      if(!item.error && item.doc !== null && item.doc.url){
         item.doc.hasScreenshot = item.doc._attachments !== undefined;
         delete item.doc._attachments;
         return item.doc;
       }
     });
+    result = underscore.filter(result, function(item){
+      return item;
+    })
     if(count){
       var resultList = result;
       result = {
@@ -116,9 +119,6 @@ exports.resources = function (request, response, next) {
   request.pipe(external).pipe(response);
 };
 function getSearchResults(page, terms, filter, res, gov){
-  var data = terms.join("") + "-index";
-  var params = [data, terms.length];
-  params = params.concat(terms);
   function returnResults(target){
     client.zcard(target, function(err, result){
       client.zrevrange(target, page, page + pageSize, function(err, items){
@@ -136,28 +136,41 @@ function getSearchResults(page, terms, filter, res, gov){
       });      
     });
   }
+  var phrase = terms.join("") + "-phrase";
+  var params = [phrase, terms.length];  
+  params = params.concat(terms);
   params.push(function(err, result){
-    client.expire(data, 360, redis.print);
-    if(filter){
-      var outid = data+filter.join("");
-      var filterParms = [outid, filter.length + 1];
-      filterParms = filterParms.concat(filter);
-      filterParms.push(data);
-      filterParms.push(function(err, result){
-        if(err){
-          res.writeHead(500);
-          res.end();
+      console.log(err);
+      console.log(result);
+      client.expire(phrase, 360, redis.print);
+      var data = terms.join("") + "-index";
+      terms.push(phrase);
+      var params = [data, terms.length];
+      params = params.concat(terms);
+      params.push(function(err, result){
+        client.expire(data, 360, redis.print);
+        if(filter){
+          var outid = data+filter.join("");
+          var filterParms = [outid, filter.length + 1];
+          filterParms = filterParms.concat(filter);
+          filterParms.push(data);
+          filterParms.push(function(err, result){
+            if(err){
+              res.writeHead(500);
+              res.end();
+            }else{
+              returnResults(outid);
+            }
+          });
+          client.zinterstore.apply(client, filterParms);
         }else{
-          returnResults(outid);
+          returnResults(data);
         }
-      });
-      client.zinterstore.apply(client, filterParms);
-    }else{
-      returnResults(data);
-    }
 
+      });
+      client.zunionstore.apply(client, params);
   });
-  client.zunionstore.apply(client, params);
+  client.zinterstore.apply(client, params);
 }
 exports.search = function(req, res) {
   function getTerms(termsString){
@@ -209,6 +222,18 @@ exports.screenshot = function(req, res){
   var doc_id = req.params.docid;
   var doc = db.doc(doc_id);
   doc.attachment('screenshot.jpeg').get(true, function(err, s){
+    if(s){
+      s.pipe(res, {end: true});
+    }else{
+      res.writeHead(404, {});
+      res.end("<html><body><h1>Not Found</h1></body></html>");
+    }
+  });
+};
+exports.thumbnail = function(req, res){
+  var doc_id = req.params.docid;
+  var doc = db.doc(doc_id);
+  doc.attachment('thumbnail.jpeg').get(true, function(err, s){
     if(s){
       s.pipe(res, {end: true});
     }else{

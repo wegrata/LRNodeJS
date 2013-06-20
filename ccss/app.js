@@ -70,6 +70,7 @@ app.get('/new/standards/:state?', routes.standards);
 app.post('/search', routes.search);
 app.get('/search', routes.search);
 app.get('/screenshot/:docid', routes.screenshot);
+app.get("/thumbnail/:docid", routes.thumbnail);
 app.get('/data/:docid', routes.data);
 app.get('/data', routes.data);
 app.get("/publishers", publishers.publishers);
