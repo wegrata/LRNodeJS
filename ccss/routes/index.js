@@ -188,9 +188,10 @@ exports.search = function(req, res) {
     var cleanedResults = underscore.filter(terms, function(term){
       return req.app.settings.stopWords.indexOf(term) == -1;
     });
-    return underscore.map(cleanedResults, function(term){
-      return stemmer(term);
-    });
+    return cleanedResults;
+    // return underscore.map(cleanedResults, function(term){
+    //   return stemmer(term);
+    // });
   }  
   var terms = [];
   var filter = null;
