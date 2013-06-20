@@ -16,6 +16,7 @@ var Tokenizer = require("sentence-tokenizer");
 var qs = require('qs');
 var couchdb = require('couchdb-api');
 var config  = require('config');
+var http = require("http");
 var r       = require('request');
 var underscore = require('underscore');
 var redis = require("redis");
@@ -86,8 +87,13 @@ exports.standards = function(request, response, next) {
     });
     response.end("Not Found");
   }
+  console.log("got here")
   if(state){
     var doc = standardsDb.doc(state);
+    console.log(JSON.stringify(doc.url));    
+    http.get(doc.url, function(res){     
+      res.pipe(response);
+    });
     doc.get(function(err, result){
       if(err){
         writeNotFound();
