@@ -92,14 +92,11 @@ exports.standards = function(request, response, next) {
     var doc = standardsDb.doc(state);
     console.log(JSON.stringify(doc.url));    
     http.get(doc.url, function(res){     
+      response.header("Access-Control-Allow-Origin", "*");
+      response.header("Access-Control-Allow-Methods", "GET");
+      response.header("Access-Control-Allow-Headers", "*");
+      response.header("Content-Type", "application/json");      
       res.pipe(response);
-    });
-    doc.get(function(err, result){
-      if(err){
-        writeNotFound();
-      }else{
-        writeSuccess(result);
-      }
     });
   }else{
     standardsDb.allDocs({}, function(err, result){
