@@ -11,8 +11,9 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 // License for the specific language governing permissions and limitations under
 // the License.
-var https = require('https'),
-qs = require('qs');
+var https = require('https');
+var Tokenizer = require("sentence-tokenizer");
+var qs = require('qs');
 var couchdb = require('couchdb-api');
 var config  = require('config');
 var r       = require('request');
@@ -174,9 +175,15 @@ function getSearchResults(page, terms, filter, res, gov){
 }
 exports.search = function(req, res) {
   function getTerms(termsString){
+    var tok = new Tokenizer("chunk");    
+    tok.setEntry(termsString.toLowerCase());
     var terms = [];
-    terms = termsString.toLowerCase().split(' ');
-
+    try{
+      var sentences = tok.getSentences();
+      terms = tok.getTokens();
+    }catch(ex){
+      console.error(ex);
+    }
     return underscore.filter(terms, function(term){
       return req.app.settings.stopWords.indexOf(term) == -1;
     });
