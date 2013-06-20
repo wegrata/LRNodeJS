@@ -16,6 +16,8 @@
     "passport-browserid":"*",
     "underscore":"*",
     "hiredis":"*",
-    "redis":"*"
+    "redis":"*",
+    "stentence-tokenizer":"*",
+    "porter-stemmer":"*"
   }
 }

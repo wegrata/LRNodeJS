@@ -20,6 +20,7 @@ var r       = require('request');
 var underscore = require('underscore');
 var redis = require("redis");
 var client = redis.createClient();
+var stemmer = require("porter-stemmer").stemmer;
 client.select(1, function(){});
 // couchdb db
 var server       = couchdb.srv('localhost', 5984, false, true);
@@ -184,8 +185,11 @@ exports.search = function(req, res) {
     }catch(ex){
       console.error(ex);
     }
-    return underscore.filter(terms, function(term){
+    var cleanedResults = underscore.filter(terms, function(term){
       return req.app.settings.stopWords.indexOf(term) == -1;
+    });
+    return underscore.map(cleanedResults, function(term){
+      return stemmer(term);
     });
   }  
   var terms = [];
