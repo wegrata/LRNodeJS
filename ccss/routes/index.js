@@ -76,7 +76,7 @@ exports.standards = function(request, response, next) {
       response.header("Access-Control-Allow-Methods", "GET");
       response.header("Access-Control-Allow-Headers", "*");
       response.header("Content-Type", "application/json");
-      response.end(JSON.stringify(doc), , {end: true});
+      response.end(JSON.stringify(doc), {end: true});
   }
   function writeNotFound(){
     response.writeHead(404, {
