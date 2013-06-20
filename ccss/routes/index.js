@@ -76,7 +76,7 @@ exports.standards = function(request, response, next) {
       response.header("Access-Control-Allow-Methods", "GET");
       response.header("Access-Control-Allow-Headers", "*");
       response.header("Content-Type", "application/json");
-      response.end(JSON.stringify(doc));
+      response.end(JSON.stringify(doc), , {end: true});
   }
   function writeNotFound(){
     response.writeHead(404, {
@@ -266,7 +266,7 @@ exports.data = function(req, res){
     doc.get(function(err, s){
       if (s){
         delete s._attachments;
-  res.writeHead(200, {"Content-Type": "application/json",
+        res.writeHead(200, {"Content-Type": "application/json",
                             "Access-Control-Allow-Origin": "*",
                             "Access-Control-Allow-Methods": "GET",
                             "Access-Control-Allow-Headers": "*"  });
