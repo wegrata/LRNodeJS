@@ -11,6 +11,11 @@
 // WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
 // License for the specific language governing permissions and limitations under
 // the License.
+try{
+var nr = require("newrelic");
+}catch(ex){
+    //ignore error if newrelic isn't installed
+}
 var numCPUs = 1 + (require('os').cpus().length * 2);
 var express  = require('express');
 var mustache = require('mustache');

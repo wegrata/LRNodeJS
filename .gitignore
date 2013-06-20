@@ -3,3 +3,4 @@ ccss/scripts/tmp/
 ccss/pids/
 ccss/logs/
 env/
+newrelic.js

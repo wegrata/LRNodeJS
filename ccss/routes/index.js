@@ -44,11 +44,8 @@ var getDisplayData = function(res, count){
                         "Access-Control-Allow-Origin": "*",
                         "Access-Control-Allow-Methods": "GET",
                         "Access-Control-Allow-Headers": "*"  });
-    var filteredList = underscore.filter(d.rows, function(item) {
-  	   return !item.error && item.doc.url;
-    });
-    var result = underscore.map(filteredList, function(item){
-      if(!item.error){
+    var result = underscore.map(d.rows, function(item){
+      if(!item.error && item.doc.url){
         item.doc.hasScreenshot = item.doc._attachments !== undefined;
         delete item.doc._attachments;
         return item.doc;
@@ -203,7 +200,6 @@ exports.search = function(req, res) {
       });
       terms.push(rawTerm);
     }
-    console.log(terms);
     getSearchResults(page, terms, filter, res, gov);    
   });
   
