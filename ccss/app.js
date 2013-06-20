@@ -22,6 +22,7 @@ var mustache = require('mustache');
 var config   = require('config');
 var routes = require('./routes');
 var cluster = require('cluster');
+var fs = require("fs");
 var publishers = require("./routes/publishers");
 var tmpl = { // template functions to render with mustache
     compile: function (source, options) {
@@ -93,7 +94,11 @@ if(cluster.isMaster){
         cluster.fork({port: startingPort});
     }
 }else {
-    app.use(express.errorHandler());
-    app.listen(process.env.port);
-    //console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+    fs.readFile("english.stop", function(err, data){    
+        app.settings.stopWords = data.toString().split('\n');
+        console.log(app.settings.stopWords.length);
+        app.use(express.errorHandler());
+        app.listen(process.env.port);
+        console.log("Express server listening on port %d in %s mode", process.env.port, app.settings.env);
+    });
 }

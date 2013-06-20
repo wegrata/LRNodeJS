@@ -176,10 +176,11 @@ exports.search = function(req, res) {
   function getTerms(termsString){
     var terms = [];
     terms = termsString.toLowerCase().split(' ');
-    // if(terms.length > 1)
-    //   terms.push(termsString.toLowerCase());
-    return terms.sort();
-  }
+
+    return underscore.filter(terms, function(term){
+      return req.app.settings.stopWords.indexOf(term) == -1;
+    });
+  }  
   var terms = [];
   var filter = null;
   var page = 0;
@@ -192,6 +193,7 @@ exports.search = function(req, res) {
     rawTerm = req.query.terms;
     terms = getTerms(req.query.terms);
   }
+  console.log(terms);
   if (req.body.gov){
     gov = req.body.gov;
   }else if(req.query.gov){
