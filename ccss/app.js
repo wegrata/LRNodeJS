@@ -75,6 +75,7 @@ app.get("/thumbnail/:docid", routes.thumbnail);
 app.get('/data/:docid', routes.data);
 app.get('/data', routes.data);
 app.get("/publishers", publishers.publishers);
+app.get("/publishers/:letter", publishers.filteredPublishers);
 app.get("/publishers/view", function(req, res){
     res.render("publishers.html")
 });

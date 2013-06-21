@@ -4,6 +4,7 @@ var server       = couchdb.srv('localhost', 5984, false, true);
 var db           = server.db('lr-data');
 var publisherView      = db.ddoc('publisher_view').view('publishers');
 var govPublisherView      = db.ddoc('publisher_view').view('gov-publishers');
+var alphabetView = db.ddoc("publisher_view").view("firstLetter");
 function writeSuccess(doc, response){
   response.header("Access-Control-Allow-Origin", "*");
   response.header("Access-Control-Allow-Methods", "GET");
@@ -33,6 +34,19 @@ exports.publishers = function(req, res){
 			writeSuccess(underscore.map(results.rows, function(item){
 				return item.value;
 			}), res);
+		}
+	});
+}
+exports.filteredPublishers = function(req, res){	
+	var page = req.query.page || 0;
+	var key = req.params.letter;
+	alphabetView.query({group: true, stale: "update_after", key: key, limit: pageSize, skip: page * pageSize,  inclusive_end: true}, function(err, results){
+		console.log(key);
+		if(err){
+			console.log(err);
+			writeNotFound(res);
+		}else{
+			writeSuccess(results.rows[0].value, res);
 		}
 	});
 }
