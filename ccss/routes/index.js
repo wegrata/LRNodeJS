@@ -39,7 +39,6 @@ function replaceAsNecessary(client){
 };
 client.once("end", function(){
   console.log("Client Closed");
-  replace(client);
 });
 //replaceAsNecessary(client);
 var stemmer = require("porter-stemmer").stemmer;
@@ -148,7 +147,7 @@ function getSearchResults(page, terms, filter, res, gov){
   function returnResults(target){
     client.zcard(target, function(err, result){
       client.zrevrange(target, page, page + pageSize, function(err, items){
-        if(items.length > 0){
+        if(items && items.length > 0){
           var dis = getDisplayData(res, result);
           if (gov){
             govView.query({include_docs: true, keys: JSON.stringify(items), stale: "update_after"}, dis);
