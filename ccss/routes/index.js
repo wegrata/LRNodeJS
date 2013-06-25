@@ -20,7 +20,7 @@ var http = require("http");
 var r       = require('request');
 var underscore = require('underscore');
 var redis = require("redis");
-var client = redis.redis.createClient(6379, "12.109.40.27");;
+var client = redis.redis.createClient(6379, "12.109.40.27", {});
 client.on("error", function(err){
   console.error(err);
 });
@@ -37,7 +37,7 @@ function replaceAsNecessary(client){
     replace(client);
   })
 };
-replaceAsNecessary(client);
+//replaceAsNecessary(client);
 var stemmer = require("porter-stemmer").stemmer;
 client.select(1, function(){});
 // couchdb db
