@@ -61,6 +61,9 @@ exports.publisher = function(req, res){
 				var doc = item.doc;
 				if(doc._attachments){
 					delete doc._attachments;
+					doc.hasScreenshot = true;
+				}else{
+					doc.hasScreenshot = false;
 				}
 				return item.doc;
 			}), res);
