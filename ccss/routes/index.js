@@ -54,6 +54,7 @@ var pageSize = 25;
 var childrenView      = standardsDb.ddoc('standards').view('children');
 var getDisplayData = function(res, count){
   return function(e, d){
+  console.log("after couchdb");
   if(e){
     res.writeHead(404, {
       "Access-Control-Allow-Origin": "*",
@@ -145,13 +146,19 @@ exports.resources = function (request, response, next) {
 };
 function getSearchResults(page, terms, filter, res, gov){
   function returnResults(target){
+    console.log("before zcard");
     client.zcard(target, function(err, result){
+      console.log("after zcard");
+      console.log("before zrevrange");
       client.zrevrange(target, page, page + pageSize, function(err, items){
+        console.log("after zrevrange");
         if(items && items.length > 0){
           var dis = getDisplayData(res, result);
           if (gov){
+            console.log("before couchdb");
             govView.query({include_docs: true, keys: JSON.stringify(items), stale: "update_after"}, dis);
           }else{
+            console.log("before couchdb");
             db.allDocs({include_docs: true}, items, dis);
           }
         }else{
@@ -165,8 +172,7 @@ function getSearchResults(page, terms, filter, res, gov){
   var params = [phrase, terms.length];  
   params = params.concat(terms);
   params.push(function(err, result){
-      console.log(err);
-      console.log(result);
+      console.log("after zinterstore");
       client.expire(phrase, 360, redis.print);
       var data = terms.join("") + "-index";
       terms.push(phrase);
@@ -195,6 +201,7 @@ function getSearchResults(page, terms, filter, res, gov){
       });
       client.zunionstore.apply(client, params);
   });
+  console.log("before zinterstore");
   client.zinterstore.apply(client, params);
 }
 exports.search = function(req, res) {
