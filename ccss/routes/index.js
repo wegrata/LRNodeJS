@@ -35,8 +35,12 @@ function replaceAsNecessary(client){
   client.once("end", function(){
     console.log("Client Closed");
     replace(client);
-  })
+  });
 };
+client.once("end", function(){
+  console.log("Client Closed");
+  replace(client);
+});
 //replaceAsNecessary(client);
 var stemmer = require("porter-stemmer").stemmer;
 client.select(1, function(){});
