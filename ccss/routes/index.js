@@ -22,7 +22,7 @@ var http = require("http");
 var r       = require('request');
 var underscore = require('underscore');
 var redis = require("redis");
-var client = redis.createClient(6379, "localhost", {});
+var client = redis.createClient(6379, process.env.REDIS || "localhost", {});
 client.on("error", function(err){
   console.error(err);
 });
@@ -32,7 +32,7 @@ client.once("end", function(){
 var stemmer = require("porter-stemmer").stemmer;
 client.select(1, function(){});
 // couchdb db
-var server       = couchdb.srv('localhost', 5984, false, true);
+var server       = couchdb.srv(process.env.COUCHDB || 'localhost', 5984, false, true);
 var standardsDb  = server.db('standards');
 var usersDb      = server.db('users');
 var db           = server.db('lr-data');
