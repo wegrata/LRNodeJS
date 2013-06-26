@@ -1,6 +1,6 @@
 var couchdb = require('couchdb-api');
 var underscore = require('underscore');
-var server       = couchdb.srv('localhost', 5984, false, true);
+var server       = couchdb.srv(process.env.COUCHDB || 'localhost', 5984, false, true);
 var db           = server.db('lr-data');
 var publisherView      = db.ddoc('publisher_view').view('publishers');
 var govPublisherView      = db.ddoc('publisher_view').view('gov-publishers');
