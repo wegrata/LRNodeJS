@@ -12,35 +12,23 @@
 // License for the specific language governing permissions and limitations under
 // the License.
 var https = require('https');
+var url = require("url");
 var Tokenizer = require("sentence-tokenizer");
 var qs = require('qs');
 var couchdb = require('couchdb-api');
 var config  = require('config');
 var http = require("http");
+//var agent = new http.Agent({maxSSockets: 3 });
 var r       = require('request');
 var underscore = require('underscore');
 var redis = require("redis");
-var client = redis.redis.createClient(6379, "12.109.40.27", {});
+var client = redis.createClient(6379, "localhost", {});
 client.on("error", function(err){
   console.error(err);
 });
-function replaceAsNecessary(client){
-  function replace(client){
-    client.closing = true;
-    client.end();
-    client = redis.createClient(6379, "12.109.40.27");
-    client.select(1, function(){});
-    replaceAsNecessary(client);
-  }
-  client.once("end", function(){
-    console.log("Client Closed");
-    replace(client);
-  });
-};
 client.once("end", function(){
   console.log("Client Closed");
 });
-//replaceAsNecessary(client);
 var stemmer = require("porter-stemmer").stemmer;
 client.select(1, function(){});
 // couchdb db
@@ -108,17 +96,9 @@ exports.standards = function(request, response, next) {
     });
     response.end("Not Found");
   }
-  console.log("got here")
   if(state){
     var doc = standardsDb.doc(state);
-    console.log(JSON.stringify(doc.url));    
-    http.get(doc.url, function(res){     
-      response.header("Access-Control-Allow-Origin", "*");
-      response.header("Access-Control-Allow-Methods", "GET");
-      response.header("Access-Control-Allow-Headers", "*");
-      response.header("Content-Type", "application/json");      
-      res.pipe(response);
-    });
+    serveFromCouchdb(response, "application/json", doc.url);
   }else{
     standardsDb.allDocs({}, function(err, result){
       if (err){
@@ -257,34 +237,58 @@ exports.search = function(req, res) {
       });
       terms.push(rawTerm);
     }
-    getSearchResults(page, terms, filter, res, gov);    
+    if(terms.length <= 0){
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Methods", "GET");
+      res.header("Access-Control-Allow-Headers", "*");
+      res.header("Content-Type", "application/json");  
+      res.end("[]");
+    }else{
+      getSearchResults(page, terms, filter, res, gov);    
+    }
   });
   
 };
+function serveFromCouchdb(response, contentType, couchUrl){
+  var urlParts = url.parse(couchUrl);
+  var opts = {
+    host: urlParts.hostname,
+    port: urlParts.port,
+    path: urlParts.path,
+    agent: false,
+    headers: {
+      "Content-Type": "application/json",
+      "Connetion": "close"
+    }
+  }
+  http.get(opts, function(res){     
+    response.header("Access-Control-Allow-Origin", "*");
+    response.header("Access-Control-Allow-Methods", "GET");
+    response.header("Access-Control-Allow-Headers", "*");
+    response.header("Content-Type", contentType);      
+    res.on("close", function(){
+      console.log("Standards Response Stream Closed");
+    });
+    res.on("end", function(){
+      console.log("Standards Response Stream End");
+    });
+    res.on("error", function(err){
+      console.error(err);
+    })      
+    res.pipe(response);
+  });
 
+
+}
 exports.screenshot = function(req, res){
   var doc_id = req.params.docid;
   var doc = db.doc(doc_id);
-  doc.attachment('screenshot.jpeg').get(true, function(err, s){
-    if(s){
-      s.pipe(res, {end: true});
-    }else{
-      res.writeHead(404, {});
-      res.end("<html><body><h1>Not Found</h1></body></html>");
-    }
-  });
+  serveFromCouchdb(res, "image/jpeg", doc.attachment('screenshot.jpeg').url)
 };
 exports.thumbnail = function(req, res){
   var doc_id = req.params.docid;
   var doc = db.doc(doc_id);
-  doc.attachment('thumbnail.jpeg').get(true, function(err, s){
-    if(s){
-      s.pipe(res, {end: true});
-    }else{
-      res.writeHead(404, {});
-      res.end("<html><body><h1>Not Found</h1></body></html>");
-    }
-  });
+  serveFromCouchdb(res, "image/jpeg", doc.attachment('thumbnail.jpeg').url)
 };
 exports.data = function(req, res){
   if(!req.query.keys){
