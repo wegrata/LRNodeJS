@@ -289,7 +289,7 @@ function serveFileFromCache(doc_id, rootDir, remoteFileName, res){
       fs.mkdirSync(rootDir);
   }
   var filePath = path.join(rootDir, doc_id);
-  if(fs.existsSync(filePath)){
+  if(fs.existsSync(filePath) && process.env.FRONTEND){
       console.log("got here");
       res.header("Access-Control-Allow-Origin", "*");
       res.header("Access-Control-Allow-Methods", "GET");
