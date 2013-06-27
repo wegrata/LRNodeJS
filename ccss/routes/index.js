@@ -12,6 +12,8 @@
 // License for the specific language governing permissions and limitations under
 // the License.
 var https = require('https');
+var fs = require('fs');
+var path = require('path');
 var url = require("url");
 var Tokenizer = require("sentence-tokenizer");
 var qs = require('qs');
@@ -249,7 +251,8 @@ exports.search = function(req, res) {
   });
   
 };
-function serveFromCouchdb(response, contentType, couchUrl){
+function serveFromCouchdb(response, contentType, couchUrl, fileName){
+  console.log(couchUrl);
   var urlParts = url.parse(couchUrl);
   var opts = {
     host: urlParts.hostname,
@@ -266,29 +269,53 @@ function serveFromCouchdb(response, contentType, couchUrl){
     response.header("Access-Control-Allow-Methods", "GET");
     response.header("Access-Control-Allow-Headers", "*");
     response.header("Content-Type", contentType);      
-    res.on("close", function(){
-      console.log("Standards Response Stream Closed");
-    });
-    res.on("end", function(){
-      console.log("Standards Response Stream End");
-    });
-    res.on("error", function(err){
-      console.error(err);
-    })      
-    res.pipe(response);
+    if(fileName){
+        var s = fs.createWriteStream(fileName);
+        res.pipe(s, {end: true});   
+        s.on("finish", function(){
+            fs.createReadStream(fileName)
+              .pipe(response);
+        });
+    }else{   
+        res.pipe(response, {end: true});
+    }
   });
 
 
 }
+function serveFileFromCache(doc_id, rootDir, remoteFileName, res){
+  var contentType = "image/jpeg";
+  if (!fs.existsSync(rootDir)){
+      fs.mkdirSync(rootDir);
+  }
+  var filePath = path.join(rootDir, doc_id);
+  if(fs.existsSync(filePath)){
+      console.log("got here");
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Methods", "GET");
+      res.header("Access-Control-Allow-Headers", "*");
+      res.header("Content-Type", contentType); 
+      fs.createReadStream(filePath).pipe(res, {end: true});
+  }else{
+      var doc = db.doc(doc_id);
+      serveFromCouchdb(res, contentType, doc.attachment(remoteFileName).url, filePath)
+  }
+}
 exports.screenshot = function(req, res){
   var doc_id = req.params.docid;
-  var doc = db.doc(doc_id);
-  serveFromCouchdb(res, "image/jpeg", doc.attachment('screenshot.jpeg').url)
+  var rootDir = "./screenshot";
+  serveFileFromCache(doc_id, rootDir, "screenshot.jpeg", res);
+
 };
-exports.thumbnail = function(req, res){
-  var doc_id = req.params.docid;
-  var doc = db.doc(doc_id);
-  serveFromCouchdb(res, "image/jpeg", doc.attachment('thumbnail.jpeg').url)
+exports.thumbnail = function(req, res){ 
+  try{ 
+    var doc_id = req.params.docid;
+    var rootDir = "./thumbnail";
+    serveFileFromCache(doc_id, rootDir, "thumbnail.jpeg", res);
+  }catch(ex){
+    console.error(ex);
+    res.end();
+  }
 };
 exports.data = function(req, res){
   if(!req.query.keys){
