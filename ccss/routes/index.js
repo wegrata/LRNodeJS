@@ -28,7 +28,7 @@ var client = redis.createClient(6379, process.env.REDIS || "localhost", {});
 client.on("error", function(err){
   console.error(err);
 });
-client.once("end", function(){
+client.on("end", function(){
   console.log("Client Closed");
 });
 var stemmer = require("porter-stemmer").stemmer;
@@ -44,7 +44,6 @@ var pageSize = 25;
 var childrenView      = standardsDb.ddoc('standards').view('children');
 var getDisplayData = function(res, count){
   return function(e, d){
-  console.log("after couchdb");
   if(e){
     res.writeHead(404, {
       "Access-Control-Allow-Origin": "*",
@@ -126,66 +125,48 @@ exports.resources = function (request, response, next) {
 
   request.pipe(external).pipe(response);
 };
-function getSearchResults(page, terms, filter, res, gov){
-  function returnResults(target){
-    console.log("before zcard");
-    client.zcard(target, function(err, result){
-      console.log("after zcard");
-      console.log("before zrevrange");
-      client.zrevrange(target, page, page + pageSize, function(err, items){
-        console.log("after zrevrange");
-        if(items && items.length > 0){
-          var dis = getDisplayData(res, result);
-          if (gov){
-            console.log("before couchdb");
-            govView.query({include_docs: true, keys: JSON.stringify(items), stale: "update_after"}, dis);
-          }else{
-            console.log("before couchdb");
-            db.allDocs({include_docs: true}, items, dis);
-          }
-        }else{
-          res.writeHead(200, {"Content-Type": "application/json"});
-          res.end(JSON.stringify({data: [], count: 0}));
-        }
-      });      
-    });
-  }
-  var phrase = terms.join("") + "-phrase";
-  var params = [phrase, terms.length];  
-  params = params.concat(terms);
-  params.push(function(err, result){
-      console.log("after zinterstore");
-      client.expire(phrase, 360, redis.print);
-      var data = terms.join("") + "-index";
-      terms.push(phrase);
-      var params = [data, terms.length];
-      params = params.concat(terms);
-      params.push(function(err, result){
-        client.expire(data, 360, redis.print);
-        if(filter){
-          var outid = data+filter.join("");
-          var filterParms = [outid, filter.length + 1];
-          filterParms = filterParms.concat(filter);
-          filterParms.push(data);
-          filterParms.push(function(err, result){
-            if(err){
-              res.writeHead(500);
-              res.end();
-            }else{
-              returnResults(outid);
-            }
-          });
-          client.zinterstore.apply(client, filterParms);
-        }else{
-          returnResults(data);
-        }
 
-      });
-      client.zunionstore.apply(client, params);
-  });
-  console.log("before zinterstore");
-  client.zinterstore.apply(client, params);
+function executeQuery(keys, page, callback, filter){
+    var command = []
+    var offset = 10;
+    command.push("local inter_name = 'inter-' .. table.concat(KEYS, '-') \
+                  local index_name = 'index-' .. table.concat(KEYS, '-') \
+                  local result = {} \
+                  redis.call('zinterstore', inter_name, #KEYS, unpack(KEYS)) \
+                  table.insert(KEYS, inter_name) \
+                  redis.call('zunionstore', index_name, #KEYS, unpack(KEYS)) \
+                  result[1] = redis.call('zcard', index_name) \
+                  if ARGV[3] then \
+                      redis.call('zinterstore', 'filtered-' .. index_name, 2, ARGV[3], index_name) \
+                      index_name = 'filtered-' .. index_name \
+                  end \
+                  result[2] = redis.call('zrevrange', index_name, ARGV[1], ARGV[2]) \
+                  redis.call('expire', inter_name, 360) \
+                  redis.call('expire', index_name, 360) \
+                  return result \
+                ");
+    command.push(keys.length);
+    for (var i in keys){
+        command.push(keys[i]);
+    }
+    command.push(page * offset);
+    command.push(offset)
+    if (filter){
+        command.push(filter);
+    }
+    client.eval(command, callback);
 }
+function sendSearchResults(res, gov, items, count){
+    var dis = getDisplayData(res, count);
+    if (gov){
+        console.log("before couchdb");
+        govView.query({include_docs: true, keys: JSON.stringify(items), stale: "update_after"}, dis);
+     }else{
+        console.log("before couchdb");
+        db.allDocs({include_docs: true}, items, dis);
+     }
+}
+
 exports.search = function(req, res) {
   function getTerms(termsString){
     var tok = new Tokenizer("chunk");    
@@ -201,9 +182,6 @@ exports.search = function(req, res) {
       return req.app.settings.stopWords.indexOf(term) == -1;
     });
     return cleanedResults;
-    // return underscore.map(cleanedResults, function(term){
-    //   return stemmer(term);
-    // });
   }  
   var terms = [];
   var filter = null;
@@ -217,7 +195,6 @@ exports.search = function(req, res) {
     rawTerm = req.query.terms;
     terms = getTerms(req.query.terms);
   }
-  console.log(terms);
   if (req.body.gov){
     gov = req.body.gov;
   }else if(req.query.gov){
@@ -233,6 +210,7 @@ exports.search = function(req, res) {
     page = req.query.page;
   page = parseInt(page, 10) * pageSize;
   childrenView.query({key: rawTerm}, function(err, result){
+    console.log(rawTerm);
     if(!err && result.rows.length > 0){
       terms = underscore.map(result.rows, function(item){
         return item.value;
@@ -246,7 +224,13 @@ exports.search = function(req, res) {
       res.header("Content-Type", "application/json");  
       res.end("[]");
     }else{
-      getSearchResults(page, terms, filter, res, gov);    
+        var f = null;
+        if (filter && filter.length > 0){
+            f = filter[0];
+        }
+        executeQuery(terms, page, function(e, result){
+            sendSearchResults(res, gov, result[1], result[0]);
+        }, f);
     }
   });
   
