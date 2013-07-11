@@ -12,6 +12,7 @@
 // License for the specific language governing permissions and limitations under
 // the License.
 var https = require('https');
+var querystring = require('querystring');
 var fs = require('fs');
 var path = require('path');
 var url = require("url");
@@ -42,43 +43,6 @@ var govView = db.ddoc("gov").view("gov-list");
 // views
 var pageSize = 25;
 var childrenView      = standardsDb.ddoc('standards').view('children');
-var getDisplayData = function(res, count){
-  return function(e, d){
-  if(e){
-    res.writeHead(404, {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET",
-      "Access-Control-Allow-Headers": "*",
-      "Content-Type": "text/plain"
-    });
-    res.end("Not Found");    
-  }else{
-    res.writeHead(200, {"Content-Type": "application/json",
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Methods": "GET",
-                        "Access-Control-Allow-Headers": "*"  });
-    var result = underscore.map(d.rows, function(item){
-      if(!item.error && item.doc !== null && item.doc.url){
-        item.doc.hasScreenshot = item.doc._attachments !== undefined;
-        delete item.doc._attachments;
-        return item.doc;
-      }
-    });
-    result = underscore.filter(result, function(item){
-      return item;
-    })
-    if(count){
-      var resultList = result;
-      result = {
-        count: count,
-        data: resultList
-      };
-    }
-    res.end(JSON.stringify(result));
-    }; 
-  }
-};
-
 exports.standards = function(request, response, next) {
   var state = request.params.state || null; // optional
   function writeSuccess(doc){
@@ -114,18 +78,6 @@ exports.standards = function(request, response, next) {
   }
 };
 
-
-exports.resources = function (request, response, next) {
-  var requestOptions = {
-    url: config.resourceService.url,
-    qs: request.query
-  };
-
-  var external = r(requestOptions);
-
-  request.pipe(external).pipe(response);
-};
-
 function executeQuery(keys, page, callback, filter){
     var command = []
     var offset = 10;
@@ -156,15 +108,38 @@ function executeQuery(keys, page, callback, filter){
     }
     client.eval(command, callback);
 }
-function sendSearchResults(res, gov, items, count){
-    var dis = getDisplayData(res, count);
+function sendSearchResults(response, gov, items, count){
+    var urlParts = url.parse(db.url);
+    var opts = {
+        host: urlParts.hostname,
+        port: urlParts.port,
+        headers: {
+            "Content-Type": "application/json"
+        },
+        protocol: urlParts.protocol,        
+        method: "POST"
+    };
     if (gov){
-        console.log("before couchdb");
-        govView.query({include_docs: true, keys: JSON.stringify(items), stale: "update_after"}, dis);
-     }else{
-        console.log("before couchdb");
-        db.allDocs({include_docs: true}, items, dis);
-     }
+        opts.path = urlParts.path + '/_design/gov/_list/display/gov-list?include_docs=true&c=' + count;
+    }else{
+        opts.path = urlParts.path + '/_design/gov/_list/display/all?include_docs=true&c=' + count;
+    }    
+    var data = JSON.stringify({
+            stale: "update_after",
+            keys: items
+    });
+    response.writeHead(200, {"Content-Type": "application/json",
+                             "Access-Control-Allow-Origin": "*",
+                             "Access-Control-Allow-Methods": "GET",
+                             "Access-Control-Allow-Headers": "*"  });
+    var req = http.request(opts, function(res) {
+        res.pipe(response, {end: true});
+    });
+    req.on('error', function(e) {
+        console.log('problem with request: ' + e.message);
+    });
+    req.write(data);
+    req.end();
 }
 
 exports.search = function(req, res) {
@@ -320,7 +295,6 @@ exports.data = function(req, res){
     });
   }else{
     var keys = JSON.parse(req.query.keys);
-    var dis = getDisplayData(res);
-    db.allDocs({include_docs: true}, keys, dis);
+    sendSearchResults(res, false, keys, keys.length);
   }
 };
