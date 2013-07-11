@@ -185,7 +185,6 @@ exports.search = function(req, res) {
     page = req.query.page;
   page = parseInt(page, 10) * pageSize;
   childrenView.query({key: rawTerm}, function(err, result){
-    console.log(rawTerm);
     if(!err && result.rows.length > 0){
       terms = underscore.map(result.rows, function(item){
         return item.value;
@@ -282,7 +281,10 @@ exports.data = function(req, res){
     var doc = db.doc(doc_id);
     doc.get(function(err, s){
       if (s){
+        if (s._attachments)
+          s.hasScreenshot = true;
         delete s._attachments;
+
         res.writeHead(200, {"Content-Type": "application/json",
                             "Access-Control-Allow-Origin": "*",
                             "Access-Control-Allow-Methods": "GET",
