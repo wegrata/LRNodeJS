@@ -42,10 +42,9 @@ function serveView(response, view, key, page, includeDocs){
             "Content-Type": "application/json"
         },
         protocol: urlParts.protocol,        
-        method: "GET"
+        method: key ? "POST": "GET"
     };
     opts.path = urlParts.path + view;
-
     var data = {
             stale: "update_after",
             skip: page * pageSize,
@@ -53,9 +52,7 @@ function serveView(response, view, key, page, includeDocs){
             group: true,
             inclusive_end: true,
     };
-    if (key){
-    	data.key = JSON.stringify(key);
-    }    
+
     if (includeDocs){
       data.include_docs = true;
       data.reduce = false;
@@ -66,12 +63,18 @@ function serveView(response, view, key, page, includeDocs){
                              "Access-Control-Allow-Origin": "*",
                              "Access-Control-Allow-Methods": "GET",
                              "Access-Control-Allow-Headers": "*"  });
+    if(key){
+      data.method = "POST";
+    }
     var req = http.request(opts, function(res) {
         res.pipe(response, {end: true});
     });
     req.on('error', function(e) {
         console.log('problem with request: ' + e.message);
     });
+    if (key){      
+      req.write(JSON.stringify({key: key}));
+    }        
     req.end();
 }
 exports.publishers = function(req, res){
