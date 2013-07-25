@@ -80,8 +80,8 @@ exports.standards = function(request, response, next) {
 
 function executeQuery(keys, page, callback, filter){
     var command = []
-    var offset = 10;
-    page += offset;
+    var offset = 25;
+    page *= offset;
     command.push("local inter_name = 'inter-' .. table.concat(KEYS, '-') \
                   local index_name = 'index-' .. table.concat(KEYS, '-') \
                   local result = {} \
