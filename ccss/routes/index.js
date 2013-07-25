@@ -39,7 +39,7 @@ var server       = couchdb.srv(process.env.COUCHDB || 'localhost', 5984, false, 
 var standardsDb  = server.db('standards');
 var usersDb      = server.db('users');
 var db           = server.db('lr-data');
-var govView = db.ddoc("gov").view("gov-list");
+var govView      = db.ddoc("gov").view("gov-list");
 // views
 var pageSize = 25;
 var childrenView      = standardsDb.ddoc('standards').view('children');
@@ -81,6 +81,7 @@ exports.standards = function(request, response, next) {
 function executeQuery(keys, page, callback, filter){
     var command = []
     var offset = 10;
+    page += offset;
     command.push("local inter_name = 'inter-' .. table.concat(KEYS, '-') \
                   local index_name = 'index-' .. table.concat(KEYS, '-') \
                   local result = {} \
@@ -101,8 +102,8 @@ function executeQuery(keys, page, callback, filter){
     for (var i in keys){
         command.push(keys[i]);
     }
-    command.push(page * offset);
-    command.push(offset)
+    command.push(page);
+    command.push(page + offset)
     if (filter){
         command.push(filter);
     }
@@ -183,7 +184,7 @@ exports.search = function(req, res) {
     page = req.body.page;
   else if(req.query.page)
     page = req.query.page;
-  page = parseInt(page, 10) * pageSize;
+  page = parseInt(page, 10);
   childrenView.query({key: rawTerm}, function(err, result){
     if(!err && result.rows.length > 0){
       terms = underscore.map(result.rows, function(item){
